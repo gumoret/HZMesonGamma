@@ -71,18 +71,19 @@ _firstTrkPhi              = np.zeros(1, dtype=float)
 _secondTrkPt              = np.zeros(1, dtype=float)
 _secondTrkEta             = np.zeros(1, dtype=float)
 _secondTrkPhi             = np.zeros(1, dtype=float)
-_besMesonPt               = np.zeros(1, dtype=float)
-_besMesonEta              = np.zeros(1, dtype=float)
-_besMesonPhi              = np.zeros(1, dtype=float)
-_isRho                    = np.zeros(1, dtype=bool)
+_isMeson                  = np.zeros(1, dtype=bool)
+_mesonPt                  = np.zeros(1, dtype=float)
+_mesonEta                 = np.zeros(1, dtype=float)
+_mesonPhi                 = np.zeros(1, dtype=float)
+_mesonIsoCh               = np.zeros(1, dtype=float)
 _mesonMassTrkTrk          = np.zeros(1, dtype=float)
-_mesonTreeMass            = np.zeros(1, dtype=float)
-_bestMesonIsoCh           = np.zeros(1, dtype=float)
 _bosonMassFrom2TrksPhoton = np.zeros(1, dtype=float)
 
-
-
-
+_mesonTreeMass            = np.zeros(1, dtype=float)
+_mesonTreeMassKin         = np.zeros(1, dtype=float)
+_mesonTreePt              = np.zeros(1, dtype=float)
+_mesonTreeEta             = np.zeros(1, dtype=float)
+_mesonTreePhi             = np.zeros(1, dtype=float)
 
 
 
@@ -100,10 +101,26 @@ tree_output.Branch('photon_pT', _photon_pT, '_photon_pT/D')
 tree_output.Branch('photon_eta', _photon_eta, '_photon_eta/D')
 tree_output.Branch('photonEtaSC', _photonEtaSC, '_photonEtaSC/D')
 tree_output.Branch('photonRegressionError', _photonRegressionError, '_photonRegressionError/D')
-
+tree_output.Branch('firstTrkPt', _firstTrkPt, '_firstTrkPt/D')
+tree_output.Branch('firstTrkEta', _firstTrkEta, '_firstTrkEta/D')
+tree_output.Branch('firstTrkPhi', _firstTrkPhi, '_firstTrkPhi/D')
+tree_output.Branch('secondTrkPt', _secondTrkPt, '_secondTrkPt/D')
+tree_output.Branch('secondTrkEta', _secondTrkEta, '_secondTrkEta/D')
+tree_output.Branch('secondTrkPhi', _secondTrkPhi, '_secondTrkPhi/D')
+tree_output.Branch('isMeson', _isMeson, '_isMeson/O')
+tree_output.Branch('mesonPt', _mesonPt, '_mesonPt/D')
+tree_output.Branch('mesonEta', _mesonEta, '_mesonEta/D')
+tree_output.Branch('mesonPhi', _mesonPhi, '_mesonPhi/D')
+tree_output.Branch('mesonIsoCh', _mesonIsoCh, '_mesonIsoCh/D')
 tree_output.Branch('mesonMassTrkTrk', _mesonMassTrkTrk, '_mesonMassTrkTrk/D')
-tree_output.Branch('mesonTreeMass', _mesonTreeMass, '_mesonTreeMass/D')
 tree_output.Branch('bosonMassFrom2TrksPhoton', _bosonMassFrom2TrksPhoton, '_bosonMassFrom2TrksPhoton/D')
+
+tree_output.Branch('mesonTreeMass', _mesonTreeMass, '_mesonTreeMass/D')
+tree_output.Branch('mesonTreeMassKin', _mesonTreeMassKin, '_mesonTreeMassKin/D')
+tree_output.Branch('mesonTreePt', _mesonTreePt, '_mesonTreePt/D')
+tree_output.Branch('mesonTreeEta', _mesonTreeEta, '_mesonTreeEta/D')
+tree_output.Branch('mesonTreePhi', _mesonTreePhi, '_mesonTreePhi/D')
+
 
 
 
@@ -177,8 +194,7 @@ for jentry in range(nentries):
     isTwoProngTrigger = mytree.HLT_Photon35_TwoProngs35    
 
     if not isTwoProngTrigger:
-        if verbose:
-            print("Event not triggered, RETURN.")
+        #if verbose: print("Event not triggered, RETURN.")
         continue 
 
     nEventsTriggered+=1
@@ -205,19 +221,15 @@ for jentry in range(nentries):
         muon_dz = mytree.Muon_dz[i]
         isPFIsoLoose = mytree.Muon_pfIsoId[i]
 
-        if verbose:
-            print(f"Muon {i}: pT={muon_pT}, mediumId={isIdMedium}, eta={muon_eta}, dxy={muon_dxy}, dz={muon_dz}, pfIsoId={isPFIsoLoose}")
+        #if verbose: print(f"Muon {i}: pT={muon_pT}, mediumId={isIdMedium}, eta={muon_eta}, dxy={muon_dxy}, dz={muon_dz}, pfIsoId={isPFIsoLoose}")
 
-        if muon_pT < 10. or not isIdMedium or abs(muon_eta) > 2.4 or abs(muon_dxy) >= 0.2 or abs(muon_dz) >= 0.5:
-           continue
+        if muon_pT < 10. or not isIdMedium or abs(muon_eta) > 2.4 or abs(muon_dxy) >= 0.2 or abs(muon_dz) >= 0.5: continue
 
-        if isPFIsoLoose != 2:
-            continue
+        if isPFIsoLoose != 2: continue
 
         nMuons10+=1
                 
-        if muon_pT < 20.:
-            continue
+        if muon_pT < 20.: continue
 
         nMuons20+=1
 
@@ -243,20 +255,16 @@ for jentry in range(nentries):
         electron_dz = mytree.Electron_dz[i]
         isMVAIso_WP80 = mytree.Electron_mvaIso_WP80[i]
 
-        if verbose:
-            print(f"Electron {i}: pT={electron_pT}, eta={electron_eta}, dxy={electron_dxy}, dz={electron_dz}, MVAIso_WP80={isMVAIso_WP80}")
+        #if verbose: print(f"Electron {i}: pT={electron_pT}, eta={electron_eta}, dxy={electron_dxy}, dz={electron_dz}, MVAIso_WP80={isMVAIso_WP80}")
 
-        if electron_pT < 10. or abs(electron_eta) > 2.5 or abs(muon_dxy) >= 0.2 or abs(electron_dz) >= 0.5:
-           continue
+        if electron_pT < 10. or abs(electron_eta) > 2.5 or abs(muon_dxy) >= 0.2 or abs(electron_dz) >= 0.5: continue
 
         #-------------Conditions on loose/medium MVA electron ID-------------#
-        if not isMVAIso_WP80:
-            continue
+        if not isMVAIso_WP80: continue
 
         nElectrons10+=1
 
-        if electron_pT < 20.:
-            continue
+        if electron_pT < 20.: continue
 
         nElectrons20+=1
 
@@ -289,24 +297,18 @@ for jentry in range(nentries):
         photonEtaSC            = mytree.Photon_superclusterEta[i]
         photonRegressionError  = mytree.Photon_energyErr[i]
 
-        if verbose:
-            print(f"Photon {i}: pT={photon_pT}, eta={photon_eta}, WP80={isMVAIso_WP80}, WP90={isMVAIso_WP90}, veto={isElectronVeto}")
+        if verbose: print(f"Photon {i}: pT={photon_pT}, eta={photon_eta}, WP80={isMVAIso_WP80}, WP90={isMVAIso_WP90}, veto={isElectronVeto}")
 
-        if photon_pT < 20 or abs(photon_eta) > 2.5:
-            continue
+        if photon_pT < 20 or abs(photon_eta) > 2.5: continue
 
-        if not isMVAIso_WP90 or not isElectronVeto:
-            continue        
+        if not isMVAIso_WP90 or not isElectronVeto: continue        
         nPhotons20WP90+=1
 
-        if photon_pT < 35:
-            continue
-        if not isMVAIso_WP80:
-            continue        
+        if photon_pT < 35: continue
+        if not isMVAIso_WP80: continue 
         nPhotons35WP80+=1
         
-        if photon_pT < photonEtMax:
-            continue
+        if photon_pT < photonEtMax: continue
 
         photonEtMax = photon_pT
         
@@ -322,15 +324,13 @@ for jentry in range(nentries):
         cand_photon_found = True
 
 
-    if not cand_photon_found:
-        continue 
+    if not cand_photon_found: continue 
 
     nEventsIsPhoton+=1
     histo_map["nEvents"].SetBinContent(3, nEventsIsPhoton) 
 
-    if verbose:
-        print(f"Chosen photon: pT={photonEtMax}, eta={photon_eta_chosen}")
-        #print(f"photons 20= {nPhotons20WP90}, photons 35 = {nPhotons35WP80}")
+    if verbose: print(f"Chosen photon: pT={photonEtMax}, eta={photon_eta_chosen}")
+    #print(f"photons 20= {nPhotons20WP90}, photons 35 = {nPhotons35WP80}")
 
 
     _photon_pT[0]             = photonEtMax
@@ -356,23 +356,40 @@ for jentry in range(nentries):
             firstTrkPt   = mytree.rho_trk1_pt[i]
             firstTrkEta  = mytree.rho_trk1_eta[i]
             firstTrkPhi  = mytree.rho_trk1_phi[i]
-
             secondTrkPt  = mytree.rho_trk2_pt[i]
             secondTrkEta = mytree.rho_trk2_eta[i]
             secondTrkPhi = mytree.rho_trk2_phi[i]
-
-            mesonTreeMass = mytree.rho_mass[i]
             isoMesonCh   = mytree.rho_iso[i]
+
+            mesonTreeMass    = mytree.rho_mass[i]
+            mesonTreeMassKin = mytree.rho_kin_mass[i]
+            mesonTreePt      = mytree.rho_kin_pt[i]
+            mesonTreeEta     = mytree.rho_kin_eta[i] 
+            mesonTreePhi     = mytree.rho_kin_phi[i]
+
+        elif isPhiAnalysis:
+            firstTrkPt   = mytree.phi_trk1_pt[i]
+            firstTrkEta  = mytree.phi_trk1_eta[i]
+            firstTrkPhi  = mytree.phi_trk1_phi[i]
+            secondTrkPt  = mytree.phi_trk2_pt[i]
+            secondTrkEta = mytree.phi_trk2_eta[i]
+            secondTrkPhi = mytree.phi_trk2_phi[i]
+            isoMesonCh   = mytree.phi_iso[i]
+
+            mesonTreeMass    = mytree.phi_mass[i]
+            mesonTreeMassKin = mytree.phi_kin_mass[i]
+            mesonTreePt      = mytree.phi_kin_pt[i]
+            mesonTreeEta     = mytree.phi_kin_eta[i] 
+            mesonTreePhi     = mytree.phi_kin_phi[i] 
+            
 
         #Tracks pt cuts------------------------------------------------
         if firstTrkPt < 1. or secondTrkPt < 1.:
-            if verbose:
-                print("if first trk pt or second trk pt<1 continue")
+            if verbose: print("if first trk pt or second trk pt<1 continue")
             continue
 
         if firstTrkPt < 10. and secondTrkPt < 10.:
-            if verbose:
-                print("if first trk pt and second trk pt<10 continue")
+            if verbose: print("if first trk pt and second trk pt<10 continue")
             continue
 
         #DiTrks deltaR cut---------------------------------------------------
@@ -383,8 +400,7 @@ for jentry in range(nentries):
 
         deltaRTrks = math.sqrt(deltaEta*deltaEta + deltaPhi*deltaPhi)        
         if deltaRTrks > 0.07:
-            if verbose:
-                print("if deltaRTrks>0.07 continue")
+            if verbose: print("if deltaRTrks>0.07 continue")
             continue
 
         #Quadrimomentum calculation -------------------------------------------
@@ -397,30 +413,25 @@ for jentry in range(nentries):
 
         pairP4 = firstTrkP4  + secondTrkP4
 
-        if verbose:
-            print(f"PiPi pT = {pairP4.Pt()}")
+        if verbose: print(f"PiPi pT = {pairP4.Pt()}")
 
         #DiTrk pT cut----------------------------------------------------------
         if pairP4.Pt() < 38:
-            if verbose:
-                print("couplePt cut NOT passed, continue")
+            if verbose: print("couplePt cut NOT passed, continue")
             continue
 
         #Meson inv mass---------------------------------------------------------
-        if isRhoAnalysis:
-            isRho = False
+        isMeson = False
 
-        mesonMassTrkTrk = pairP4.M()
-        if verbose:
-            print(f"mTrkTrk = {mesonMassTrkTrk}")
-            print(f"meson mass = {mesonTreeMass}")
+        mesonMassTrkTrk = pairP4.M()        
 
         if isRhoAnalysis:
-            if mesonMassTrkTrk > 0.5 and mesonMassTrkTrk < 1.:
-                isRho = True
+            if 0.5 < mesonMassTrkTrk < 1.: isMeson = True
+            
+        elif isPhiAnalysis:
+            if 1.0 < mesonMassTrkTrk < 1.05: isMeson = True
 
-        if not isRho:
-            continue
+        if not isMeson: continue
 
         #Isolation cut----------------------------------------------------------
         if isoMesonCh < 0.9:
@@ -431,12 +442,10 @@ for jentry in range(nentries):
         histo_map["nEvents"].SetBinContent(4, nEventsMesonIsolationFilter)
 
         #pT max of the event filter ----------------------------------------------
-        if verbose:
-            print(f"Current bestMeson_Pt = {bestMesonPt}")
+        if verbose: print(f"Current bestMeson_Pt = {bestMesonPt}")
 
         if pairP4.Pt() <= bestMesonPt:
-            if verbose:
-                print("Not passed: pT lower than the current best meson of the event. Continue")
+            if verbose: print("Not passed: pT lower than the current best meson of the event. Continue")
             continue
 
         bestMesonPt = pairP4.Pt() 
@@ -448,13 +457,19 @@ for jentry in range(nentries):
         isBestMesonOfTheEventFound = True
 
         #Save variables if best meson has been found
-        deltaRTrksChosen = deltaRTrks
-        isRho_           = isRho
-        bestFirstTrkP4   = firstTrkP4
-        bestSecondTrkP4  = secondTrkP4
-        bestMesonP4      = pairP4
-        bestMesonIsoCh   = isoMesonCh 
-        bestMesonTreeMass= mesonTreeMass
+        deltaRTrks_chosen    = deltaRTrks
+        isMeson_chosen       = isMeson
+        firstTrkP4_chosen    = firstTrkP4
+        secondTrkP4_chosen   = secondTrkP4
+        mesonP4_chosen       = pairP4
+        mesonIsoCh_chosen    = isoMesonCh
+
+        mesonTreeMass_chosen    = mesonTreeMass
+        mesonTreeMassKin_chosen = mesonTreeMassKin
+        mesonTreePt_chosen      = mesonTreePt
+        mesonTreeEta_chosen     = mesonTreeEta
+        mesonTreePhi_chosen     = mesonTreePhi
+
 
     #meson loop end------------------
 
@@ -470,22 +485,27 @@ for jentry in range(nentries):
 
 
     #DATAMEMBER SAVING
-    firstTrkPt   = bestFirstTrkP4.Pt()
-    firstTrkEta  = bestFirstTrkP4.Eta()
-    firstTrkPhi  = bestFirstTrkP4.Phi()
-    secondTrkPt  = bestSecondTrkP4.Pt()       
-    secondTrkEta = bestSecondTrkP4.Eta()
-    secondTrkPhi = bestSecondTrkP4.Phi()
-    bestMesonPt  = bestMesonP4.Pt()
-    bestMesonEta = bestMesonP4.Eta()
-    bestMesonPhi = bestMesonP4.Phi()
+    firstTrkPt   = firstTrkP4_chosen.Pt()
+    firstTrkEta  = firstTrkP4_chosen.Eta()
+    firstTrkPhi  = firstTrkP4_chosen.Phi()
+    secondTrkPt  = secondTrkP4_chosen.Pt()       
+    secondTrkEta = secondTrkP4_chosen.Eta()
+    secondTrkPhi = secondTrkP4_chosen.Phi()
+    mesonPt      = mesonP4_chosen.Pt()
+    mesonEta     = mesonP4_chosen.Eta()
+    mesonPhi     = mesonP4_chosen.Phi()
+
 
     #MESON MASS CALCULATION
-    mesonMass = (bestFirstTrkP4 + bestSecondTrkP4).M()
-    mesonTreeMass_ = bestMesonTreeMass
+    mesonMass = (firstTrkP4_chosen + secondTrkP4_chosen).M() 
+
+    if verbose:
+        print(f"m_TrkTrk = {mesonMass}, meson tree mass = {mesonTreeMass_chosen}, meson tree mass kin = {mesonTreeMassKin_chosen} ")
+        print(f"pT trktrk = {mesonPt}, meson tree pT = {mesonTreePt_chosen}, eta trktrk = {mesonEta}, meson tree eta = {mesonTreeEta_chosen}, phi trktrk = {mesonPhi}, meson tree phi = {mesonTreePhi_chosen}")
+
 
     #BOSON INV MASS CALCULATION
-    bosonMassFrom2TrksPhoton = (bestFirstTrkP4 + bestSecondTrkP4 + ph_p4).M()
+    bosonMassFrom2TrksPhoton = (firstTrkP4_chosen + secondTrkP4_chosen + ph_p4).M()
 
     #CANDIDATES SORTING
     if firstTrkPt < secondTrkPt:#swap-values loop, in order to fill the tree with the candidate with max pt of the couple in firstCand branches and one with min pt in secondCand branches
@@ -512,13 +532,30 @@ for jentry in range(nentries):
 
 
     #ISOLATION DATAMEMBER FOR TREE FILLING
-    isoMesonCh = bestMesonIsoCh
+    mesonIsoCh = mesonIsoCh_chosen
 
     
   
-    _mesonMassTrkTrk[0]          = mesonMass
-    _mesonTreeMass[0]            = mesonTreeMass_
+    _firstTrkPt[0]               = firstTrkPt              
+    _firstTrkEta[0]              = firstTrkEta              
+    _firstTrkPhi[0]              = firstTrkPhi            
+    _secondTrkPt[0]              = secondTrkPt            
+    _secondTrkEta[0]             = secondTrkEta            
+    _secondTrkPhi[0]             = secondTrkPhi           
+    _isMeson[0]                  = isMeson_chosen              
+    _mesonPt[0]                  = mesonPt             
+    _mesonEta[0]                 = mesonEta              
+    _mesonPhi[0]                 = mesonPhi            
+    _mesonIsoCh[0]               = mesonIsoCh
+    _mesonMassTrkTrk[0]          = mesonMass   
     _bosonMassFrom2TrksPhoton[0] = bosonMassFrom2TrksPhoton
+
+    _mesonTreeMass[0]            = mesonTreeMass_chosen
+    _mesonTreeMassKin[0]         = mesonTreeMassKin_chosen
+    _mesonTreePt[0]              = mesonTreePt_chosen
+    _mesonTreeEta[0]             = mesonTreeEta_chosen
+    _mesonTreePhi[0]             = mesonTreePhi_chosen
+
 
 
 
