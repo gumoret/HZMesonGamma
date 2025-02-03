@@ -55,7 +55,9 @@ for hist_names in hist_pairs:
     h1.GetYaxis().SetTitle("Events")
     h1.SetTitle(plot_title)
     
-    c.SaveAs(f"{h1_name}_comparison.png")
+    c.SaveAs(f"/eos/user/g/gumoret/www/HZMesonGamma/var_comparisons/rho/{h1_name}_comparison.png")
+    c.SaveAs(f"/eos/user/g/gumoret/www/HZMesonGamma/var_comparisons/rho/{h1_name}_comparison.pdf")
+
     c.Update()
 
 # Close the ROOT file

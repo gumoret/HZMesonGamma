@@ -20,6 +20,7 @@ p = argparse.ArgumentParser(description='Select rootfile to plot')
 p.add_argument('meson_option', help='Type <<rho>> for rho, <<phi>> for phi') #flag for type of meson
 p.add_argument('rootfile_name', help='Type rootfile name')
 p.add_argument('outputfile_option', help='Provide output file name')
+p.add_argument('runningOnData_option', help='Type <<signal>> for signal, <<data>> for data')
 
 args = p.parse_args()
 fInput = ROOT.TFile(args.rootfile_name)
@@ -30,13 +31,20 @@ if not mytree:
     print("Error: Tree 'Events' not found in file", args.rootfile_name)
     sys.exit(1)
 
-if args.meson_option == "phi":
-    isPhiAnalysis = True
-elif args.meson_option == "rho":
-    isRhoAnalysis = True
+if args.meson_option == "phi": isPhiAnalysis = True
+elif args.meson_option == "rho": isRhoAnalysis = True
 else:
     print("Error: meson_option must be 'phi' or 'rho'")
     sys.exit(1)
+
+if args.runningOnData_option == "signal": runningonData = False
+elif args.runningOnData_option == "data": runningonData = True
+else:
+    print("Error: runningOnData_option must be 'signal' or 'data'")
+    sys.exit(1)
+
+
+
 
 
 #HISTOS ###########################################################################################################
@@ -474,14 +482,12 @@ for jentry in range(nentries):
     #meson loop end------------------
 
 
-
     if not isBestMesonOfTheEventFound:
         print("No best couple detected for current event, RETURN.")
         continue  
 
     nEventsBestPairFound+=1
     histo_map["nEvents"].SetBinContent(5, nEventsBestPairFound)
-
 
 
     #DATAMEMBER SAVING
@@ -555,6 +561,36 @@ for jentry in range(nentries):
     _mesonTreePt[0]              = mesonTreePt_chosen
     _mesonTreeEta[0]             = mesonTreeEta_chosen
     _mesonTreePhi[0]             = mesonTreePhi_chosen
+
+
+
+    #//*************************************************************//
+    #//                                                             //
+    #//----------------------Access MC Truth------------------------//
+    #//                                                             //
+    #//*************************************************************//
+
+    is_trk1_mathced   = False
+    is_trk2_matched   = False   
+    is_photon_matched = False
+    is_meson_matched  = False
+    is_boson_matched  = False
+
+    if not runningonData:
+        for i in range(len(mytree.rho_mass)):
+            if isRhoAnalysis:
+                if mytree.rho_gen_trk1_mpdgId[i] == 113 and abs(mytree.rho_gen_trk1_pdgId[i] == 211): genTrk1Pt = mytree.rho_gen_trk1_pt[i]
+                if mytree.rho_gen_trk2_mpdgId[i] == 113 and abs(mytree.rho_gen_trk2_pdgId[i] == 211): genTrk2Pt = mytree.rho_gen_trk2_pt[i]
+                if mytree.rho_gen_pdgId == 113: genMesonMass == mytree.rho_gen_mass[i]
+                if mytree.rho_gen_pdgId == 113: genMesonPt == mytree.rho_gen_pt[i]
+
+        
+
+
+
+
+
+
 
 
 
