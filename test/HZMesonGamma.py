@@ -569,7 +569,7 @@ for jentry in range(nentries):
     #//----------------------Access MC Truth------------------------//
     #//                                                             //
     #//*************************************************************//
-
+    '''
     is_trk1_mathced   = False
     is_trk2_matched   = False   
     is_photon_matched = False
@@ -584,7 +584,7 @@ for jentry in range(nentries):
                 if mytree.rho_gen_pdgId == 113: genMesonMass == mytree.rho_gen_mass[i]
                 if mytree.rho_gen_pdgId == 113: genMesonPt == mytree.rho_gen_pt[i]
 
-        
+    '''    
 
 
 
