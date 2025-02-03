@@ -18,9 +18,9 @@ ROOT.gROOT.SetBatch(True)
 # PARSER and INPUT #############################################################################################
 p = argparse.ArgumentParser(description='Select rootfile to plot')
 p.add_argument('meson_option', help='Type <<rho>> for rho, <<phi>> for phi') #flag for type of meson
+p.add_argument('runningOnData_option', help='Type <<signal>> for signal, <<data>> for data')
 p.add_argument('rootfile_name', help='Type rootfile name')
 p.add_argument('outputfile_option', help='Provide output file name')
-p.add_argument('runningOnData_option', help='Type <<signal>> for signal, <<data>> for data')
 
 args = p.parse_args()
 fInput = ROOT.TFile(args.rootfile_name)
