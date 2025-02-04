@@ -165,6 +165,8 @@ for jentry in range(nentries):
     _trksDeltaR[0]   = deltaR
     _eventWeight[0]  = eventWeight
 
+    tree_output.Fill()
+
 
 #HISTO LABELS #########################################################################################################
 histo_map["h_bosonMass"].GetXaxis().SetTitle("m_{meson#gamma} [GeV/c^2]")
@@ -216,7 +218,8 @@ histo_map["h_nElectrons"].GetXaxis().SetTitle("nElectrons over selection")
 histo_map["h_nElectrons"].SetTitle("# of electrons")
 
 
-
+#Tree writing ##########################################################################################################
+tree_output.Write()
 
 
 #HISTOS WRITING ########################################################################################################
