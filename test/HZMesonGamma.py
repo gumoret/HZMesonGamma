@@ -634,22 +634,6 @@ for jentry in range(nentries):
             print("MC H or Z FOUND =", nEventsBosonMatched), "H or Z NOT FOUND =", nEventsBosonNotMatched
             print("-------------------------------------------------------------------------------------")
 
-      
-      
-      
-      
-
-
-    
-    
-
-
-
-
-
-
-
-
     
     tree_output.Fill()
     

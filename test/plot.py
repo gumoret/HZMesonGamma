@@ -242,24 +242,19 @@ for histo_name in list_histos:
 
     if plotOnlyData:
         if isPhi and inputname == "SR": 
-            #output_dir = "/eos/user/e/eferrand/Work/CMSSW_10_6_27/src/ZMesonGammaAnalysis/ZTOMesonGamma/plots/Phi/Data/SR/"
             output_dir = "/eos/user/e/eferrand/www/eferrand/ZMesonGamma/Phi/Data/SR/"
         elif isPhi and inputname == "CR":
-            #output_dir = "/eos/user/e/eferrand/Work/CMSSW_10_6_27/src/ZMesonGammaAnalysis/ZTOMesonGamma/plots/Phi/Data/CR/"
             output_dir = "/eos/user/e/eferrand/www/eferrand/ZMesonGamma/Phi/Data/CR/"
         elif not isPhi and inputname == "SR" :
-            #output_dir = "/eos/user/e/eferrand/Work/CMSSW_10_6_27/src/ZMesonGammaAnalysis/ZTOMesonGamma/plots/Rho/Data/SR/"
             output_dir = "/eos/user/e/eferrand/www/eferrand/ZMesonGamma/Rho/Data/SR/"
         elif not isPhi and inputname == "CR" :
-            #output_dir = "/eos/user/e/eferrand/Work/CMSSW_10_6_27/src/ZMesonGammaAnalysis/ZTOMesonGamma/plots/Rho/Data/CR/"
             output_dir = "/eos/user/e/eferrand/www/eferrand/ZMesonGamma/Rho/Data/CR/"
+            
     elif not plotOnlyData:
         if isPhi: 
-            #output_dir = "/eos/user/e/eferrand/Work/CMSSW_10_6_27/src/ZMesonGammaAnalysis/ZTOMesonGamma/plots/Phi/Signal/"
             output_dir = "/eos/user/e/eferrand/www/eferrand/ZMesonGamma/Phi/Signal/"
         elif not isPhi:
-            #output_dir = "/eos/user/e/eferrand/Work/CMSSW_10_6_27/src/ZMesonGammaAnalysis/ZTOMesonGamma/plots/Rho/Signal/"
-            output_dir = "/eos/user/e/eferrand/Work/CMSSW_13_3_3/src/HZMesonGammaAnalysis/HZMesonGamma/test/"
+            output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/Rho/Signal/"
 
     canvas[histo_name].SaveAs(output_dir + histo_name + ".pdf")
     canvas[histo_name].SaveAs(output_dir + histo_name + ".png")
