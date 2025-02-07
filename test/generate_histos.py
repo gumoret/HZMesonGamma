@@ -7,14 +7,18 @@ from array import array
 
 #Following bools are given as input
 #isDataBlind = False #Bool for blind analysis
-isPhiAnalysis  = False # for Z -> Phi Gamma
-isRhoAnalysis  = True # for Z -> Rho Gamma
+isPhiAnalysis = False # for Z -> Phi Gamma
+isRhoAnalysis = False # for Z -> Rho Gamma
+isHAnalysis   = False
+isZAnalysis   = False
 
 #Supress the opening of many Canvas's
 ROOT.gROOT.SetBatch(True)
 
 # PARSER and INPUT #############################################################################################
 p = argparse.ArgumentParser(description='Select rootfile to plot')
+p.add_argument('boson_channel', help='type <<H>> or <<Z>>')
+p.add_argument('meson_channel', help='type <<rho>> or <<phi>>')
 p.add_argument('rootfile_name', help='Type rootfile name')
 p.add_argument('outputfile_option', help='Provide output file name')
 
@@ -22,6 +26,12 @@ args = p.parse_args()
 fInput = ROOT.TFile(args.rootfile_name)
 output_filename = args.outputfile_option
 mytree = fInput.Get("tree_output")
+
+if args.boson_channel == "H": isHAnalysis = True 
+elif args.boson_channel == "Z": isZAnalysis = True 
+if args.meson_channel == "phi": isPhiAnalysis = True 
+if args.meson_channel == "rho": isRhoAnalysis = True 
+
 
 
 #HISTOS ###########################################################################################################

@@ -37,7 +37,7 @@ if options.runningOnData:
 
 else:
    #process.GlobalTag = GlobalTag(process.GlobalTag, '130X_mcRun3_2023_realistic_forMB_v1' )  # OLD ONE : '106X_upgrade2018_realistic_v15_L1v1'
-   input_path = '/eos/user/p/pellicci/MesonGamma_root/2024/testOfficialProd/Zrhogamma/'
+   input_path = '/eos/user/p/pellicci/MesonGamma_root/2024/testOfficialProd/Zphigamma/'
 
 
    #INPUT FILE LIST

@@ -18,11 +18,14 @@ print( "#############################")
 print( "is Phi = ",isPhi)
 print( "#############################")
 
-inputname = sys.argv[4] #CR or SR
+isHiggs = int(sys.argv[4])
+print("isHiggs =", isHiggs)
+
+inputname = sys.argv[5] #CR or SR
 
 
 list_inputfiles = []
-for filename in sys.argv[5:]:
+for filename in sys.argv[6:]:
     list_inputfiles.append(filename)
 
 
@@ -41,7 +44,7 @@ histo_container = [] #just for memory management
 
 #Get the list of histograms
 list_histos = []
-signalfile = ROOT.TFile(sys.argv[5])
+signalfile = ROOT.TFile(sys.argv[6])
 keylist = signalfile.GetListOfKeys()
 key = ROOT.TKey()
 
@@ -251,10 +254,11 @@ for histo_name in list_histos:
             output_dir = "/eos/user/e/eferrand/www/eferrand/ZMesonGamma/Rho/Data/CR/"
             
     elif not plotOnlyData:
-        if isPhi: 
-            output_dir = "/eos/user/e/eferrand/www/eferrand/ZMesonGamma/Phi/Signal/"
-        elif not isPhi:
-            output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/Rho/Signal/"
+        if isPhi and isHiggs: output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/HPhi/Signal/"
+        elif isPhi and not isHiggs: output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/ZPhi/Signal/"
+
+        elif not isPhi and isHiggs: output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/HRho/Signal/"
+        elif not isPhi and not isHiggs: output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/ZRho/Signal/"
 
     canvas[histo_name].SaveAs(output_dir + histo_name + ".pdf")
     canvas[histo_name].SaveAs(output_dir + histo_name + ".png")

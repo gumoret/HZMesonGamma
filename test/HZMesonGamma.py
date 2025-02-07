@@ -53,7 +53,7 @@ print(f"isPhiAnalysis = {isPhiAnalysis}, isRhoAnalysis = {isRhoAnalysis}, runnin
 histo_map = dict()
 list_histos = ["nEvents", "pileup"]
 
-histo_map[list_histos[0]] = ROOT.TH1F(list_histos[0],"Event counting in different steps", 6, 0., 6.)
+histo_map[list_histos[0]] = ROOT.TH1F(list_histos[0],"Event counting in different steps", 5, 0., 5.)
 histo_map[list_histos[1]] = ROOT.TH1F(list_histos[1],"pileup", 130, 0, 130)
 
 
@@ -130,12 +130,6 @@ tree_output.Branch('mesonTreeMassKin', _mesonTreeMassKin, '_mesonTreeMassKin/D')
 tree_output.Branch('mesonTreePt', _mesonTreePt, '_mesonTreePt/D')
 tree_output.Branch('mesonTreeEta', _mesonTreeEta, '_mesonTreeEta/D')
 tree_output.Branch('mesonTreePhi', _mesonTreePhi, '_mesonTreePhi/D')
-
-
-
-
-
-
 
 
 #EVENTS LOOP #######################################################################################################
@@ -269,7 +263,7 @@ for jentry in range(nentries):
 
         #if verbose: print(f"Electron {i}: pT={electron_pT}, eta={electron_eta}, dxy={electron_dxy}, dz={electron_dz}, MVAIso_WP80={isMVAIso_WP80}")
 
-        if electron_pT < 10. or abs(electron_eta) > 2.5 or abs(muon_dxy) >= 0.2 or abs(electron_dz) >= 0.5: continue
+        if electron_pT < 10. or abs(electron_eta) > 2.5 or abs(electron_dxy) >= 0.2 or abs(electron_dz) >= 0.5: continue
 
         #-------------Conditions on loose/medium MVA electron ID-------------#
         if not isMVAIso_WP80: continue
@@ -309,7 +303,7 @@ for jentry in range(nentries):
         photonEtaSC            = mytree.Photon_superclusterEta[i]
         photonRegressionError  = mytree.Photon_energyErr[i]
 
-        if verbose: print(f"Photon {i}: pT={photon_pT}, eta={photon_eta}, WP80={isMVAIso_WP80}, WP90={isMVAIso_WP90}, veto={isElectronVeto}")
+        if verbose: print("Photon", i, ":", "pT=", photon_pT, "eta=", photon_eta, "WP80=", isMVAIso_WP80, "WP90=", isMVAIso_WP90, "veto=", isElectronVeto)
 
         if photon_pT < 20 or abs(photon_eta) > 2.5: continue
 
@@ -341,7 +335,7 @@ for jentry in range(nentries):
     nEventsIsPhoton+=1
     histo_map["nEvents"].SetBinContent(3, nEventsIsPhoton) 
 
-    if verbose: print(f"Chosen photon: pT={photonEtMax}, eta={photon_eta_chosen}")
+    if verbose: print("Chosen photon: pT=", photonEtMax, "eta=", photon_eta_chosen)
     #print(f"photons 20= {nPhotons20WP90}, photons 35 = {nPhotons35WP80}")
 
 
@@ -363,8 +357,8 @@ for jentry in range(nentries):
     isBestMesonOfTheEventFound = False
     bestMesonPt = 0.
 
-    for i in range(len(mytree.rho_mass)):
-        if isRhoAnalysis:
+    if isRhoAnalysis:
+        for i in range(len(mytree.rho_mass)):        
             firstTrkPt   = mytree.rho_trk1_pt[i]
             firstTrkEta  = mytree.rho_trk1_eta[i]
             firstTrkPhi  = mytree.rho_trk1_phi[i]
@@ -380,11 +374,101 @@ for jentry in range(nentries):
             mesonTreePhi     = mytree.rho_kin_phi[i]
 
             #for MC truth
-            if not runningOnData:
-                genMesonPt = mytree.rho_gen_pt[i]
+            if not runningOnData: genMesonPt = mytree.rho_gen_pt[i]    
+            
 
+            #Tracks pt cuts------------------------------------------------
+            if firstTrkPt < 1. or secondTrkPt < 1.:
+                if verbose: print("if first trk pt or second trk pt<1 continue")
+                continue
 
-        elif isPhiAnalysis:
+            if firstTrkPt < 10. and secondTrkPt < 10.:
+                if verbose: print("if first trk pt and second trk pt<10 continue")
+                continue
+
+            #DiTrks deltaR cut---------------------------------------------------
+            deltaEta = firstTrkEta - secondTrkEta
+            deltaPhi = abs(firstTrkPhi - secondTrkPhi)
+            if deltaPhi > math.pi: deltaPhi = 2*math.pi - deltaPhi
+
+            deltaRTrks = math.sqrt(deltaEta*deltaEta + deltaPhi*deltaPhi)        
+            if deltaRTrks > 0.07:
+                if verbose: print("if deltaRTrks>0.07 continue")
+                continue
+
+            #Quadrimomentum calculation -------------------------------------------
+            firstTrkP4 = TLorentzVector() 
+            secondTrkP4 = TLorentzVector()
+
+            firstTrkP4.SetPtEtaPhiM(firstTrkPt, firstTrkEta, firstTrkPhi, 0.13957) #Pi mass            
+            secondTrkP4.SetPtEtaPhiM(secondTrkPt, secondTrkEta, secondTrkPhi, 0.13957)
+
+            pairP4 = firstTrkP4  + secondTrkP4
+
+            if verbose: print("PiPi pT =", pairP4.Pt())
+
+            #DiTrk pT cut----------------------------------------------------------
+            if pairP4.Pt() < 38:
+                if verbose: print("couplePt cut NOT passed, continue")
+                continue
+
+            #Meson inv mass---------------------------------------------------------
+            isMeson = False
+
+            mesonMassTrkTrk = pairP4.M()        
+
+            if 0.5 < mesonMassTrkTrk < 1.: isMeson = True           
+
+            if not isMeson: continue
+
+            #Isolation cut----------------------------------------------------------
+            if isoMesonCh < 0.9:
+                print("No isolation cut passed, continue")
+                continue
+
+            #nEventsMesonIsolationFilter+=1
+            #histo_map["nEvents"].SetBinContent(4, nEventsMesonIsolationFilter)
+
+            #pT max of the event filter ----------------------------------------------
+            if verbose: print("Current bestMeson_Pt =", bestMesonPt)
+
+            if pairP4.Pt() <= bestMesonPt:
+                if verbose: print("Not passed: pT lower than the current best meson of the event. Continue")
+                continue
+
+            bestMesonPt = pairP4.Pt() 
+
+            if verbose:
+                print(f"pairP4.Pt() = {bestMesonPt}")
+                print("This is the best meson so far!")
+
+            isBestMesonOfTheEventFound = True
+
+            #Save variables if best meson has been found
+            deltaRTrks_chosen    = deltaRTrks
+            isMeson_chosen       = isMeson
+            firstTrkP4_chosen    = firstTrkP4
+            secondTrkP4_chosen   = secondTrkP4
+            mesonP4_chosen       = pairP4
+            mesonIsoCh_chosen    = isoMesonCh
+
+            mesonTreeMass_chosen    = mesonTreeMass
+            mesonTreeMassKin_chosen = mesonTreeMassKin
+            mesonTreePt_chosen      = mesonTreePt
+            mesonTreeEta_chosen     = mesonTreeEta
+            mesonTreePhi_chosen     = mesonTreePhi
+
+            #for MC truth
+            #genTrk1Pt_chosen = genTrk1Pt
+            #genTrk2Pt_chosen = genTrk2Pt
+            #genMesonMass_chosen = genMesonMass
+            genMesonPt_chosen = genMesonPt
+
+        #meson loop end------------------
+    #isRho end-------------------------------------------------------------------------------------------
+
+    if isPhiAnalysis:
+        for i in range(len(mytree.phi_mass)):
             firstTrkPt   = mytree.phi_trk1_pt[i]
             firstTrkEta  = mytree.phi_trk1_eta[i]
             firstTrkPhi  = mytree.phi_trk1_phi[i]
@@ -398,113 +482,106 @@ for jentry in range(nentries):
             mesonTreePt      = mytree.phi_kin_pt[i]
             mesonTreeEta     = mytree.phi_kin_eta[i] 
             mesonTreePhi     = mytree.phi_kin_phi[i] 
-            
 
-        #Tracks pt cuts------------------------------------------------
-        if firstTrkPt < 1. or secondTrkPt < 1.:
-            if verbose: print("if first trk pt or second trk pt<1 continue")
-            continue
+            #for MC truth
+            if not runningOnData: genMesonPt = mytree.phi_gen_pt[i]
 
-        if firstTrkPt < 10. and secondTrkPt < 10.:
-            if verbose: print("if first trk pt and second trk pt<10 continue")
-            continue
+            #Tracks pt cuts------------------------------------------------
+            if firstTrkPt < 1. or secondTrkPt < 1.:
+                if verbose: print("if first trk pt or second trk pt<1 continue")
+                continue
 
-        #DiTrks deltaR cut---------------------------------------------------
-        deltaEta = firstTrkEta - secondTrkEta
-        deltaPhi = abs(firstTrkPhi - secondTrkPhi)
-        if deltaPhi > math.pi:
-            deltaPhi = 2*math.pi - deltaPhi
+            if firstTrkPt < 10. and secondTrkPt < 10.:
+                if verbose: print("if first trk pt and second trk pt<10 continue")
+                continue
 
-        deltaRTrks = math.sqrt(deltaEta*deltaEta + deltaPhi*deltaPhi)        
-        if deltaRTrks > 0.07:
-            if verbose: print("if deltaRTrks>0.07 continue")
-            continue
+            #DiTrks deltaR cut---------------------------------------------------
+            deltaEta = firstTrkEta - secondTrkEta
+            deltaPhi = abs(firstTrkPhi - secondTrkPhi)
+            if deltaPhi > math.pi: deltaPhi = 2*math.pi - deltaPhi
 
-        #Quadrimomentum calculation -------------------------------------------
-        firstTrkP4 = TLorentzVector() 
-        secondTrkP4 = TLorentzVector()
+            deltaRTrks = math.sqrt(deltaEta*deltaEta + deltaPhi*deltaPhi)        
+            if deltaRTrks > 0.07:
+                if verbose: print("if deltaRTrks>0.07 continue")
+                continue
 
-        if isRhoAnalysis:
-            firstTrkP4.SetPtEtaPhiM(firstTrkPt, firstTrkEta, firstTrkPhi, 0.13957) #Pi mass            
-            secondTrkP4.SetPtEtaPhiM(secondTrkPt, secondTrkEta, secondTrkPhi, 0.13957)
+            #Quadrimomentum calculation -------------------------------------------
+            firstTrkP4 = TLorentzVector() 
+            secondTrkP4 = TLorentzVector()
 
-        pairP4 = firstTrkP4  + secondTrkP4
+            firstTrkP4.SetPtEtaPhiM(firstTrkPt, firstTrkEta, firstTrkPhi, 0.4937) #K mass            
+            secondTrkP4.SetPtEtaPhiM(secondTrkPt, secondTrkEta, secondTrkPhi, 0.4937)
 
-        if verbose: print(f"PiPi pT = {pairP4.Pt()}")
+            pairP4 = firstTrkP4  + secondTrkP4
 
-        #DiTrk pT cut----------------------------------------------------------
-        if pairP4.Pt() < 38:
-            if verbose: print("couplePt cut NOT passed, continue")
-            continue
+            if verbose: print("KK pT =", pairP4.Pt())
 
-        #Meson inv mass---------------------------------------------------------
-        isMeson = False
+            #DiTrk pT cut----------------------------------------------------------
+            if pairP4.Pt() < 38:
+                if verbose: print("couplePt cut NOT passed, continue")
+                continue
 
-        mesonMassTrkTrk = pairP4.M()        
+            #Meson inv mass---------------------------------------------------------
+            isMeson = False
 
-        if isRhoAnalysis:
-            if 0.5 < mesonMassTrkTrk < 1.: isMeson = True
-            
-        elif isPhiAnalysis:
-            if 1.0 < mesonMassTrkTrk < 1.05: isMeson = True
+            mesonMassTrkTrk = pairP4.M()        
 
-        if not isMeson: continue
+            if 1. < mesonMassTrkTrk < 1.05: isMeson = True           
 
-        #Isolation cut----------------------------------------------------------
-        if isoMesonCh < 0.9:
-            print("No isolation cut passed, continue")
-            continue
+            if not isMeson: continue
 
-        nEventsMesonIsolationFilter+=1
-        histo_map["nEvents"].SetBinContent(4, nEventsMesonIsolationFilter)
+            #Isolation cut----------------------------------------------------------
+            if isoMesonCh < 0.9:
+                print("No isolation cut passed, continue")
+                continue
 
-        #pT max of the event filter ----------------------------------------------
-        if verbose: print(f"Current bestMeson_Pt = {bestMesonPt}")
+            #nEventsMesonIsolationFilter+=1
+            histo_map["nEvents"].SetBinContent(4, nEventsMesonIsolationFilter)
 
-        if pairP4.Pt() <= bestMesonPt:
-            if verbose: print("Not passed: pT lower than the current best meson of the event. Continue")
-            continue
+            #pT max of the event filter ----------------------------------------------
+            if verbose: print("Current bestMeson_Pt =", bestMesonPt)
 
-        bestMesonPt = pairP4.Pt() 
+            if pairP4.Pt() <= bestMesonPt:
+                if verbose: print("Not passed: pT lower than the current best meson of the event. Continue")
+                continue
 
-        if verbose:
-            print(f"pairP4.Pt() = {bestMesonPt}")
-            print("This is the best meson so far!")
+            bestMesonPt = pairP4.Pt() 
 
-        isBestMesonOfTheEventFound = True
+            if verbose:
+                print("pairP4.Pt() =", bestMesonPt)
+                print("This is the best meson so far!")
 
-        #Save variables if best meson has been found
-        deltaRTrks_chosen    = deltaRTrks
-        isMeson_chosen       = isMeson
-        firstTrkP4_chosen    = firstTrkP4
-        secondTrkP4_chosen   = secondTrkP4
-        mesonP4_chosen       = pairP4
-        mesonIsoCh_chosen    = isoMesonCh
+            isBestMesonOfTheEventFound = True
 
-        mesonTreeMass_chosen    = mesonTreeMass
-        mesonTreeMassKin_chosen = mesonTreeMassKin
-        mesonTreePt_chosen      = mesonTreePt
-        mesonTreeEta_chosen     = mesonTreeEta
-        mesonTreePhi_chosen     = mesonTreePhi
+            #Save variables if best meson has been found
+            deltaRTrks_chosen    = deltaRTrks
+            isMeson_chosen       = isMeson
+            firstTrkP4_chosen    = firstTrkP4
+            secondTrkP4_chosen   = secondTrkP4
+            mesonP4_chosen       = pairP4
+            mesonIsoCh_chosen    = isoMesonCh
 
-        #for MC truth
-        #genTrk1Pt_chosen = genTrk1Pt
-        #genTrk2Pt_chosen = genTrk2Pt
-        #genMesonMass_chosen = genMesonMass
-        genMesonPt_chosen = genMesonPt
+            mesonTreeMass_chosen    = mesonTreeMass
+            mesonTreeMassKin_chosen = mesonTreeMassKin
+            mesonTreePt_chosen      = mesonTreePt
+            mesonTreeEta_chosen     = mesonTreeEta
+            mesonTreePhi_chosen     = mesonTreePhi
 
+            #for MC truth
+            #genTrk1Pt_chosen = genTrk1Pt
+            #genTrk2Pt_chosen = genTrk2Pt
+            #genMesonMass_chosen = genMesonMass
+            genMesonPt_chosen = genMesonPt
 
-
-
-    #meson loop end------------------
-
+        #meson loop end------------------
+    #isPhi end----------------------------------------------------------------------------------------------------
 
     if not isBestMesonOfTheEventFound:
         print("No best couple detected for current event, RETURN.")
         continue  
 
     nEventsBestPairFound+=1
-    histo_map["nEvents"].SetBinContent(5, nEventsBestPairFound)
+    histo_map["nEvents"].SetBinContent(4, nEventsBestPairFound)
 
 
     #DATAMEMBER SAVING
@@ -523,8 +600,8 @@ for jentry in range(nentries):
     mesonMass = (firstTrkP4_chosen + secondTrkP4_chosen).M() 
 
     if verbose:
-        print(f"m_TrkTrk = {mesonMass}, meson tree mass = {mesonTreeMass_chosen}, meson tree mass kin = {mesonTreeMassKin_chosen} ")
-        print(f"pT trktrk = {mesonPt}, meson tree pT = {mesonTreePt_chosen}, eta trktrk = {mesonEta}, meson tree eta = {mesonTreeEta_chosen}, phi trktrk = {mesonPhi}, meson tree phi = {mesonTreePhi_chosen}")
+        print("m_TrkTrk =", mesonMass, "meson tree mass =", mesonTreeMass_chosen, "meson tree mass kin =", mesonTreeMassKin_chosen)
+        print("pT trktrk =", mesonPt, "meson tree pT =", mesonTreePt_chosen, "eta trktrk =", mesonEta, "meson tree eta =", mesonTreeEta_chosen, "phi trktrk =", mesonPhi, "meson tree phi =", mesonTreePhi_chosen)
 
 
     #BOSON INV MASS CALCULATION
@@ -551,7 +628,7 @@ for jentry in range(nentries):
         continue
   
     nEventsTrkPtFilter+=1
-    histo_map["nEvents"].SetBinContent(6, nEventsTrkPtFilter)
+    histo_map["nEvents"].SetBinContent(5, nEventsTrkPtFilter)
 
 
     #ISOLATION DATAMEMBER FOR TREE FILLING
@@ -644,9 +721,9 @@ tree_output.Write()
 histo_map["nEvents"].GetXaxis().SetBinLabel(1, "Processed")
 histo_map["nEvents"].GetXaxis().SetBinLabel(2, "Triggered")
 histo_map["nEvents"].GetXaxis().SetBinLabel(3, "Photon")
-histo_map["nEvents"].GetXaxis().SetBinLabel(4, "Meson iso")
-histo_map["nEvents"].GetXaxis().SetBinLabel(5, "Best meson")
-histo_map["nEvents"].GetXaxis().SetBinLabel(6, "Trks pT")
+#histo_map["nEvents"].GetXaxis().SetBinLabel(4, "Meson iso")
+histo_map["nEvents"].GetXaxis().SetBinLabel(4, "Best meson")
+histo_map["nEvents"].GetXaxis().SetBinLabel(5, "Trks pT")
 
 
 
