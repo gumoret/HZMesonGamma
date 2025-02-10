@@ -2,31 +2,52 @@ import ROOT
 import math
 import copy
 import sys
+import argparse
 import tdrstyle, CMS_lumi
 from ROOT import gROOT
 
+
+isPhiAnalysis = False # for Z -> Phi Gamma
+isRhoAnalysis = False # for Z -> Rho Gamma
+isKAnalysis   = False # for Z -> K* Gamma
+isD0Analysis  = False # for Z -> D0* Gamma
+
+isHAnalysis   = False
+isZAnalysis   = False
+
+plotOnlyData = False
+
 #Supress the opening of many Canvas's
 ROOT.gROOT.SetBatch(True)   
+# PARSER and INPUT #############################################################################################
+p = argparse.ArgumentParser(description='Select plot options')
+p.add_argument('boson_channel', help='type <<H>> or <<Z>>')
+p.add_argument('meson_channel', help='type <<rho>> or <<phi>> or <<K*>> or <<D0*>>')
+p.add_argument('plot_only_data', help='type <<signal>> or <<data>>')
+p.add_argument('signal_magnify', help='type <<1>> or another value')
+p.add_argument('SR_or_CR', help='type <<SR>> or <<CR>>')
+p.add_argument('rootfile_name', help='Type rootfile name')
 
-signal_magnify = int(sys.argv[1])
+
+args = p.parse_args()
+
+if args.boson_channel == "H": isHAnalysis = True 
+elif args.boson_channel == "Z": isZAnalysis = True 
+if args.meson_channel == "phi": isPhiAnalysis = True 
+if args.meson_channel == "rho": isRhoAnalysis = True 
+if args.meson_channel == "K*": isKAnalysis = True 
+if args.meson_channel == "D0*": isDAnalysis = True 
+
+if args.plot_only_data == "signal": plotOnlyData = True
+if args.plot_only_data == "signal": plotOnlyData = False
+
+signal_magnify = int(args.signal_magnify)
 CR_magnify = 1. 
 
-plotOnlyData = int(sys.argv[2])
-
-isPhi = int(sys.argv[3]) #note that in python true = 1 and false = 0
-print( "#############################")
-print( "is Phi = ",isPhi)
-print( "#############################")
-
-isHiggs = int(sys.argv[4])
-print("isHiggs =", isHiggs)
-
-inputname = sys.argv[5] #CR or SR
+region_name = args.SR_or_CR #CR or SR
 
 
-list_inputfiles = []
-for filename in sys.argv[6:]:
-    list_inputfiles.append(filename)
+list_inputfiles = [args.rootfile_name]
 
 
 #CMS-style plotting 
@@ -44,7 +65,7 @@ histo_container = [] #just for memory management
 
 #Get the list of histograms
 list_histos = []
-signalfile = ROOT.TFile(sys.argv[6])
+signalfile = ROOT.TFile(args.rootfile_name)
 keylist = signalfile.GetListOfKeys()
 key = ROOT.TKey()
 
@@ -84,10 +105,9 @@ for filename in list_inputfiles:
 
         histo_container[-1].SetLineStyle(1)   #continue line (2 for dashed)
 
-        if isPhi:
-            histo_container[-1].SetLineColor(9)   #blue, 2 for red
-        else:
-            histo_container[-1].SetLineColor(46)   #blue, 2 for red
+        if isPhiAnalysis: histo_container[-1].SetLineColor(9)   #blue, 2 for red
+        elif isRhoAnalysis: histo_container[-1].SetLineColor(46)   #blue, 2 for red
+        elif isKAnalysis: histo_container[-1].SetLineColor(3)
 
         histo_container[-1].SetLineWidth(4)   #kind of thick
         histo_container[-1].Scale(1./histo_container[-1].GetEntries()) #normalize to 1
@@ -138,7 +158,7 @@ for histo_name in list_histos:
     
     if histo_name == "h_mesonMass" :
         hstack[histo_name].GetXaxis().SetTitle("m_{meson} [GeV]")
-        if isPhi:
+        if isPhiAnalysis:
             hstack[histo_name].GetXaxis().SetLimits(1.00,1.042)
             leftLine  = ROOT.TLine(1.008,0.,1.008,hsignal[histo_name].GetMaximum()*1.1)
             rightLine = ROOT.TLine(1.032,0.,1.032,hsignal[histo_name].GetMaximum()*1.1)
@@ -151,7 +171,7 @@ for histo_name in list_histos:
             leftLine.Draw()
             rightLine.Draw()
 
-        else:
+        if isRhoAnalysis:
             hstack[histo_name].GetXaxis().SetLimits(0.5,1.)
             leftLine  = ROOT.TLine(0.62,0.,0.62,hsignal[histo_name].GetMaximum()*1.1)
             rightLine = ROOT.TLine(0.92,0.,0.92,hsignal[histo_name].GetMaximum()*1.1)
@@ -159,6 +179,19 @@ for histo_name in list_histos:
             leftLine.SetLineStyle(2)
             leftLine.SetLineWidth(3)
             rightLine.SetLineColor(2)
+            rightLine.SetLineStyle(2)
+            rightLine.SetLineWidth(3)
+            leftLine.Draw()
+            rightLine.Draw()
+
+        if isKAnalysis:
+            hstack[histo_name].GetXaxis().SetLimits(0.65,1.1)
+            leftLine  = ROOT.TLine(0.85,0.,0.85,hsignal[histo_name].GetMaximum()*1.1)
+            rightLine = ROOT.TLine(0.96,0.,0.96,hsignal[histo_name].GetMaximum()*1.1)
+            leftLine.SetLineColor(3)
+            leftLine.SetLineStyle(2)
+            leftLine.SetLineWidth(3)
+            rightLine.SetLineColor(3)
             rightLine.SetLineStyle(2)
             rightLine.SetLineWidth(3)
             leftLine.Draw()
@@ -227,15 +260,20 @@ for histo_name in list_histos:
   
     hsignal[histo_name].Draw("SAME,hist")
     if plotOnlyData:
-        if isPhi:
+        if isPhiAnalysis:
             leg1.AddEntry(hsignal[histo_name],"#phi#gamma data","l")
-        elif not isPhi:
+        if isRhoAnalysis:
             leg1.AddEntry(hsignal[histo_name],"#rho#gamma data","l")
+        if isKAnalysis:
+            leg1.AddEntry(hsignal[histo_name],"K*#gamma data","l")
+
     elif not plotOnlyData:
-        if isPhi:
+        if isPhiAnalysis:
             leg1.AddEntry(hsignal[histo_name],"#phi#gamma signal","l")
-        elif not isPhi:
+        if isRhoAnalysis:
             leg1.AddEntry(hsignal[histo_name],"#rho#gamma signal","l")
+        if isKAnalysis:
+            leg1.AddEntry(hsignal[histo_name],"K*#gamma signal","l")
 
     #CMS_lumi.CMS_lumi(canvas[histo_name], iPeriod, iPos) #Print integrated lumi and energy information
     leg1.Draw()
@@ -244,21 +282,24 @@ for histo_name in list_histos:
     ################################################
 
     if plotOnlyData:
-        if isPhi and inputname == "SR": 
+        if isPhiAnalysis and region_name == "SR": 
             output_dir = "/eos/user/e/eferrand/www/eferrand/ZMesonGamma/Phi/Data/SR/"
-        elif isPhi and inputname == "CR":
+        elif isPhiAnalysis and region_name == "CR":
             output_dir = "/eos/user/e/eferrand/www/eferrand/ZMesonGamma/Phi/Data/CR/"
-        elif not isPhi and inputname == "SR" :
+        elif not isPhiAnalysis and region_name == "SR" :
             output_dir = "/eos/user/e/eferrand/www/eferrand/ZMesonGamma/Rho/Data/SR/"
-        elif not isPhi and inputname == "CR" :
+        elif not isPhiAnalysis and region_name == "CR" :
             output_dir = "/eos/user/e/eferrand/www/eferrand/ZMesonGamma/Rho/Data/CR/"
             
     elif not plotOnlyData:
-        if isPhi and isHiggs: output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/HPhi/Signal/"
-        elif isPhi and not isHiggs: output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/ZPhi/Signal/"
+        if isPhiAnalysis and isHAnalysis: output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/HPhi/Signal/"
+        if isPhiAnalysis and isZAnalysis: output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/ZPhi/Signal/"
 
-        elif not isPhi and isHiggs: output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/HRho/Signal/"
-        elif not isPhi and not isHiggs: output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/ZRho/Signal/"
+        if isRhoAnalysis and isHAnalysis: output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/HRho/Signal/"
+        if isRhoAnalysis and isZAnalysis: output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/ZRho/Signal/"
+
+        if isKAnalysis and isHAnalysis: output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/HK/Signal/"
+        if isKAnalysis and isZAnalysis: output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/ZK/Signal/"
 
     canvas[histo_name].SaveAs(output_dir + histo_name + ".pdf")
     canvas[histo_name].SaveAs(output_dir + histo_name + ".png")
