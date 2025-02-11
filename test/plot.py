@@ -24,7 +24,6 @@ p = argparse.ArgumentParser(description='Select plot options')
 p.add_argument('boson_channel', help='type <<H>> or <<Z>>')
 p.add_argument('meson_channel', help='type <<rho>> or <<phi>> or <<K*>> or <<D0*>>')
 p.add_argument('plot_only_data', help='type <<signal>> or <<data>>')
-p.add_argument('signal_magnify', help='type <<1>> or another value')
 p.add_argument('SR_or_CR', help='type <<SR>> or <<CR>>')
 p.add_argument('rootfile_name', help='Type rootfile name')
 
@@ -41,11 +40,9 @@ if args.meson_channel == "D0*": isDAnalysis = True
 if args.plot_only_data == "signal": plotOnlyData = True
 if args.plot_only_data == "signal": plotOnlyData = False
 
-signal_magnify = int(args.signal_magnify)
-CR_magnify = 1. 
+signal_magnify = 1
 
 region_name = args.SR_or_CR #CR or SR
-
 
 list_inputfiles = [args.rootfile_name]
 
