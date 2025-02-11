@@ -9,7 +9,7 @@ Below are the instructions for running the main scripts.
 python3 HZMesonGamma.py <meson> <signal/data> <nano input file> <output rootfile>
 ```
 **Note:**  
-Retrieve the NanoAOD input files from the directory:  
+Retrieve the `<nano input file>` from the directory:  
 `/eos/cms/store/group/phys_higgs/HiggsExo/dalfonso/Hrare/Run3-D05/`  
 Use the `hadd` command to merge multiple NanoAOD files into a single ROOT file.
 
