@@ -36,13 +36,15 @@ if not mytree:
     sys.exit(1)
 
 if args.meson_option == "phi": isPhiAnalysis = True
-if args.meson_option == "rho": isRhoAnalysis = True
-if args.meson_option == "K*": isKAnalysis = True
-if args.meson_option == "D0*": isD0Analysis = True
+elif args.meson_option == "rho": isRhoAnalysis = True
+elif args.meson_option == "K*": isKAnalysis = True
+elif args.meson_option == "D0*": isD0Analysis = True
+else: print("meson_option must be <<phi>> or <<rho>> or <<K*>> or <<DO*>>")
 
 
 if args.runningOnData_option == "signal": runningOnData = False
-if args.runningOnData_option == "data": runningOnData = True
+elif args.runningOnData_option == "data": runningOnData = True
+else: print("runninOnData must be <<signal>> or <<data>>")
 
 
 #print("isPhiAnalysis =", isPhiAnalysis, "isRhoAnalysis =", isRhoAnalysis, "runningOnData =", runningOnData)
@@ -372,7 +374,7 @@ for jentry in range(nentries):
             mesonTreePhi     = mytree.rho_kin_phi[i]
 
             #for MC truth
-            if not runningOnData: genMesonPt = mytree.rho_gen_pt[i]    
+            #if not runningOnData: genMesonPt = mytree.rho_gen_pt[i]    
             
 
             #Tracks pt cuts------------------------------------------------
@@ -460,7 +462,7 @@ for jentry in range(nentries):
             #genTrk1Pt_chosen = genTrk1Pt
             #genTrk2Pt_chosen = genTrk2Pt
             #genMesonMass_chosen = genMesonMass
-            genMesonPt_chosen = genMesonPt
+            #genMesonPt_chosen = genMesonPt
 
         #meson loop end------------------
     #isRho end-------------------------------------------------------------------------------------------
@@ -482,7 +484,7 @@ for jentry in range(nentries):
             mesonTreePhi     = mytree.phi_kin_phi[i] 
 
             #for MC truth
-            if not runningOnData: genMesonPt = mytree.phi_gen_pt[i]
+            #if not runningOnData: genMesonPt = mytree.phi_gen_pt[i]
 
             #Tracks pt cuts------------------------------------------------
             if firstTrkPt < 1. or secondTrkPt < 1.:
@@ -569,7 +571,7 @@ for jentry in range(nentries):
             #genTrk1Pt_chosen = genTrk1Pt
             #genTrk2Pt_chosen = genTrk2Pt
             #genMesonMass_chosen = genMesonMass
-            genMesonPt_chosen = genMesonPt
+            #genMesonPt_chosen = genMesonPt
 
         #meson loop end------------------
     #isPhi end----------------------------------------------------------------------------------------------------
@@ -593,7 +595,7 @@ for jentry in range(nentries):
             mesonTreePhi     = mytree.K0Star_kin_phi[i] 
 
             #for MC truth
-            if not runningOnData: genMesonPt = mytree.K0Star_gen_pt[i]
+            #if not runningOnData: genMesonPt = mytree.K0Star_gen_pt[i]
 
             if firstTrkCharge*secondTrkCharge >= 0: continue
 
@@ -682,7 +684,7 @@ for jentry in range(nentries):
             #genTrk1Pt_chosen = genTrk1Pt
             #genTrk2Pt_chosen = genTrk2Pt
             #genMesonMass_chosen = genMesonMass
-            genMesonPt_chosen = genMesonPt
+            #genMesonPt_chosen = genMesonPt
 
         #meson loop end------------------
     #isK* end----------------------------------------------------------------------------------------------------
@@ -775,45 +777,78 @@ for jentry in range(nentries):
     #//                                                             //
     #//*************************************************************//
     
-    #is_trk1_matched   = False
-    #is_trk2_matched   = False   
+      
     is_photon_matched = False
     is_meson_matched  = False
-    is_boson_matched  = False
+    is_boson_matched  = False    
+    foundPhoton = False
+    foundMeson = False
+    genPhoton_eT = genPhoton_eta = genPhoton_phi = None  # Placeholder
+    genMeson_pT = genMeson_eta = genMeson_phi = None
 
     if not runningOnData:
-        for i in range(len(mytree.GenIsolatedPhoton_eta)):
-            genPhoton_eta = mytree.GenIsolatedPhoton_eta[i]
-            genPhoton_phi = mytree.GenIsolatedPhoton_phi[i]
+        for i in range(mytree.nGenPart):
+            mother_idx = mytree.GenPart_genPartIdxMother[i]
+            # Controllo per il mesone (φ, ρ o K*)
+            if verbose: print(f"Indice: {i}, PDG ID: {mytree.GenPart_pdgId[i]}, madre: {mytree.GenPart_pdgId[mother_idx]}")
+            if (mytree.GenPart_pdgId[i] in [333, 113, 313] and mother_idx >= 0 and mytree.GenPart_pdgId[mother_idx] in [23, 25]):             
+                genMeson_pT = mytree.GenPart_pt[i]
+                genMeson_eta = mytree.GenPart_eta[i]
+                genMeson_phi = mytree.GenPart_phi[i]
+                foundMeson = True
+                if verbose: print(f"Trovato mesone! Indice: {i}, PDG ID: {mytree.GenPart_pdgId[i]}, madre: {mytree.GenPart_pdgId[mother_idx]}")
+            # Controllo per il fotone con madre H o Z
+            if (mytree.GenPart_pdgId[i] == 22 and mother_idx >= 0 and mytree.GenPart_pdgId[mother_idx] in [23, 25]):            
+                genPhoton_eT = mytree.GenPart_pt[i]
+                genPhoton_eta = mytree.GenPart_eta[i]
+                genPhoton_phi = mytree.GenPart_phi[i]
+                foundPhoton = True
+                if verbose: print(f"Trovato fotone! Indice: {i}, madre: {mytree.GenPart_pdgId[mother_idx]}")
 
-        #photon matching -----------------------------------------
-        deltaPhiPhoton = abs(photon_phi_chosen - genPhoton_phi)
-        if (deltaPhiPhoton > math.pi): deltaPhiPhoton = 2*math.pi - deltaPhiPhoton
+        # Controllo se i valori sono stati trovati
+        if not foundPhoton:
+            if verbose: print("Nessun fotone trovato in questo evento con madre Z o H")
+            genPhoton_eT = genPhoton_eta = genPhoton_phi = -999  # Valore di default
 
-        deltaR_photonGenVsReco = math.sqrt((photon_eta_chosen - genPhoton_eta) * (photon_eta_chosen - genPhoton_eta) + deltaPhiPhoton * deltaPhiPhoton)
-        if (deltaR_photonGenVsReco < 0.2): is_photon_matched = True
+        if not foundMeson:
+            if verbose: print("Nessun mesone trovato in questo evento con madre Z o H")
+            genMeson_pT = genMeson_eta = genMeson_phi = -999  # Valore di default
 
-        #meson matching -----------------------------------------
-        if abs(genMesonPt_chosen - mesonTreePt_chosen < 0.05): is_meson_matched = True
+        # PHOTON MATCHING
+        if genPhoton_phi is not None:  # Evita errore se il fotone non è stato trovato
+            deltaPhiPhoton = abs(photon_phi_chosen - genPhoton_phi)
+            if deltaPhiPhoton > math.pi:
+                deltaPhiPhoton = 2 * math.pi - deltaPhiPhoton
 
-        #boson matching -----------------------------------------    
-        if(is_photon_matched and is_meson_matched): 
-            is_boson_matched  = True
-            if(verbose): print("************************* BOSON FOUND ****************************")        
-            nEventsBosonMatched+=1
-    
-        else:     
-            nEventsBosonNotMatched+=1
-            if(verbose): print("THAT'S NOT A HIGGS or a Z!")
+            deltaR_photonGenVsReco = math.sqrt((photon_eta_chosen - genPhoton_eta) ** 2 + deltaPhiPhoton ** 2)
+            is_photon_matched = deltaR_photonGenVsReco < 0.2
 
-        #some prints
-        if(verbose) :
-            print("Photon eT =", photonEtMax)      
+        # MESON MATCHING
+        if genMeson_phi is not None:  # Evita errore se il mesone non è stato trovato
+            deltaPhiMeson = abs(mesonTreePhi_chosen - genMeson_phi)
+            if deltaPhiMeson > math.pi:
+                deltaPhiMeson = 2 * math.pi - deltaPhiMeson
+
+            deltaR_mesonGenVsReco = math.sqrt((mesonTreeEta_chosen - genMeson_eta) ** 2 + deltaPhiMeson ** 2)
+            is_meson_matched = deltaR_mesonGenVsReco < 0.3
+
+        # BOSON MATCHING
+        if is_photon_matched and is_meson_matched: 
+            is_boson_matched = True
+            print("************************* BOSON FOUND ****************************")
+            nEventsBosonMatched += 1
+        else:
+            nEventsBosonNotMatched += 1
+            print("THAT'S NOT A HIGGS or a Z!")
+
+        # DEBUG PRINTS
+        if verbose:
+            print("Photon eT =", photonEtMax)
             print("Tracks pT =", firstTrkPt + secondTrkPt)
             print("Meson pT =", mesonTreePt_chosen)
             print("firstTrkPt =", firstTrkPt)
             print("secondTrkPt =", secondTrkPt)
-            print("genMesonPt =", genMesonPt_chosen)
+            print("genMesonPt =", genMeson_pT)
             print("Tracks DeltaR =", deltaRTrks_chosen)
             print("Meson inv. mass from tracks =", mesonMass)
             print("Meson kin. mass =", mesonTreeMassKin_chosen)
@@ -821,6 +856,8 @@ for jentry in range(nentries):
             print("---------------------------------------------------------------")
             print("MC H or Z FOUND =", nEventsBosonMatched, ", MC H or Z NOT FOUND =", nEventsBosonNotMatched)
             print("---------------------------------------------------------------")
+
+            
 
     
     tree_output.Fill()
