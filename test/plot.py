@@ -34,8 +34,8 @@ if args.boson_channel == "H": isHAnalysis = True
 elif args.boson_channel == "Z": isZAnalysis = True 
 if args.meson_channel == "phi": isPhiAnalysis = True 
 if args.meson_channel == "rho": isRhoAnalysis = True 
-if args.meson_channel == "K*": isKAnalysis = True 
-if args.meson_channel == "D0*": isDAnalysis = True 
+if args.meson_channel == "K": isKAnalysis = True 
+if args.meson_channel == "D0": isD0Analysis = True 
 
 if args.plot_only_data == "signal": plotOnlyData = True
 if args.plot_only_data == "signal": plotOnlyData = False
@@ -102,9 +102,9 @@ for filename in list_inputfiles:
 
         histo_container[-1].SetLineStyle(1)   #continue line (2 for dashed)
 
-        if isPhiAnalysis: histo_container[-1].SetLineColor(9)   #blue, 2 for red
-        elif isRhoAnalysis: histo_container[-1].SetLineColor(46)   #blue, 2 for red
-        elif isKAnalysis: histo_container[-1].SetLineColor(3)
+        if isPhiAnalysis: histo_container[-1].SetLineColor(9)   #blue
+        elif isRhoAnalysis: histo_container[-1].SetLineColor(46)   #red
+        elif isKAnalysis: histo_container[-1].SetLineColor(8) #green
 
         histo_container[-1].SetLineWidth(4)   #kind of thick
         histo_container[-1].Scale(1./histo_container[-1].GetEntries()) #normalize to 1

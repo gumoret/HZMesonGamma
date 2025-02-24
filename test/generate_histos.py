@@ -21,7 +21,7 @@ ROOT.gROOT.SetBatch(True)
 # PARSER and INPUT #############################################################################################
 p = argparse.ArgumentParser(description='Select rootfile to plot')
 p.add_argument('boson_channel', help='type <<H>> or <<Z>>')
-p.add_argument('meson_channel', help='type <<rho>> or <<phi>> or <<K*>> or <<D0*>>')
+p.add_argument('meson_channel', help='type <<rho>> or <<phi>> or <<K>> or <<D0>>')
 p.add_argument('rootfile_name', help='Type rootfile name')
 p.add_argument('outputfile_option', help='Provide output file name')
 
@@ -34,8 +34,8 @@ if args.boson_channel == "H": isHAnalysis = True
 elif args.boson_channel == "Z": isZAnalysis = True 
 if args.meson_channel == "phi": isPhiAnalysis = True 
 if args.meson_channel == "rho": isRhoAnalysis = True 
-if args.meson_channel == "K*": isKAnalysis = True 
-if args.meson_channel == "D0*": isDAnalysis = True 
+if args.meson_channel == "K": isKAnalysis = True 
+if args.meson_channel == "D0": isD0Analysis = True 
 
 
 

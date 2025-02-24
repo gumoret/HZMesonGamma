@@ -92,9 +92,9 @@ for filename in list_inputfiles:
 
         histo_container[-1].SetLineStyle(1)   #continue line (2 for dashed)
 
-        if isPhiAnalysis: histo_container[-1].SetLineColor(9)   #blue, 2 for red
-        elif isRhoAnalysis: histo_container[-1].SetLineColor(46)   #blue, 2 for red
-        elif isKAnalysis: histo_container[-1].SetLineColor(3)
+        if isPhiAnalysis: histo_container[-1].SetLineColor(9)   #blue
+        elif isRhoAnalysis: histo_container[-1].SetLineColor(46)   #red
+        elif isKAnalysis: histo_container[-1].SetLineColor(8) #green
 
         histo_container[-1].SetLineWidth(4)   #kind of thick
         histo_container[-1].Scale(1./histo_container[-1].GetEntries()) #normalize to 1
