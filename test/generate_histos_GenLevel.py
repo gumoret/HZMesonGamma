@@ -20,7 +20,7 @@ ROOT.gROOT.SetBatch(True)
 # PARSER and INPUT #############################################################################################
 p = argparse.ArgumentParser(description='Select rootfile to plot')
 p.add_argument('boson_channel', help='type <<H>> or <<Z>>')
-p.add_argument('meson_channel', help='type <<rho>> or <<phi>> or <<K*>> or <<D0*>>')
+p.add_argument('meson_channel', help='type <<rho>> or <<phi>> or <<K>> or <<D0>>')
 p.add_argument('rootfile_name', help='Type rootfile name')
 p.add_argument('outputfile_option', help='Provide output file name')
 
@@ -33,8 +33,8 @@ if args.boson_channel == "H": isHAnalysis = True
 elif args.boson_channel == "Z": isZAnalysis = True 
 if args.meson_channel == "phi": isPhiAnalysis = True 
 if args.meson_channel == "rho": isRhoAnalysis = True 
-if args.meson_channel == "K*": isKAnalysis = True 
-if args.meson_channel == "D0*": isDAnalysis = True 
+if args.meson_channel == "K": isKAnalysis = True 
+if args.meson_channel == "D0": isDAnalysis = True 
 
 
 #HISTOS ###########################################################################################################
@@ -43,7 +43,8 @@ list_histos = ["h_bosonMass", "h_mesonMass", "h_firstTrkPt", "h_secondTrkPt", "h
 
 histo_map[list_histos[0]]  = ROOT.TH1F(list_histos[0],"M_{boson}", 300, 50., 200.) 
 if   isPhiAnalysis: histo_map[list_histos[1]]  = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 1., 1.05) 
-elif isRhoAnalysis: histo_map[list_histos[1]]  = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 0.5, 1.) 
+elif isRhoAnalysis: histo_map[list_histos[1]]  = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 0.5, 1.)
+elif isKAnalysis: histo_map[list_histos[1]]  = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 0.6, 1.3) 
 histo_map[list_histos[2]]  = ROOT.TH1F(list_histos[2],"p_{T} of the 1st track", 100, 0.,70.)
 histo_map[list_histos[3]]  = ROOT.TH1F(list_histos[3],"p_{T} of the 2nd track", 100, 0., 50.)
 histo_map[list_histos[4]]  = ROOT.TH1F(list_histos[4],"#eta of the 1st track", 100, -2.5, 2.5)
@@ -98,27 +99,54 @@ for jentry in range(nentries):
     eventWeight = 1.
     #FILL HISTOS #####################################################################################################
     
-    histo_map["h_bosonMass"].Fill(bosonMass, eventWeight)          
-    histo_map["h_mesonMass"].Fill(mesonMass, eventWeight)
-    histo_map["h_firstTrkPt"].Fill(firstTrkPt, eventWeight)
-    histo_map["h_secondTrkPt"].Fill(secondTrkPt, eventWeight)
-    histo_map["h_firstTrkEta"].Fill(firstTrkEta, eventWeight)    
-    histo_map["h_secondTrkEta"].Fill(secondTrkEta, eventWeight)   
-    histo_map["h_firstTrkPhi"].Fill(firstTrkPhi, eventWeight)    
-    histo_map["h_secondTrkPhi"].Fill(secondTrkPhi, eventWeight)
-    histo_map["h_mesonPt"].Fill(mesonPt, eventWeight)
-    histo_map["h_mesonEta"].Fill(mesonEta, eventWeight)
-    histo_map["h_mesonPhi"].Fill(mesonPhi, eventWeight)
-    histo_map["h_photonPt"].Fill(photonPt, eventWeight)
-    histo_map["h_photonEta"].Fill(photonEta, eventWeight)
-    histo_map["h_photonPhi"].Fill(photonPhi, eventWeight)
-    histo_map["h_bosonPt"].Fill(bosonPt, eventWeight)
-    histo_map["h_bosonEta"].Fill(bosonEta, eventWeight)
-    histo_map["h_bosonPhi"].Fill(bosonPhi, eventWeight)
+    values_to_check = [bosonMass, mesonMass, mesonPt, mesonEta, mesonPhi, photonPt, photonEta, photonPhi, bosonPt, bosonEta, bosonPhi]
+    isValid_values = False
+
+    if all(value > -999 for value in values_to_check): isValid_values = True
+
+    if isValid_values and not isKAnalysis:
+        histo_map["h_bosonMass"].Fill(bosonMass, eventWeight)          
+        histo_map["h_mesonMass"].Fill(mesonMass, eventWeight)
+        histo_map["h_firstTrkPt"].Fill(firstTrkPt, eventWeight)
+        histo_map["h_secondTrkPt"].Fill(secondTrkPt, eventWeight)
+        histo_map["h_firstTrkEta"].Fill(firstTrkEta, eventWeight)    
+        histo_map["h_secondTrkEta"].Fill(secondTrkEta, eventWeight)   
+        histo_map["h_firstTrkPhi"].Fill(firstTrkPhi, eventWeight)    
+        histo_map["h_secondTrkPhi"].Fill(secondTrkPhi, eventWeight)
+        histo_map["h_mesonPt"].Fill(mesonPt, eventWeight)
+        histo_map["h_mesonEta"].Fill(mesonEta, eventWeight)
+        histo_map["h_mesonPhi"].Fill(mesonPhi, eventWeight)
+        histo_map["h_photonPt"].Fill(photonPt, eventWeight)
+        histo_map["h_photonEta"].Fill(photonEta, eventWeight)
+        histo_map["h_photonPhi"].Fill(photonPhi, eventWeight)
+        histo_map["h_bosonPt"].Fill(bosonPt, eventWeight)
+        histo_map["h_bosonEta"].Fill(bosonEta, eventWeight)
+        histo_map["h_bosonPhi"].Fill(bosonPhi, eventWeight)
+
+    elif isKAnalysis:
+        histo_map["h_bosonMass"].Fill(bosonMass, eventWeight)          
+        histo_map["h_mesonMass"].Fill(mesonMass, eventWeight)
+        histo_map["h_firstTrkPt"].Fill(firstTrkPt, eventWeight)
+        histo_map["h_secondTrkPt"].Fill(secondTrkPt, eventWeight)
+        histo_map["h_firstTrkEta"].Fill(firstTrkEta, eventWeight)    
+        histo_map["h_secondTrkEta"].Fill(secondTrkEta, eventWeight)   
+        histo_map["h_firstTrkPhi"].Fill(firstTrkPhi, eventWeight)    
+        histo_map["h_secondTrkPhi"].Fill(secondTrkPhi, eventWeight)
+        histo_map["h_mesonPt"].Fill(mesonPt, eventWeight)
+        histo_map["h_mesonEta"].Fill(mesonEta, eventWeight)
+        histo_map["h_mesonPhi"].Fill(mesonPhi, eventWeight)
+        histo_map["h_photonPt"].Fill(photonPt, eventWeight)
+        histo_map["h_photonEta"].Fill(photonEta, eventWeight)
+        histo_map["h_photonPhi"].Fill(photonPhi, eventWeight)
+        histo_map["h_bosonPt"].Fill(bosonPt, eventWeight)
+        histo_map["h_bosonEta"].Fill(bosonEta, eventWeight)
+        histo_map["h_bosonPhi"].Fill(bosonPhi, eventWeight)
+
+
         
 
 #HISTO LABELS #########################################################################################################
-histo_map["h_bosonMass"].GetXaxis().SetTitle("m_{Z} [GeV/c^2]")
+histo_map["h_bosonMass"].GetXaxis().SetTitle("m_{boson} [GeV/c^2]")
 histo_map["h_bosonMass"].SetTitle("boson invariant mass")
 histo_map["h_mesonMass"].GetXaxis().SetTitle("m_{meson } [GeV/c^2]")
 histo_map["h_mesonMass"].SetTitle("Meson mass")
