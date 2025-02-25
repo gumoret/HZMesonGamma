@@ -28,6 +28,10 @@ ZMesonGammaGen::ZMesonGammaGen(const edm::ParameterSet& iConfig)
   prunedGenParticlesToken_ = consumes<std::vector<reco::GenParticle> >(edm::InputTag("prunedGenParticles"));
   //genParticlesToken_       = consumes<std::vector<reco::GenParticle> >(edm::InputTag("genParticles"));
   create_trees();
+  bosonID999 = 0;
+  nEvent = 0;
+  
+
 }
 
 ZMesonGammaGen::~ZMesonGammaGen()
@@ -117,18 +121,24 @@ void ZMesonGammaGen::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   TLorentzVector mu[2];
   theta_pol_tree = 0.;
 
+  particleNumber = 0;
 
   
   for(auto gen = genParticles->begin(); gen != genParticles->end(); ++gen){
 
+    if (gen->mother()) cout <<  "- particle number " << particleNumber << " ID = " << gen->pdgId() << " mother ID = " << gen->mother()->pdgId() << endl;
+    else cout << "no mother found for particle number " << particleNumber << " and pdgID = " << gen->pdgId() << endl;
+
+    particleNumber++;
+
     //if it is a Z with 2 daughters (sometimes Pythia sends a Z in itself, therefore only 1 daughter)
-    if(gen->pdgId() == 25 && gen->numberOfDaughters() == 2){
+    if((gen->pdgId() == 23 || gen->pdgId() == 25) && gen->numberOfDaughters() == 2){
 
       //for each daughter
       for(int i = 0; i < 2; i++){
 
         //if daughters are not Phi or Rho and gamma, continue
-        if( !(gen->daughter(i)->pdgId() == 22 || (gen->daughter(i)->pdgId() == 333 || gen->daughter(i)->pdgId() == 113)) ) continue;
+        if( !(gen->daughter(i)->pdgId() == 22 || (gen->daughter(i)->pdgId() == 333 || gen->daughter(i)->pdgId() == 113 || gen->daughter(i)->pdgId() == 313)) ) continue;
 
         //save Z variables
         genZ_ID   = gen->pdgId();
@@ -138,7 +148,8 @@ void ZMesonGammaGen::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         genZ_E    = gen->energy();
         genZ_mass = gen->p4().M();
               
-        //cout << "gen->daughter(i)->pdgId() = " << gen->daughter(i)->pdgId() << endl;
+        //cout << "gen->pdgId() = " << gen->pdgId() << endl;
+        //if(genZ_ID==-999) bosonID999++;
 
         //if daughter is Gamma
         if(gen->daughter(i)->pdgId() == 22){ 
@@ -152,7 +163,7 @@ void ZMesonGammaGen::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         } 
 
         //if daughter(i) is a Phi or a Rho
-        if(gen->daughter(i)->pdgId() == 333 || gen->daughter(i)->pdgId() == 113){
+        if(gen->daughter(i)->pdgId() == 333 || gen->daughter(i)->pdgId() == 113 || gen->daughter(i)->pdgId() == 313){
 
           //save Phi/Rho variables
           genMeson_ID   = gen->daughter(i)->pdgId();
@@ -164,7 +175,6 @@ void ZMesonGammaGen::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   
           //if Meson has two daughters
           if(gen->daughter(i)->numberOfDaughters() == 2){
-            //cout << "try1" << endl;
       
             //for each Meson daughter
             for(int j = 0; j < 2; j++){
@@ -183,8 +193,6 @@ void ZMesonGammaGen::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
               //if daughter(j) is a K+
               if(gen->daughter(i)->daughter(j)->pdgId() == 321){
 
-                //cout << "try2" << endl;
-
                 //save K+ variables
                 genTrackplus_ID  = gen->daughter(i)->daughter(j)->pdgId();
                 genTrackplus_pT  = gen->daughter(i)->daughter(j)->pt();
@@ -198,7 +206,6 @@ void ZMesonGammaGen::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
               //if daughter(j) is a Pi-
               if(gen->daughter(i)->daughter(j)->pdgId() == -211){
 
-                //cout << "try3" << endl;
                 //save Pi- variables
                 genTrackminus_ID  = gen->daughter(i)->daughter(j)->pdgId();
                 genTrackminus_pT  = gen->daughter(i)->daughter(j)->pt();
@@ -210,7 +217,6 @@ void ZMesonGammaGen::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
               //if daughter(j) is a Pi+
               if(gen->daughter(i)->daughter(j)->pdgId() == 211){
 
-                //cout << "try3" << endl;
                 //save Pi+ variables
                 genTrackplus_ID  = gen->daughter(i)->daughter(j)->pdgId();
                 genTrackplus_pT  = gen->daughter(i)->daughter(j)->pt();
@@ -231,16 +237,12 @@ void ZMesonGammaGen::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
               genTrackBig_pT = genTrackplus_pT;
               genTrackSmall_pT = genTrackminus_pT;
             }
-            //cout << genTrackSmall_pT << endl;
-            //cout << "pdgIDE" << endl;
-            //cout<<genTrackplus_ID<<endl;
-          }//"if Phi/Rho has two daughters" end   //quindi: il mesone è sempre un phi/rho, infatti pdgID è stampato sempre, mentre non sempre il mesone decade in due figlie,
-          //cout<<"pdgID"<<endl;             // infatti pdgIDE non sempre è stampato
-          //cout<<genTrackplus_ID<<endl;
-          //cout<<genTrackminus_ID<<endl;
+          }//"if Phi/Rho has two daughters" end   //quindi: il mesone è sempre un phi/rho, infatti pdgID è stampato sempre, mentre non sempre il mesone decade in due figlie, infatti pdgIDE non sempre è stampato
         }//"if it is a Phi/Rho" end
       }//i-forloop end
     }//"if it is a Z" end
+
+    
   }//gen-forloop end
   
   genZ_ID_tree   = genZ_ID;
@@ -278,8 +280,16 @@ void ZMesonGammaGen::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   genTrackBig_pT_tree   = genTrackBig_pT;
   genTrackSmall_pT_tree = genTrackSmall_pT;
   
+  if (genZ_ID_tree == -999) bosonID999++;
   
   mytree->Fill();
+
+  cout << "EVENT " << nEvent << " NUMBER OF GEN PARTICLES = " <<  genParticles->size() << endl;
+  cout << "bosons with ID = -999: " << bosonID999 << endl;
+  cout << "bosons ID = " << genZ_ID << "  boson mass = "<< genZ_mass << endl;
+  cout << "meson ID = " << genMeson_ID << "  meson mass = "<< genMeson_mass << endl;
+
+  nEvent++;
 
 }
 

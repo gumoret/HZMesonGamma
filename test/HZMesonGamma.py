@@ -785,7 +785,7 @@ for jentry in range(nentries):
             mother_idx = mytree.GenPart_genPartIdxMother[i]
 
             # Meson check (φ, ρ or K*)
-            if verbose: print(f"Indice: {i}, PDG ID: {mytree.GenPart_pdgId[i]}, madre: {mytree.GenPart_pdgId[mother_idx]}")
+            #if verbose: print(f"Indice: {i}, PDG ID: {mytree.GenPart_pdgId[i]}, madre: {mytree.GenPart_pdgId[mother_idx]}")
 
             if (mytree.GenPart_pdgId[i] in [333, 113, 313] and mother_idx >= 0 and mytree.GenPart_pdgId[mother_idx] in [23, 25]):             
                 genMeson_pT = mytree.GenPart_pt[i]
@@ -810,7 +810,7 @@ for jentry in range(nentries):
         if not foundMeson:
             if verbose: print("Nessun mesone trovato in questo evento con madre Z o H")
             genMeson_pT = genMeson_eta = genMeson_phi = -999  # Default value
-            
+
 
         # PHOTON MATCHING---------------------------------------------------
         if genPhoton_phi is not None:  

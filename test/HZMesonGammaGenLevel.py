@@ -102,6 +102,7 @@ genGamma_ID, genGamma_pT, genGamma_eta, genGamma_phi = [-999] * 4
 genTrack1_ID, genTrack1_pT, genTrack1_eta, genTrack1_phi, genTrack1_mass = [-999] * 5
 genTrack2_ID, genTrack2_pT, genTrack2_eta, genTrack2_phi, genTrack2_mass = [-999] * 5
 
+boson_not_found_count = 0
 
 for jentry in range(nentries):
     ientry = mytree.LoadTree(jentry)
@@ -125,6 +126,10 @@ for jentry in range(nentries):
                 if mother_idx not in meson_to_daughters: meson_to_daughters[mother_idx] = []
                 meson_to_daughters[mother_idx].append(d)  
 
+
+        print("   - particle number ", d, "  ID = ", mytree.GenPart_pdgId[d], "  mother ID = ", mytree.GenPart_pdgId[mother_idx]  )
+
+
     for i in range(mytree.nGenPart):
         daughters = mother_to_daughters.get(i, [])  # retrieve daughters
 
@@ -140,6 +145,8 @@ for jentry in range(nentries):
 
         #if daughters are not Phi or Rho or K0* and gamma, continue
         if meson_idx is None or gamma_idx is None: continue
+            
+
 
         #save boson variables
         genBoson_ID = mytree.GenPart_pdgId[i]
@@ -147,6 +154,8 @@ for jentry in range(nentries):
         genBoson_eta = mytree.GenPart_eta[i]
         genBoson_phi = mytree.GenPart_phi[i]
         genBoson_mass = mytree.GenPart_mass[i]
+
+        #if genBoson_ID == -999: boson_not_found_count += 1
 
         #save Gamma variables
         genGamma_ID = mytree.GenPart_pdgId[gamma_idx]
@@ -217,6 +226,12 @@ for jentry in range(nentries):
 
 
     tree_output.Fill()
+
+    if genBoson_ID == -999: boson_not_found_count+=1
+
+    print("bosons with ID = -999:", boson_not_found_count)
+    print("boson ID =", genBoson_ID, "boson mass =", genBoson_mass)
+    print("meson ID =", genMeson_ID, "meson mass =", genMeson_mass)
     
 #Tree writing ##########################################################################################################
 tree_output.Write()

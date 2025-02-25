@@ -19,7 +19,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
 #inputFiles={'file:/eos/user/p/pellicci/MesonGamma_root/2023/Zrhogamma_miniAOD/Zrhogamma_2018UL_11.root',
             #'file:/eos/user/p/pellicci/MesonGamma_root/2023/Zrhogamma_miniAOD/Zrhogamma_2018UL_0.root'}
 
-input_path = '/eos/user/p/pellicci/MesonGamma_root/2024/Hphigamma_EvtGen_miniAOD/'
+input_path = '/eos/user/p/pellicci/MesonGamma_root/2024/testOfficialProd/ggHkstgamma/'
 
 
 def getListOfFiles(dirName):                                                                                                                                                                          

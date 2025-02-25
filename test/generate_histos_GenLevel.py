@@ -65,6 +65,32 @@ histo_map[list_histos[16]] = ROOT.TH1F(list_histos[16],"#phi_{boson}", 100, -mat
 fOut = ROOT.TFile(output_filename,"RECREATE")
 fOut.cd()
 
+#Variables to go in the output tree ################################################################################
+_bosonMass          = np.zeros(1, dtype=float)  
+_mesonMass      = np.zeros(1, dtype=float)
+_firstTrkPt     = np.zeros(1, dtype=float)
+_secondTrkPt    = np.zeros(1, dtype=float)
+_firstTrkEta    = np.zeros(1, dtype=float)  
+_secondTrkEta   = np.zeros(1, dtype=float)
+_mesonPt     = np.zeros(1, dtype=float)
+_mesonEta    = np.zeros(1, dtype=float)  
+_photonPt       = np.zeros(1, dtype=float)
+_photonEta      = np.zeros(1, dtype=float) 
+
+tree_output = ROOT.TTree('tree_output','tree_output')
+tree_output.Branch('bosonMass',_bosonMass,'bosonMass/D')
+tree_output.Branch('mesonMass',_mesonMass,'MesonMass/D')
+tree_output.Branch('firstTrkPt',_firstTrkPt,'firstTrkPt/D')
+tree_output.Branch('secondTrkPt',_secondTrkPt,'secondTrkPt/D')
+tree_output.Branch('firstTrkEta',_firstTrkEta,'firstTrkEta/D')
+tree_output.Branch('secondTrkEta',_secondTrkEta,'secondTrkEta/D')
+tree_output.Branch('mesonPt',_mesonPt,'mesonPt/D')
+tree_output.Branch('mesonEta',_mesonEta,'mesonEta/D')
+tree_output.Branch('photonPt',_photonPt,'_photonPt/D')
+tree_output.Branch('photonEta',_photonEta,'_photonEta/D')
+
+
+
 #EVENTS LOOP ########################################################################################################
 nentries = mytree.GetEntriesFast()
 for jentry in range(nentries):
@@ -99,30 +125,30 @@ for jentry in range(nentries):
     eventWeight = 1.
     #FILL HISTOS #####################################################################################################
     
-    values_to_check = [bosonMass, mesonMass, mesonPt, mesonEta, mesonPhi, photonPt, photonEta, photonPhi, bosonPt, bosonEta, bosonPhi]
-    isValid_values = False
+    #values_to_check = [bosonMass, mesonMass, mesonPt, mesonEta, mesonPhi, photonPt, photonEta, photonPhi, bosonPt, bosonEta, bosonPhi]
+    #isValid_values = False
 
-    if all(value > -999 for value in values_to_check): isValid_values = True
+    #if all(value > -999 for value in values_to_check): isValid_values = True
 
-    if isValid_values and not isKAnalysis:
-        histo_map["h_bosonMass"].Fill(bosonMass, eventWeight)          
-        histo_map["h_mesonMass"].Fill(mesonMass, eventWeight)
-        histo_map["h_firstTrkPt"].Fill(firstTrkPt, eventWeight)
-        histo_map["h_secondTrkPt"].Fill(secondTrkPt, eventWeight)
-        histo_map["h_firstTrkEta"].Fill(firstTrkEta, eventWeight)    
-        histo_map["h_secondTrkEta"].Fill(secondTrkEta, eventWeight)   
-        histo_map["h_firstTrkPhi"].Fill(firstTrkPhi, eventWeight)    
-        histo_map["h_secondTrkPhi"].Fill(secondTrkPhi, eventWeight)
-        histo_map["h_mesonPt"].Fill(mesonPt, eventWeight)
-        histo_map["h_mesonEta"].Fill(mesonEta, eventWeight)
-        histo_map["h_mesonPhi"].Fill(mesonPhi, eventWeight)
-        histo_map["h_photonPt"].Fill(photonPt, eventWeight)
-        histo_map["h_photonEta"].Fill(photonEta, eventWeight)
-        histo_map["h_photonPhi"].Fill(photonPhi, eventWeight)
-        histo_map["h_bosonPt"].Fill(bosonPt, eventWeight)
-        histo_map["h_bosonEta"].Fill(bosonEta, eventWeight)
-        histo_map["h_bosonPhi"].Fill(bosonPhi, eventWeight)
-
+    #if isValid_values and not isKAnalysis:
+    histo_map["h_bosonMass"].Fill(bosonMass, eventWeight)          
+    histo_map["h_mesonMass"].Fill(mesonMass, eventWeight)
+    histo_map["h_firstTrkPt"].Fill(firstTrkPt, eventWeight)
+    histo_map["h_secondTrkPt"].Fill(secondTrkPt, eventWeight)
+    histo_map["h_firstTrkEta"].Fill(firstTrkEta, eventWeight)    
+    histo_map["h_secondTrkEta"].Fill(secondTrkEta, eventWeight)   
+    histo_map["h_firstTrkPhi"].Fill(firstTrkPhi, eventWeight)    
+    histo_map["h_secondTrkPhi"].Fill(secondTrkPhi, eventWeight)
+    histo_map["h_mesonPt"].Fill(mesonPt, eventWeight)
+    histo_map["h_mesonEta"].Fill(mesonEta, eventWeight)
+    histo_map["h_mesonPhi"].Fill(mesonPhi, eventWeight)
+    histo_map["h_photonPt"].Fill(photonPt, eventWeight)
+    histo_map["h_photonEta"].Fill(photonEta, eventWeight)
+    histo_map["h_photonPhi"].Fill(photonPhi, eventWeight)
+    histo_map["h_bosonPt"].Fill(bosonPt, eventWeight)
+    histo_map["h_bosonEta"].Fill(bosonEta, eventWeight)
+    histo_map["h_bosonPhi"].Fill(bosonPhi, eventWeight)
+    '''
     elif isKAnalysis:
         histo_map["h_bosonMass"].Fill(bosonMass, eventWeight)          
         histo_map["h_mesonMass"].Fill(mesonMass, eventWeight)
@@ -141,7 +167,21 @@ for jentry in range(nentries):
         histo_map["h_bosonPt"].Fill(bosonPt, eventWeight)
         histo_map["h_bosonEta"].Fill(bosonEta, eventWeight)
         histo_map["h_bosonPhi"].Fill(bosonPhi, eventWeight)
+    '''
 
+    #FILL TREE ########################################################################################################
+    _bosonMass[0]          = bosonMass
+    _mesonMass[0]      = mesonMass
+    _firstTrkPt[0]     = firstTrkPt
+    _secondTrkPt[0]    = secondTrkPt
+    _firstTrkEta[0]    = firstTrkEta
+    _secondTrkEta[0]   = secondTrkEta
+    _mesonPt[0]     = mesonPt
+    _mesonEta[0]    = mesonEta     
+    _photonPt[0]       = photonPt
+    _photonEta[0]      = photonEta 
+    
+    tree_output.Fill()
 
         
 
@@ -181,6 +221,8 @@ histo_map["h_bosonEta"].SetTitle("Eta of the Z")
 histo_map["h_bosonPhi"].GetXaxis().SetTitle("#phi_{boson} [rad]")
 histo_map["h_bosonPhi"].SetTitle("Phi of the boson")
 
+#Tree writing ##########################################################################################################
+tree_output.Write()
 
 #HISTOS WRITING ########################################################################################################
 fOut.cd()
