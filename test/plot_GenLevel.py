@@ -28,15 +28,14 @@ p.add_argument('rootfile_name', help='Type rootfile name')
 args = p.parse_args()
 
 if args.boson_channel == "H": isHAnalysis = True 
-elif args.boson_channel == "Z": isZAnalysis = True 
+if args.boson_channel == "Z": isZAnalysis = True 
 
 if args.meson_channel == "phi": isPhiAnalysis = True 
-elif args.meson_channel == "rho": isRhoAnalysis = True 
-elif args.meson_channel == "K": isKAnalysis = True 
-elif args.meson_channel == "D0": isD0Analysis = True 
+if args.meson_channel == "rho": isRhoAnalysis = True 
+if args.meson_channel == "K": isKAnalysis = True 
+if args.meson_channel == "D0": isD0Analysis = True 
 
-
-list_inputfiles = [args.rootfile_name]
+inputfile = args.rootfile_name
 
 
 #CMS-style plotting 
@@ -60,48 +59,54 @@ key = ROOT.TKey()
 
 for key in keylist :
     obj_class = ROOT.gROOT.GetClass(key.GetClassName())
-    if not obj_class.InheritsFrom("TH1") :
-        continue
-    if not (key.ReadObj().GetName() == "h_efficiency" or key.ReadObj().GetName() == "h_cutOverflow"): #h_efficiency and h_cutOverflow is a plot plotted in other way   
-        list_histos.append( key.ReadObj().GetName() )
+    if not obj_class.InheritsFrom("TH1"): continue
+    #if not (key.ReadObj().GetName() == "h_efficiency" or key.ReadObj().GetName() == "h_cutOverflow"): #h_efficiency and h_cutOverflow is a plot plotted in other way   
+    list_histos.append( key.ReadObj().GetName() )
 
 for hname in list_histos:
     hstack[hname] = ROOT.THStack("hstack_" + hname,"")
 
 
+fileIn = ROOT.TFile(inputfile)
 
-for filename in list_inputfiles:
-    fileIn = ROOT.TFile(filename)
+for histo_name in list_histos:
+    histo = fileIn.Get(histo_name)
 
-    for histo_name in list_histos:
-        histo = fileIn.Get(histo_name)
+    print("histo_name = ",histo_name)
 
-        print("histo_name = ",histo_name)
-        # Set to 0 the bins containing negative values, due to negative weights
-        hsize = histo.GetSize() - 2 # GetSize() returns the number of bins +2 (that is + overflow + underflow) 
-        for bin in range(1,hsize+1): # The +1 is in order to get the last bin
-            bincontent = histo.GetBinContent(bin)
-            if bincontent < 0.:
-                histo.SetBinContent(bin,0.)
+    #set stats box
+    ROOT.gStyle.SetOptStat(111111) 
+    histo.SetStats(True)
 
-        histo_container.append(copy.copy(histo))
+    # Set to 0 the bins containing negative values, due to negative weights
+    hsize = histo.GetSize() - 2 # GetSize() returns the number of bins +2 (that is + overflow + underflow) 
+    for bin in range(1,hsize+1): # The +1 is in order to get the last bin
+        bincontent = histo.GetBinContent(bin)
+        if bincontent < 0.:
+            histo.SetBinContent(bin,0.)
+
+    histo_container.append(copy.copy(histo))
+    
+    print(histo_name)
         
-        print(histo_name)
-            
-        if histo_name == "h_mesonMass": histo_container[-1].Rebin(2)
+    if histo_name == "h_mesonMass": histo_container[-1].Rebin(2)
 
-        histo_container[-1].SetLineStyle(1)   #continue line (2 for dashed)
+    histo_container[-1].SetLineStyle(1)   #continue line (2 for dashed)
 
-        if isPhiAnalysis: histo_container[-1].SetLineColor(9)   #blue
-        elif isRhoAnalysis: histo_container[-1].SetLineColor(46)   #red
-        elif isKAnalysis: histo_container[-1].SetLineColor(8) #green
+    if isPhiAnalysis: histo_container[-1].SetLineColor(9)   #blue
+    elif isRhoAnalysis: histo_container[-1].SetLineColor(46)   #red
+    elif isKAnalysis: histo_container[-1].SetLineColor(8) #green
 
-        histo_container[-1].SetLineWidth(4)   #kind of thick
-        #histo_container[-1].Scale(1./histo_container[-1].GetEntries()) #normalize to 1
-        hsignal[histo_name] = histo_container[-1]
-        hstack[histo_name].Add(histo_container[-1])
+    histo_container[-1].SetLineWidth(4)   #kind of thick
+    #histo_container[-1].Scale(1./histo_container[-1].GetEntries()) #normalize to 1
+    hsignal[histo_name] = histo_container[-1]
+    hstack[histo_name].Add(histo_container[-1])
 
-    fileIn.Close()
+
+
+
+
+fileIn.Close()
 
 for histo_name in list_histos:
 
@@ -111,13 +116,8 @@ for histo_name in list_histos:
     hstack[histo_name].SetTitle("")
     hsignal[histo_name].SetTitle("")
 
-    ROOT.gStyle.SetOptStat(111111)  
-    for hist in hstack[histo_name].GetHists():  hist.SetStats(True)
-
-    hstack[histo_name].GetHists().At(0).Draw("histo")  
-
     
-    hstack[histo_name].Draw("SAME,histo")
+    hstack[histo_name].Draw("histo")
     hstack[histo_name].GetYaxis().SetTitleSize(0.04)
     hstack[histo_name].GetXaxis().SetTitleSize(0.045)
     hstack[histo_name].GetYaxis().SetTitleOffset(1.25)
@@ -127,15 +127,15 @@ for histo_name in list_histos:
     hstack[histo_name].GetXaxis().SetLabelSize(0.04)
     hstack[histo_name].GetYaxis().SetLabelSize(0.04)
         
-    hstack[histo_name].SetMaximum(1.5 * hsignal[histo_name].GetMaximum())
-   
+    hstack[histo_name].SetMaximum(1.5 * hsignal[histo_name].GetMaximum())   
 
     #Legend ----------------------------------------
-    leg1 = ROOT.TLegend(0.65,0.74,0.87,0.97) #right positioning
+    leg1 = ROOT.TLegend(0.65, 0.68, 0.87, 0.91) #right positioning
     leg1.SetHeader(" ")
     leg1.SetNColumns(1)
     leg1.SetFillColorAlpha(0,0.)
     leg1.SetBorderSize(0)
+
     leg1.SetLineColor(1)
     leg1.SetLineStyle(1)
     leg1.SetLineWidth(1)
@@ -143,18 +143,12 @@ for histo_name in list_histos:
 
     if histo_name == "h_bosonMass":
         hstack[histo_name].GetXaxis().SetTitle("m_{boson} [GeV]")
-
     
     if histo_name == "h_mesonMass" :
         hstack[histo_name].GetXaxis().SetTitle("m_{meson} [GeV]")
-        if isPhiAnalysis:
-            hstack[histo_name].GetXaxis().SetLimits(1.00,1.042)
-            
-        if isRhoAnalysis:
-            hstack[histo_name].GetXaxis().SetLimits(0.5,1.)
-            
-        if isKAnalysis:
-            hstack[histo_name].GetXaxis().SetLimits(0.65,1.1)
+        #if isPhiAnalysis: hstack[histo_name].GetXaxis().SetLimits(1.00,1.042)            
+        #if isRhoAnalysis: hstack[histo_name].GetXaxis().SetLimits(0.5,1.)            
+        #if isKAnalysis: hstack[histo_name].GetXaxis().SetLimits(0.65,1.1)
             
     if histo_name == "h_firstTrkPt" :
         hstack[histo_name].GetXaxis().SetTitle("p_{T}^{Trk_{1}} [GeV]")
@@ -209,29 +203,27 @@ for histo_name in list_histos:
         hstack[histo_name].GetXaxis().SetTitle("#phi_{boson} [rad]")
 
 
+    hstack[histo_name].Draw("SAMES,histo")  
+    hsignal[histo_name].Draw("SAMES,histo")
 
-
-    hstack[histo_name].Draw("SAME,histo")  
-    hsignal[histo_name].Draw("SAME,hist")
-
-    '''
+    
     if isPhiAnalysis:
         leg1.AddEntry(hsignal[histo_name],"#phi#gamma GenLevel","l")
     if isRhoAnalysis:
         leg1.AddEntry(hsignal[histo_name],"#rho#gamma GenLevel","l")
     if isKAnalysis:
         leg1.AddEntry(hsignal[histo_name],"K*#gamma GenLevel","l")
-    '''
+    
     #CMS_lumi.CMS_lumi(canvas[histo_name], iPeriod, iPos) #Print integrated lumi and energy information
     leg1.Draw()
 
 
     ################################################
     
-    if isPhiAnalysis and isHAnalysis: output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/HPhi/GenLevel/"
+    if isPhiAnalysis and isHAnalysis: output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/HPhi/GenLevel/NarrowRange/"
     #"/eos/user/g/gumoret/www/HZMesonGamma/VBFHPhi/"
     #"/eos/user/g/gumoret/www/HZMesonGamma/HPhi/GenLevel/"
-    if isPhiAnalysis and isZAnalysis: output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/ZPhi/GenLevel/"
+    if isPhiAnalysis and isZAnalysis: output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/ZPhi/GenLevel/NarrowRange/"
 
     if isRhoAnalysis and isHAnalysis: output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/HRho/GenLevel/"
     if isRhoAnalysis and isZAnalysis: output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/ZRho/GenLevel/"
