@@ -127,7 +127,7 @@ for jentry in range(nentries):
                 meson_to_daughters[mother_idx].append(d)  
 
 
-        print("   - particle number ", d, "  ID = ", mytree.GenPart_pdgId[d], "  mother ID = ", mytree.GenPart_pdgId[mother_idx]  )
+        #print("   - particle number ", d, "  ID = ", mytree.GenPart_pdgId[d], "  mother ID = ", mytree.GenPart_pdgId[mother_idx]  )
 
 
     for i in range(mytree.nGenPart):
@@ -229,9 +229,9 @@ for jentry in range(nentries):
 
     if genBoson_ID == -999: boson_not_found_count+=1
 
-    print("bosons with ID = -999:", boson_not_found_count)
-    print("boson ID =", genBoson_ID, "boson mass =", genBoson_mass)
-    print("meson ID =", genMeson_ID, "meson mass =", genMeson_mass)
+    #print("bosons with ID = -999:", boson_not_found_count)
+    #print("boson ID =", genBoson_ID, "boson mass =", genBoson_mass)
+    #print("meson ID =", genMeson_ID, "meson mass =", genMeson_mass)
     
 #Tree writing ##########################################################################################################
 tree_output.Write()

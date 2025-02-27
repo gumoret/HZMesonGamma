@@ -29,10 +29,11 @@ args = p.parse_args()
 
 if args.boson_channel == "H": isHAnalysis = True 
 elif args.boson_channel == "Z": isZAnalysis = True 
+
 if args.meson_channel == "phi": isPhiAnalysis = True 
-if args.meson_channel == "rho": isRhoAnalysis = True 
-if args.meson_channel == "K": isKAnalysis = True 
-if args.meson_channel == "D0": isD0Analysis = True 
+elif args.meson_channel == "rho": isRhoAnalysis = True 
+elif args.meson_channel == "K": isKAnalysis = True 
+elif args.meson_channel == "D0": isD0Analysis = True 
 
 
 list_inputfiles = [args.rootfile_name]
@@ -72,7 +73,6 @@ for hname in list_histos:
 for filename in list_inputfiles:
     fileIn = ROOT.TFile(filename)
 
-    #sample_name = (filename.split("_")[2])[:-5] 
     for histo_name in list_histos:
         histo = fileIn.Get(histo_name)
 
@@ -97,7 +97,7 @@ for filename in list_inputfiles:
         elif isKAnalysis: histo_container[-1].SetLineColor(8) #green
 
         histo_container[-1].SetLineWidth(4)   #kind of thick
-        histo_container[-1].Scale(1./histo_container[-1].GetEntries()) #normalize to 1
+        #histo_container[-1].Scale(1./histo_container[-1].GetEntries()) #normalize to 1
         hsignal[histo_name] = histo_container[-1]
         hstack[histo_name].Add(histo_container[-1])
 
@@ -111,10 +111,13 @@ for histo_name in list_histos:
     hstack[histo_name].SetTitle("")
     hsignal[histo_name].SetTitle("")
 
+    ROOT.gStyle.SetOptStat(111111)  
+    for hist in hstack[histo_name].GetHists():  hist.SetStats(True)
 
-    #if plotOnlyData :
+    hstack[histo_name].GetHists().At(0).Draw("histo")  
 
-    hstack[histo_name].Draw("histo")
+    
+    hstack[histo_name].Draw("SAME,histo")
     hstack[histo_name].GetYaxis().SetTitleSize(0.04)
     hstack[histo_name].GetXaxis().SetTitleSize(0.045)
     hstack[histo_name].GetYaxis().SetTitleOffset(1.25)
@@ -125,6 +128,7 @@ for histo_name in list_histos:
     hstack[histo_name].GetYaxis().SetLabelSize(0.04)
         
     hstack[histo_name].SetMaximum(1.5 * hsignal[histo_name].GetMaximum())
+   
 
     #Legend ----------------------------------------
     leg1 = ROOT.TLegend(0.65,0.74,0.87,0.97) #right positioning
@@ -138,9 +142,8 @@ for histo_name in list_histos:
     leg1.SetFillStyle(1001)
 
     if histo_name == "h_bosonMass":
-        #hstack[histo_name].Rebin(2)            
         hstack[histo_name].GetXaxis().SetTitle("m_{boson} [GeV]")
-        #hstack[histo_name].GetXaxis().SetLimits(115.,135.)
+
     
     if histo_name == "h_mesonMass" :
         hstack[histo_name].GetXaxis().SetTitle("m_{meson} [GeV]")
@@ -211,14 +214,14 @@ for histo_name in list_histos:
     hstack[histo_name].Draw("SAME,histo")  
     hsignal[histo_name].Draw("SAME,hist")
 
-
+    '''
     if isPhiAnalysis:
         leg1.AddEntry(hsignal[histo_name],"#phi#gamma GenLevel","l")
-        if isRhoAnalysis:
-            leg1.AddEntry(hsignal[histo_name],"#rho#gamma GenLevel","l")
-        if isKAnalysis:
-            leg1.AddEntry(hsignal[histo_name],"K*#gamma GenLevel","l")
-
+    if isRhoAnalysis:
+        leg1.AddEntry(hsignal[histo_name],"#rho#gamma GenLevel","l")
+    if isKAnalysis:
+        leg1.AddEntry(hsignal[histo_name],"K*#gamma GenLevel","l")
+    '''
     #CMS_lumi.CMS_lumi(canvas[histo_name], iPeriod, iPos) #Print integrated lumi and energy information
     leg1.Draw()
 
@@ -226,6 +229,8 @@ for histo_name in list_histos:
     ################################################
     
     if isPhiAnalysis and isHAnalysis: output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/HPhi/GenLevel/"
+    #"/eos/user/g/gumoret/www/HZMesonGamma/VBFHPhi/"
+    #"/eos/user/g/gumoret/www/HZMesonGamma/HPhi/GenLevel/"
     if isPhiAnalysis and isZAnalysis: output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/ZPhi/GenLevel/"
 
     if isRhoAnalysis and isHAnalysis: output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/HRho/GenLevel/"
@@ -233,6 +238,7 @@ for histo_name in list_histos:
 
     if isKAnalysis and isHAnalysis: output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/HK/GenLevel/"
     if isKAnalysis and isZAnalysis: output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/ZK/GenLevel/"
+
 
     canvas[histo_name].SaveAs(output_dir + histo_name + ".pdf")
     canvas[histo_name].SaveAs(output_dir + histo_name + ".png")
