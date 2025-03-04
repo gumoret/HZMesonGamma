@@ -8,7 +8,7 @@ from ROOT import TLorentzVector
 
 
 #Following bools are given as input
-verbose       = True
+verbose       = False
 isPhiAnalysis = False # for Z -> Phi Gamma
 isRhoAnalysis = False # for Z -> Rho Gamma
 isKAnalysis   = False # for Z -> K* Gamma

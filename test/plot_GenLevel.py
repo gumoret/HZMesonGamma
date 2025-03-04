@@ -15,6 +15,8 @@ isD0Analysis  = False # for Z -> D0* Gamma
 isHAnalysis   = False
 isZAnalysis   = False
 
+isWideRange   = True  #for plotting in the right directory
+
 
 #Supress the opening of many Canvas's
 ROOT.gROOT.SetBatch(True)   
@@ -219,17 +221,21 @@ for histo_name in list_histos:
 
 
     ################################################
-    
-    if isPhiAnalysis and isHAnalysis: output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/HPhi/GenLevel/NarrowRange/"
-    #"/eos/user/g/gumoret/www/HZMesonGamma/VBFHPhi/"
-    #"/eos/user/g/gumoret/www/HZMesonGamma/HPhi/GenLevel/"
-    if isPhiAnalysis and isZAnalysis: output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/ZPhi/GenLevel/NarrowRange/"
+    if isWideRange:
+        if isPhiAnalysis and isHAnalysis: output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/HPhi/GenLevel/WideRange/"
+        #"/eos/user/g/gumoret/www/HZMesonGamma/VBFHPhi/"
+        #"/eos/user/g/gumoret/www/HZMesonGamma/HPhi/GenLevel/"
+        if isPhiAnalysis and isZAnalysis: output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/ZPhi/GenLevel/WideRange/"
+    else:
+        if isPhiAnalysis and isHAnalysis: output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/HPhi/GenLevel/NarrowRange/"
+        if isPhiAnalysis and isZAnalysis: output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/ZPhi/GenLevel/NarrowRange/"
 
     if isRhoAnalysis and isHAnalysis: output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/HRho/GenLevel/"
     if isRhoAnalysis and isZAnalysis: output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/ZRho/GenLevel/"
 
     if isKAnalysis and isHAnalysis: output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/HK/GenLevel/"
     if isKAnalysis and isZAnalysis: output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/ZK/GenLevel/"
+
 
 
     canvas[histo_name].SaveAs(output_dir + histo_name + ".pdf")

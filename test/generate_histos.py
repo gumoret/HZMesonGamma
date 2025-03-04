@@ -37,6 +37,7 @@ if args.meson_channel == "rho": isRhoAnalysis = True
 if args.meson_channel == "K": isKAnalysis = True 
 if args.meson_channel == "D0": isD0Analysis = True 
 
+isWideRange = False  #bool for wide range or zoomed range
 
 
 
@@ -44,24 +45,48 @@ if args.meson_channel == "D0": isD0Analysis = True
 histo_map = dict()
 list_histos = ["h_bosonMass", "h_mesonMass", "h_firstTrkPt", "h_secondTrkPt", "h_firstTrkEta", "h_secondTrkEta", "h_firstTrkPhi", "h_secondTrkPhi", "h_mesonPt", "h_mesonEta", "h_trksDeltaR","h_mesonIsoCh", "h_photonEnergy", "h_photonEta","h_nMuons","h_nElectrons"]  
 
-histo_map[list_histos[0]]  = ROOT.TH1F(list_histos[0],"M_{boson}", 300, 50., 200.)   #120,60,120 
-if isPhiAnalysis : histo_map[list_histos[1]]  = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 1., 1.05) 
-elif isRhoAnalysis: histo_map[list_histos[1]]  = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 0.5, 1.)
-elif isKAnalysis: histo_map[list_histos[1]]  = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 0.6, 1.3)
-histo_map[list_histos[2]]  = ROOT.TH1F(list_histos[2],"p_{T} of the 1st track", 100, 0.,70.)
-histo_map[list_histos[3]]  = ROOT.TH1F(list_histos[3],"p_{T} of the 2nd track", 100, 0.,55.)
-histo_map[list_histos[4]]  = ROOT.TH1F(list_histos[4],"#eta of the 1st track", 100, -2.5,2.5)
-histo_map[list_histos[5]]  = ROOT.TH1F(list_histos[5],"#eta of the 2nd track", 100, -2.5,2.5)
-histo_map[list_histos[6]]  = ROOT.TH1F(list_histos[6],"#phi of the 1st track", 100, -math.pi, math.pi)
-histo_map[list_histos[7]]  = ROOT.TH1F(list_histos[7],"#phi of the 2nd track", 100, -math.pi, math.pi)
-histo_map[list_histos[8]]  = ROOT.TH1F(list_histos[8],"p_{T} of the meson", 100, 0.,140.)
-histo_map[list_histos[9]]  = ROOT.TH1F(list_histos[9],"#eta_{meson}", 100, -2.5,2.5)
-histo_map[list_histos[10]] = ROOT.TH1F(list_histos[10],"#Delta R_{meson}", 100, 0.,0.07)
-histo_map[list_histos[11]] = ROOT.TH1F(list_histos[11],"Iso_ch of the meson", 100, 0., 1.)
-histo_map[list_histos[12]] = ROOT.TH1F(list_histos[12],"E_{T} of the #gamma", 100, 0., 250.)
-histo_map[list_histos[13]] = ROOT.TH1F(list_histos[13],"#eta_{#gamma}", 100, -2.5,2.5)
-histo_map[list_histos[14]] = ROOT.TH1F(list_histos[14],"n. of muons", 6, -0.5, 5.5)
-histo_map[list_histos[15]] = ROOT.TH1F(list_histos[15],"n. of electrons", 5, -0.5, 5.5)
+if isWideRange:
+    if isZAnalysis: histo_map[list_histos[0]]  = ROOT.TH1F(list_histos[0],"M_{Z}", 300, 50., 150.) 
+    elif isHAnalysis: histo_map[list_histos[0]]  = ROOT.TH1F(list_histos[0],"M_{H}", 300, 90, 155) 
+    if   isPhiAnalysis: histo_map[list_histos[1]]  = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 0.95, 1.1) 
+    elif isRhoAnalysis: histo_map[list_histos[1]]  = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 0.5, 1.)
+    elif isKAnalysis: histo_map[list_histos[1]]  = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 0.6, 1.3) 
+    histo_map[list_histos[2]]  = ROOT.TH1F(list_histos[2],"p_{T} of the 1st track", 200, 0.,200.)
+    histo_map[list_histos[3]]  = ROOT.TH1F(list_histos[3],"p_{T} of the 2nd track", 250, 0.,250.)
+    histo_map[list_histos[4]]  = ROOT.TH1F(list_histos[4],"#eta of the 1st track", 100, -2.5,2.5)
+    histo_map[list_histos[5]]  = ROOT.TH1F(list_histos[5],"#eta of the 2nd track", 100, -2.5,2.5)
+    histo_map[list_histos[6]]  = ROOT.TH1F(list_histos[6],"#phi of the 1st track", 100, -math.pi, math.pi)
+    histo_map[list_histos[7]]  = ROOT.TH1F(list_histos[7],"#phi of the 2nd track", 100, -math.pi, math.pi)
+    histo_map[list_histos[8]]  = ROOT.TH1F(list_histos[8],"p_{T} of the meson", 500, 0., 500.)
+    histo_map[list_histos[9]]  = ROOT.TH1F(list_histos[9],"#eta_{meson}", 100, -2.5,2.5)
+    histo_map[list_histos[10]] = ROOT.TH1F(list_histos[10],"#Delta R_{meson}", 100, 0.,0.07)
+    histo_map[list_histos[11]] = ROOT.TH1F(list_histos[11],"Iso_ch of the meson", 100, 0., 1.5)
+    histo_map[list_histos[12]] = ROOT.TH1F(list_histos[12],"E_{T} of the #gamma", 500, 0., 500.)
+    histo_map[list_histos[13]] = ROOT.TH1F(list_histos[13],"#eta_{#gamma}", 100, -2.5,2.5)
+    histo_map[list_histos[14]] = ROOT.TH1F(list_histos[14],"n. of muons", 6, -0.5, 5.5)
+    histo_map[list_histos[15]] = ROOT.TH1F(list_histos[15],"n. of electrons", 5, -0.5, 5.5)
+
+else:
+    if isZAnalysis: histo_map[list_histos[0]]  = ROOT.TH1F(list_histos[0],"M_{Z}", 300, 60., 120.) 
+    elif isHAnalysis: histo_map[list_histos[0]]  = ROOT.TH1F(list_histos[0],"M_{H}", 150, 120, 130) 
+    if   isPhiAnalysis: histo_map[list_histos[1]]  = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 0.95, 1.1) 
+    elif isRhoAnalysis: histo_map[list_histos[1]]  = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 0.5, 1.)
+    elif isKAnalysis: histo_map[list_histos[1]]  = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 0.6, 1.3) 
+    histo_map[list_histos[2]]  = ROOT.TH1F(list_histos[2],"p_{T} of the 1st track", 100, 0.,70.)
+    histo_map[list_histos[3]]  = ROOT.TH1F(list_histos[3],"p_{T} of the 2nd track", 100, 0.,70.)
+    histo_map[list_histos[4]]  = ROOT.TH1F(list_histos[4],"#eta of the 1st track", 100, -2.5,2.5)
+    histo_map[list_histos[5]]  = ROOT.TH1F(list_histos[5],"#eta of the 2nd track", 100, -2.5,2.5)
+    histo_map[list_histos[6]]  = ROOT.TH1F(list_histos[6],"#phi of the 1st track", 100, -math.pi, math.pi)
+    histo_map[list_histos[7]]  = ROOT.TH1F(list_histos[7],"#phi of the 2nd track", 100, -math.pi, math.pi)
+    histo_map[list_histos[8]]  = ROOT.TH1F(list_histos[8],"p_{T} of the meson", 100, 0.,140.)
+    histo_map[list_histos[9]]  = ROOT.TH1F(list_histos[9],"#eta_{meson}", 100, -2.5,2.5)
+    histo_map[list_histos[10]] = ROOT.TH1F(list_histos[10],"#Delta R_{meson}", 100, 0.,0.07)
+    histo_map[list_histos[11]] = ROOT.TH1F(list_histos[11],"Iso_ch of the meson", 100, 0., 1.)
+    histo_map[list_histos[12]] = ROOT.TH1F(list_histos[12],"E_{T} of the #gamma", 100, 0., 250.)
+    histo_map[list_histos[13]] = ROOT.TH1F(list_histos[13],"#eta_{#gamma}", 100, -2.5,2.5)
+    histo_map[list_histos[14]] = ROOT.TH1F(list_histos[14],"n. of muons", 6, -0.5, 5.5)
+    histo_map[list_histos[15]] = ROOT.TH1F(list_histos[15],"n. of electrons", 5, -0.5, 5.5)
+
 
 
 #CREATE OUTPUT ROOTFILE ############################################################################################
