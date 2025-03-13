@@ -25,6 +25,8 @@ p.add_argument('meson_option', help='Type <<rho>> for rho, <<phi>> for phi, <<K>
 p.add_argument('runningOnData_option', help='Type <<signal>> for signal, <<data>> for data') #flag for data or signal
 p.add_argument('rootfile_name', help='Type rootfile name')
 p.add_argument('outputfile_option', help='Provide output file name')
+p.add_argument('trigger_option', help='Provide trigger')
+
 
 args = p.parse_args()
 fInput = ROOT.TFile(args.rootfile_name)
@@ -47,89 +49,45 @@ elif args.runningOnData_option == "data": runningOnData = True
 else: print("runninOnData must be <<signal>> or <<data>>")
 
 
+
+
 #print("isPhiAnalysis =", isPhiAnalysis, "isRhoAnalysis =", isRhoAnalysis, "runningOnData =", runningOnData)
 
-#HISTOS ###########################################################################################################
-histo_map = dict()
-list_histos = ["nEvents", "pileup"]
+if args.trigger_option == "TwoProngs":
+    #HISTOS ###########################################################################################################
+    histo_map = dict()
+    list_histos = ["nEvents35"]
 
-histo_map[list_histos[0]] = ROOT.TH1F(list_histos[0],"Event counting in different steps", 5, 0., 5.)
-histo_map[list_histos[1]] = ROOT.TH1F(list_histos[1],"pileup", 130, 0, 130)
+    histo_map[list_histos[0]] = ROOT.TH1F(list_histos[0],"Event counting in different steps", 5, 0., 5.)
 
 
-#CREATE OUTPUT ROOTFILE ############################################################################################
-fOut = ROOT.TFile(output_filename,"RECREATE")
+    #CREATE OUTPUT ROOTFILE ############################################################################################
+    fOut = ROOT.TFile(output_filename,"RECREATE")
+
+if args.trigger_option == "Photon50":
+    #HISTOS ###########################################################################################################
+    histo_map = dict()
+    list_histos = ["nEvents50"]
+
+    histo_map[list_histos[0]] = ROOT.TH1F(list_histos[0],"Event counting in different steps", 5, 0., 5.)
+
+
+    #CREATE OUTPUT ROOTFILE ############################################################################################
+    fOut = ROOT.TFile(output_filename, "UPDATE")
+
+if args.trigger_option == "OR":
+    #HISTOS ###########################################################################################################
+    histo_map = dict()
+    list_histos = ["nEventsOR"]
+
+    histo_map[list_histos[0]] = ROOT.TH1F(list_histos[0],"Event counting in different steps", 5, 0., 5.)
+
+
+    #CREATE OUTPUT ROOTFILE ############################################################################################
+    fOut = ROOT.TFile(output_filename, "UPDATE")
+
 fOut.cd()
 
-#Variables to go in the output tree ################################################################################
-_MC_Weight                = np.zeros(1, dtype=float)
-_isTwoProngTrigger        = np.zeros(1, dtype=bool)
-_nMuons10                 = np.zeros(1, dtype=int)
-_nMuons20                 = np.zeros(1, dtype=int)
-_nElectrons10             = np.zeros(1, dtype=int)
-_nElectrons20             = np.zeros(1, dtype=int)
-_nPhotonsChosen           = np.zeros(1, dtype=int)
-_nPhotons20WP90           = np.zeros(1, dtype=int)
-_nPhotons35WP80           = np.zeros(1, dtype=int)
-_photon_pT                = np.zeros(1, dtype=float)
-_photon_eta               = np.zeros(1, dtype=float)
-_photonEtaSC              = np.zeros(1, dtype=float)
-_photonRegressionError    = np.zeros(1, dtype=float)
-_firstTrkPt               = np.zeros(1, dtype=float)
-_firstTrkEta              = np.zeros(1, dtype=float)
-_firstTrkPhi              = np.zeros(1, dtype=float)
-_secondTrkPt              = np.zeros(1, dtype=float)
-_secondTrkEta             = np.zeros(1, dtype=float)
-_secondTrkPhi             = np.zeros(1, dtype=float)
-_isMeson                  = np.zeros(1, dtype=bool)
-_mesonPt                  = np.zeros(1, dtype=float)
-_mesonEta                 = np.zeros(1, dtype=float)
-_mesonPhi                 = np.zeros(1, dtype=float)
-_mesonIsoCh               = np.zeros(1, dtype=float)
-_mesonMassTrkTrk          = np.zeros(1, dtype=float)
-_bosonMassFrom2TrksPhoton = np.zeros(1, dtype=float)
-
-_mesonTreeMass            = np.zeros(1, dtype=float)
-_mesonTreeMassKin         = np.zeros(1, dtype=float)
-_mesonTreePt              = np.zeros(1, dtype=float)
-_mesonTreeEta             = np.zeros(1, dtype=float)
-_mesonTreePhi             = np.zeros(1, dtype=float)
-
-
-
-tree_output = ROOT.TTree('tree_output','tree_output')
-tree_output.Branch('MC_Weight', _MC_Weight, '_MC_Weight/D')
-tree_output.Branch('isTwoProngTrigger', _isTwoProngTrigger, '_isTwoProngTrigger/O')
-tree_output.Branch('nMuons10', _nMuons10, '_nMuons10/I')
-tree_output.Branch('nMuons20', _nMuons20, '_nMuons20/I')
-tree_output.Branch('nElectrons10', _nElectrons10, '_nElectrons10/I')
-tree_output.Branch('nElectrons20', _nElectrons20, '_nElectrons20/I')
-tree_output.Branch('nPhotonsChosen', _nPhotonsChosen, '_nPhotonsChosen/I')
-tree_output.Branch('nPhotons20WP90', _nPhotons20WP90, '_nPhotons20WP90/I')
-tree_output.Branch('nPhotons35WP80', _nPhotons35WP80, '_nPhotons35WP80/I')
-tree_output.Branch('photon_pT', _photon_pT, '_photon_pT/D')
-tree_output.Branch('photon_eta', _photon_eta, '_photon_eta/D')
-tree_output.Branch('photonEtaSC', _photonEtaSC, '_photonEtaSC/D')
-tree_output.Branch('photonRegressionError', _photonRegressionError, '_photonRegressionError/D')
-tree_output.Branch('firstTrkPt', _firstTrkPt, '_firstTrkPt/D')
-tree_output.Branch('firstTrkEta', _firstTrkEta, '_firstTrkEta/D')
-tree_output.Branch('firstTrkPhi', _firstTrkPhi, '_firstTrkPhi/D')
-tree_output.Branch('secondTrkPt', _secondTrkPt, '_secondTrkPt/D')
-tree_output.Branch('secondTrkEta', _secondTrkEta, '_secondTrkEta/D')
-tree_output.Branch('secondTrkPhi', _secondTrkPhi, '_secondTrkPhi/D')
-tree_output.Branch('isMeson', _isMeson, '_isMeson/O')
-tree_output.Branch('mesonPt', _mesonPt, '_mesonPt/D')
-tree_output.Branch('mesonEta', _mesonEta, '_mesonEta/D')
-tree_output.Branch('mesonPhi', _mesonPhi, '_mesonPhi/D')
-tree_output.Branch('mesonIsoCh', _mesonIsoCh, '_mesonIsoCh/D')
-tree_output.Branch('mesonMassTrkTrk', _mesonMassTrkTrk, '_mesonMassTrkTrk/D')
-tree_output.Branch('bosonMassFrom2TrksPhoton', _bosonMassFrom2TrksPhoton, '_bosonMassFrom2TrksPhoton/D')
-
-tree_output.Branch('mesonTreeMass', _mesonTreeMass, '_mesonTreeMass/D')
-tree_output.Branch('mesonTreeMassKin', _mesonTreeMassKin, '_mesonTreeMassKin/D')
-tree_output.Branch('mesonTreePt', _mesonTreePt, '_mesonTreePt/D')
-tree_output.Branch('mesonTreeEta', _mesonTreeEta, '_mesonTreeEta/D')
-tree_output.Branch('mesonTreePhi', _mesonTreePhi, '_mesonTreePhi/D')
 
 
 #EVENTS LOOP #######################################################################################################
@@ -154,7 +112,7 @@ for jentry in range(nentries):
         continue
 
     nEventsProcessed+=1
-    histo_map["nEvents"].SetBinContent(1, nEventsProcessed)
+    histo_map[list_histos[0]].SetBinContent(1, nEventsProcessed)
 
     print("Processing event ", nEventsProcessed)
 
@@ -177,7 +135,6 @@ for jentry in range(nentries):
 
     nPU = mytree.Pileup_nPU
 
-    histo_map["pileup"].Fill(nPU)
 
 
 
@@ -189,7 +146,6 @@ for jentry in range(nentries):
 
     MC_Weight = mytree.Generator_weight
 
-    _MC_Weight[0] = MC_Weight
 
 
 
@@ -200,15 +156,27 @@ for jentry in range(nentries):
     #//*************************************************************//
 
     isTwoProngTrigger = mytree.HLT_Photon35_TwoProngs35
+    isPhoton50        = mytree.HLT_Photon50EB_TightID_TightIso  
 
-    if not isTwoProngTrigger:
+
+    if args.trigger_option == "TwoProngs":
+        if not isTwoProngTrigger:
         #if verbose: print("Event not triggered, RETURN.")
-        continue 
+            continue 
+
+    if args.trigger_option == "Photon50":
+        if not isPhoton50:
+            #if verbose: print("Event not triggered, RETURN.")
+            continue 
+
+    if args.trigger_option == "OR":
+        if not (isTwoProngTrigger or isPhoton50):
+            #if verbose: print("Event not triggered, RETURN.")
+            continue 
 
     nEventsTriggered+=1
-    histo_map["nEvents"].SetBinContent(2, nEventsTriggered)
+    histo_map[list_histos[0]].SetBinContent(2, nEventsTriggered)
 
-    _isTwoProngTrigger[0] = isTwoProngTrigger
 
     
 
@@ -242,9 +210,6 @@ for jentry in range(nentries):
         nMuons20+=1
 
 
-    _nMuons10[0] = nMuons10
-    _nMuons20[0] = nMuons20
-
 
 
     #//*************************************************************//
@@ -276,9 +241,6 @@ for jentry in range(nentries):
 
         nElectrons20+=1
 
-
-    _nElectrons10[0] = nElectrons10
-    _nElectrons20[0] = nElectrons20
 
 
 
@@ -335,18 +297,11 @@ for jentry in range(nentries):
     if not cand_photon_found: continue 
 
     nEventsIsPhoton+=1
-    histo_map["nEvents"].SetBinContent(3, nEventsIsPhoton) 
+    histo_map[list_histos[0]].SetBinContent(3, nEventsIsPhoton) 
 
     if verbose: print("Chosen photon: pT=", photonEtMax, "eta=", photon_eta_chosen)
     #print(f"photons 20= {nPhotons20WP90}, photons 35 = {nPhotons35WP80}")
 
-
-    _photon_pT[0]             = photonEtMax
-    _photon_eta[0]            = photon_eta_chosen
-    _photonEtaSC[0]           = photonEtaSC_chosen
-    _photonRegressionError[0] = photonRegressionError_chosen
-    _nPhotons20WP90[0]        = nPhotons20WP90
-    _nPhotons35WP80[0]        = nPhotons35WP80
 
 
     
@@ -533,7 +488,7 @@ for jentry in range(nentries):
                 continue
 
             #nEventsMesonIsolationFilter+=1
-            histo_map["nEvents"].SetBinContent(4, nEventsMesonIsolationFilter)
+            histo_map[list_histos[0]].SetBinContent(4, nEventsMesonIsolationFilter)
 
             #pT max of the event filter ----------------------------------------------
             if verbose: print("Current bestMeson_Pt =", bestMesonPt)
@@ -644,7 +599,7 @@ for jentry in range(nentries):
                 continue
 
             #nEventsMesonIsolationFilter+=1
-            histo_map["nEvents"].SetBinContent(4, nEventsMesonIsolationFilter)
+            histo_map[list_histos[0]].SetBinContent(4, nEventsMesonIsolationFilter)
 
             #pT max of the event filter ----------------------------------------------
             if verbose: print("Current bestMeson_Pt =", bestMesonPt)
@@ -689,7 +644,7 @@ for jentry in range(nentries):
         continue  
 
     nEventsBestPairFound+=1
-    histo_map["nEvents"].SetBinContent(4, nEventsBestPairFound)
+    histo_map[list_histos[0]].SetBinContent(4, nEventsBestPairFound)
 
 
     #DATAMEMBER SAVING
@@ -736,7 +691,7 @@ for jentry in range(nentries):
         continue
   
     nEventsTrkPtFilter+=1
-    histo_map["nEvents"].SetBinContent(5, nEventsTrkPtFilter)
+    histo_map[list_histos[0]].SetBinContent(5, nEventsTrkPtFilter)
 
 
     #ISOLATION DATAMEMBER FOR TREE FILLING
@@ -744,25 +699,6 @@ for jentry in range(nentries):
 
     
   
-    _firstTrkPt[0]               = firstTrkPt              
-    _firstTrkEta[0]              = firstTrkEta              
-    _firstTrkPhi[0]              = firstTrkPhi            
-    _secondTrkPt[0]              = secondTrkPt            
-    _secondTrkEta[0]             = secondTrkEta            
-    _secondTrkPhi[0]             = secondTrkPhi           
-    _isMeson[0]                  = isMeson_chosen              
-    _mesonPt[0]                  = mesonPt             
-    _mesonEta[0]                 = mesonEta              
-    _mesonPhi[0]                 = mesonPhi            
-    _mesonIsoCh[0]               = mesonIsoCh
-    _mesonMassTrkTrk[0]          = mesonMass   
-    _bosonMassFrom2TrksPhoton[0] = bosonMassFrom2TrksPhoton
-
-    _mesonTreeMass[0]            = mesonTreeMass_chosen
-    _mesonTreeMassKin[0]         = mesonTreeMassKin_chosen
-    _mesonTreePt[0]              = mesonTreePt_chosen
-    _mesonTreeEta[0]             = mesonTreeEta_chosen
-    _mesonTreePhi[0]             = mesonTreePhi_chosen
 
 
 
@@ -859,21 +795,12 @@ for jentry in range(nentries):
 
             
 
-    
-    tree_output.Fill()
-    
-#Tree writing ##########################################################################################################
-tree_output.Write()
-
 #Set labels ############################################################################################################
-histo_map["nEvents"].GetXaxis().SetBinLabel(1, "Processed")
-histo_map["nEvents"].GetXaxis().SetBinLabel(2, "Triggered")
-histo_map["nEvents"].GetXaxis().SetBinLabel(3, "Photon")
-#histo_map["nEvents"].GetXaxis().SetBinLabel(4, "Meson iso")
-histo_map["nEvents"].GetXaxis().SetBinLabel(4, "Best meson")
-histo_map["nEvents"].GetXaxis().SetBinLabel(5, "Trks pT")
-
-
+histo_map[list_histos[0]].GetXaxis().SetBinLabel(1, "Processed")
+histo_map[list_histos[0]].GetXaxis().SetBinLabel(2, "Triggered")
+histo_map[list_histos[0]].GetXaxis().SetBinLabel(3, "Photon")
+histo_map[list_histos[0]].GetXaxis().SetBinLabel(4, "Best meson")
+histo_map[list_histos[0]].GetXaxis().SetBinLabel(5, "Trks pT")
 
 #HISTOS WRITING ########################################################################################################
 fOut.cd()
