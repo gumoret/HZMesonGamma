@@ -62,32 +62,32 @@ h_EventsOR.Reset()
 h_Events50.Reset()
 h_Events35.Reset()
 
-h_EventsOR.SetBinContent(1, bin1contentOR * scale_factor)  
-h_Events50.SetBinContent(1, bin1content50 * scale_factor)  
-h_Events35.SetBinContent(1, bin1content35 * scale_factor)
+h_EventsOR.SetBinContent(1, bin2contentOR * scale_factor)  
+h_Events50.SetBinContent(1, bin2content50 * scale_factor)  
+h_Events35.SetBinContent(1, bin2content35 * scale_factor)
 
-h_EventsOR.SetBinContent(2, bin2contentOR * scale_factor)  
-h_Events50.SetBinContent(2, bin2content50 * scale_factor)  
-h_Events35.SetBinContent(2, bin2content35 * scale_factor)  
+h_EventsOR.SetBinContent(2, bin3contentOR * scale_factor)  
+h_Events50.SetBinContent(2, bin3content50 * scale_factor)  
+h_Events35.SetBinContent(2, bin3content35 * scale_factor)  
 
-h_EventsOR.SetBinContent(3, bin3contentOR * scale_factor)  
-h_Events50.SetBinContent(3, bin3content50 * scale_factor)  
-h_Events35.SetBinContent(3, bin3content35 * scale_factor)  
+h_EventsOR.SetBinContent(3, bin4contentOR * scale_factor)  
+h_Events50.SetBinContent(3, bin4content50 * scale_factor)  
+h_Events35.SetBinContent(3, bin4content35 * scale_factor)  
 
-h_EventsOR.SetBinContent(4, bin4contentOR * scale_factor)  
-h_Events50.SetBinContent(4, bin4content50 * scale_factor)  
-h_Events35.SetBinContent(4, bin4content35 * scale_factor)  
+h_EventsOR.SetBinContent(4, bin5contentOR * scale_factor)  
+h_Events50.SetBinContent(4, bin5content50 * scale_factor)  
+h_Events35.SetBinContent(4, bin5content35 * scale_factor)  
 
-h_EventsOR.SetBinContent(5, bin5contentOR * scale_factor)  
-h_Events50.SetBinContent(5, bin5content50 * scale_factor)  
-h_Events35.SetBinContent(5, bin5content35 * scale_factor)  
+#h_EventsOR.SetBinContent(5, bin5contentOR * scale_factor)  
+#h_Events50.SetBinContent(5, bin5content50 * scale_factor)  
+#h_Events35.SetBinContent(5, bin5content35 * scale_factor)  
 
 # Labels
-h_EventsOR.GetXaxis().SetBinLabel(1, "Processed")
-h_EventsOR.GetXaxis().SetBinLabel(2, "Triggered")
-h_EventsOR.GetXaxis().SetBinLabel(3, "Photon")
-h_EventsOR.GetXaxis().SetBinLabel(4, "Best meson")
-h_EventsOR.GetXaxis().SetBinLabel(5, "Trks pT")
+#h_EventsOR.GetXaxis().SetBinLabel(1, "Processed")
+h_EventsOR.GetXaxis().SetBinLabel(1, "Triggered")
+h_EventsOR.GetXaxis().SetBinLabel(2, "Photon")
+h_EventsOR.GetXaxis().SetBinLabel(3, "Best meson")
+h_EventsOR.GetXaxis().SetBinLabel(4, "Trks pT")
 
 h_EventsOR.GetXaxis().SetTitle("")
 h_EventsOR.GetYaxis().SetTitle("#epsilon (%)")
@@ -115,14 +115,45 @@ ROOT.gStyle.SetOptStat(0)
 h_EventsOR.SetMarkerSize(1.4)
 h_Events50.SetMarkerSize(1.4)
 h_Events35.SetMarkerSize(1.4)
-h_EventsOR.GetYaxis().SetRangeUser(0.,105)
+h_EventsOR.GetXaxis().SetRangeUser(0.,3.1)
+h_EventsOR.GetYaxis().SetRangeUser(0.,1.5*h_EventsOR.GetMaximum())
+h_EventsOR.SetTitle("")  # Rimuove il titolo del plot
+h_Events50.SetTitle("")  # Rimuove il titolo del plot
+h_Events35.SetTitle("")  # Rimuove il titolo del plot
+
 
 # Legenda
-legend = ROOT.TLegend(0.7, 0.7, 0.9, 0.9)
+legend = ROOT.TLegend(0.7, 0.6, 0.89, 0.79)
 legend.AddEntry(h_Events35, "Photon35_TwoProngs", "f")
 legend.AddEntry(h_Events50, "Photon50EB_TightID", "f")
 legend.AddEntry(h_EventsOR, "Trigger OR", "f")
+legend.SetBorderSize(0)
 legend.Draw()
+
+# Crea l'oggetto TLatex per il decadimento
+latex = ROOT.TLatex()
+latex.SetNDC()  # Usa coordinate normalizzate
+
+# Formula del decadimento
+
+if isPhiAnalysis and isHAnalysis: meson_decay = "H #rightarrow #phi #gamma"
+if isPhiAnalysis and isZAnalysis: meson_decay = "Z #rightarrow #phi #gamma"
+
+if isRhoAnalysis and isHAnalysis: meson_decay = "H #rightarrow #rho #gamma"
+if isRhoAnalysis and isZAnalysis: meson_decay = "Z #rightarrow #rho #gamma"
+
+if isKAnalysis and isHAnalysis: meson_decay = "H #rightarrow K^{*0} #gamma"
+if isKAnalysis and isZAnalysis: meson_decay = "Z #rightarrow K^{*0} #gamma"
+
+# Imposta le proprietà del testo
+latex.SetTextSize(0.4 * c.GetTopMargin())  # Leggermente più piccolo della legenda
+latex.SetTextFont(42)                           # Font Times (42 = Helvetica-Bold)
+latex.SetTextAlign(11)                          # Allineamento sinistra-basso
+
+# Posiziona il testo appena sotto la legenda
+x_position = 0.707
+y_position = 0.83  # Poco sopra il bordo inferiore della legenda (0.6 - 0.23)
+latex.DrawLatex(x_position, y_position, meson_decay)
 
 
 if isPhiAnalysis and isHAnalysis: output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/HPhi/Signal/"
