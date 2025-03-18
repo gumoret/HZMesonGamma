@@ -132,6 +132,121 @@ tree_output.Branch('mesonTreeEta', _mesonTreeEta, '_mesonTreeEta/D')
 tree_output.Branch('mesonTreePhi', _mesonTreePhi, '_mesonTreePhi/D')
 
 
+########### MESON ANALYSIS FUNCTION ###############
+def process_meson(mytree, meson_type, mass_cut, verbose=False):
+    isBestMesonOfTheEventFound = False
+    bestMesonPt = 0.
+    # Initialize variables to return
+    (deltaRTrks_chosen, isMeson_chosen, firstTrkP4_chosen, secondTrkP4_chosen, mesonP4_chosen, mesonIsoCh_chosen, mesonTreeMass_chosen, mesonTreeMassKin_chosen, mesonTreePt_chosen, mesonTreeEta_chosen, mesonTreePhi_chosen) = (None,) * 11
+
+
+    if meson_type == "rho":
+        n = len(mytree.rho_mass)
+        trk1_pt, trk1_eta, trk1_phi = mytree.rho_trk1_pt, mytree.rho_trk1_eta, mytree.rho_trk1_phi
+        trk2_pt, trk2_eta, trk2_phi = mytree.rho_trk2_pt, mytree.rho_trk2_eta, mytree.rho_trk2_phi
+        iso_meson = mytree.rho_iso
+        meson_mass, meson_mass_kin = mytree.rho_mass, mytree.rho_kin_mass
+        meson_pt, meson_eta, meson_phi = mytree.rho_kin_pt, mytree.rho_kin_eta, mytree.rho_kin_phi
+        mass_trk1 = 0.13957  #Pion mass
+        mass_trk2 = 0.13957  
+
+    elif meson_type == "phi":
+        n = len(mytree.phi_mass)
+        trk1_pt, trk1_eta, trk1_phi = mytree.phi_trk1_pt, mytree.phi_trk1_eta, mytree.phi_trk1_phi
+        trk2_pt, trk2_eta, trk2_phi = mytree.phi_trk2_pt, mytree.phi_trk2_eta, mytree.phi_trk2_phi
+        iso_meson = mytree.phi_iso
+        meson_mass, meson_mass_kin = mytree.phi_mass, mytree.phi_kin_mass
+        meson_pt, meson_eta, meson_phi = mytree.phi_kin_pt, mytree.phi_kin_eta, mytree.phi_kin_phi
+        mass_trk1 = 0.4937  # Kaon mass
+        mass_trk2 = 0.4937  
+
+    elif meson_type == "K":
+        n = len(mytree.K0Star_mass)
+        trk1_pt, trk1_eta, trk1_phi = mytree.K0Star_pion_pt, mytree.K0Star_pion_eta, mytree.K0Star_pion_phi
+        trk2_pt, trk2_eta, trk2_phi = mytree.K0Star_kaon_pt, mytree.K0Star_kaon_eta, mytree.K0Star_kaon_phi
+        iso_meson = mytree.K0Star_iso
+        meson_mass, meson_mass_kin = mytree.K0Star_mass, mytree.K0Star_kin_mass
+        meson_pt, meson_eta, meson_phi = mytree.K0Star_kin_pt, mytree.K0Star_kin_eta, mytree.K0Star_kin_phi
+        mass_trk1 = 0.13957  # Pion mass
+        mass_trk2 = 0.4937  # Kaon mass
+
+    else:
+        return
+
+    for i in range(n):
+        firstTrkPt, firstTrkEta, firstTrkPhi = trk1_pt[i], trk1_eta[i], trk1_phi[i]
+        secondTrkPt, secondTrkEta, secondTrkPhi = trk2_pt[i], trk2_eta[i], trk2_phi[i]
+        isoMesonCh = iso_meson[i]
+
+        mesonTreeMass, mesonTreeMassKin = meson_mass[i], meson_mass_kin[i]
+        mesonTreePt, mesonTreeEta, mesonTreePhi = meson_pt[i], meson_eta[i], meson_phi[i]
+
+        #Tracks pt cuts------------------------------------------------
+        if firstTrkPt < 1. or secondTrkPt < 1.: 
+            if verbose: print("if first trk pt or second trk pt<1 continue")
+            continue
+        if firstTrkPt < 10. and secondTrkPt < 10.: 
+            if verbose: print("if first trk pt and second trk pt<10 continue")
+            continue
+
+        #DiTrks deltaR cut---------------------------------------------------
+        deltaEta, deltaPhi = firstTrkEta - secondTrkEta, abs(firstTrkPhi - secondTrkPhi)
+        if deltaPhi > math.pi: deltaPhi = 2 * math.pi - deltaPhi
+        deltaRTrks = math.sqrt(deltaEta**2 + deltaPhi**2)
+        if deltaRTrks > 0.07: 
+            if verbose: print("if deltaRTrks>0.07 continue")
+            continue
+
+        #Quadrimomentum calculation -------------------------------------------
+        firstTrkP4, secondTrkP4 = TLorentzVector(), TLorentzVector()
+        firstTrkP4.SetPtEtaPhiM(firstTrkPt, firstTrkEta, firstTrkPhi, mass_trk1)
+        secondTrkP4.SetPtEtaPhiM(secondTrkPt, secondTrkEta, secondTrkPhi, mass_trk2)
+        pairP4 = firstTrkP4 + secondTrkP4
+        if verbose: print("PiPi pT =", pairP4.Pt())
+
+        #DiTrk pT cut----------------------------------------------------------
+        if pairP4.Pt() < 38: continue
+
+        #Meson inv mass---------------------------------------------------------
+        mesonMassTrkTrk = pairP4.M()
+        isMeson = mass_cut[0] < mesonMassTrkTrk < mass_cut[1]
+        if not isMeson: continue
+
+        #Isolation cut----------------------------------------------------------
+        if isoMesonCh < 0.9: 
+            print("No isolation cut passed, continue")
+            continue
+
+        #pT max of the event filter ----------------------------------------------
+        if verbose: print("Current bestMeson_Pt =", bestMesonPt)
+        if pairP4.Pt() <= bestMesonPt: 
+            if verbose: print("Not passed: pT lower than the current best meson of the event. Continue")
+            continue
+
+        bestMesonPt = pairP4.Pt()
+        if verbose:
+                print(f"pairP4.Pt() = {bestMesonPt}")
+                print("This is the best meson so far!")
+
+        isBestMesonOfTheEventFound = True
+
+        #Save variables if best meson has been found
+        deltaRTrks_chosen    = deltaRTrks
+        isMeson_chosen       = isMeson
+        firstTrkP4_chosen    = firstTrkP4
+        secondTrkP4_chosen   = secondTrkP4
+        mesonP4_chosen       = pairP4
+        mesonIsoCh_chosen    = isoMesonCh
+
+        mesonTreeMass_chosen    = mesonTreeMass
+        mesonTreeMassKin_chosen = mesonTreeMassKin
+        mesonTreePt_chosen      = mesonTreePt
+        mesonTreeEta_chosen     = mesonTreeEta
+        mesonTreePhi_chosen     = mesonTreePhi
+
+    return isBestMesonOfTheEventFound, deltaRTrks_chosen, isMeson_chosen, firstTrkP4_chosen, secondTrkP4_chosen, mesonP4_chosen, mesonIsoCh_chosen, mesonTreeMass_chosen, mesonTreeMassKin_chosen, mesonTreePt_chosen, mesonTreeEta_chosen, mesonTreePhi_chosen
+##########################################
+
 #EVENTS LOOP #######################################################################################################
 nEventsProcessed            = 0
 nEventsTriggered            = 0
@@ -355,335 +470,10 @@ for jentry in range(nentries):
     #//-------------------------Mesons------------------------------//
     #//                                                             //
     #//*************************************************************//
+    if isRhoAnalysis: isBestMesonOfTheEventFound, deltaRTrks_chosen, isMeson_chosen, firstTrkP4_chosen, secondTrkP4_chosen, mesonP4_chosen, mesonIsoCh_chosen, mesonTreeMass_chosen, mesonTreeMassKin_chosen, mesonTreePt_chosen, mesonTreeEta_chosen, mesonTreePhi_chosen = process_meson(mytree, "rho", (0.5, 1.0), verbose)
+    if isPhiAnalysis: isBestMesonOfTheEventFound, deltaRTrks_chosen, isMeson_chosen, firstTrkP4_chosen, secondTrkP4_chosen, mesonP4_chosen, mesonIsoCh_chosen, mesonTreeMass_chosen, mesonTreeMassKin_chosen, mesonTreePt_chosen, mesonTreeEta_chosen, mesonTreePhi_chosen = process_meson(mytree, "phi", (1.0, 1.05), verbose)
+    if isKAnalysis: isBestMesonOfTheEventFound, deltaRTrks_chosen, isMeson_chosen, firstTrkP4_chosen, secondTrkP4_chosen, mesonP4_chosen, mesonIsoCh_chosen, mesonTreeMass_chosen, mesonTreeMassKin_chosen, mesonTreePt_chosen, mesonTreeEta_chosen, mesonTreePhi_chosen   = process_meson(mytree, "K", (0.6, 1.0), verbose)
     
-    isBestMesonOfTheEventFound = False
-    bestMesonPt = 0.
-
-    if isRhoAnalysis:
-        for i in range(len(mytree.rho_mass)):        
-            firstTrkPt   = mytree.rho_trk1_pt[i]
-            firstTrkEta  = mytree.rho_trk1_eta[i]
-            firstTrkPhi  = mytree.rho_trk1_phi[i]
-            secondTrkPt  = mytree.rho_trk2_pt[i]
-            secondTrkEta = mytree.rho_trk2_eta[i]
-            secondTrkPhi = mytree.rho_trk2_phi[i]
-            isoMesonCh   = mytree.rho_iso[i]
-
-            mesonTreeMass    = mytree.rho_mass[i]
-            mesonTreeMassKin = mytree.rho_kin_mass[i]
-            mesonTreePt      = mytree.rho_kin_pt[i]
-            mesonTreeEta     = mytree.rho_kin_eta[i] 
-            mesonTreePhi     = mytree.rho_kin_phi[i]
-
-            
-            #Tracks pt cuts------------------------------------------------
-            if firstTrkPt < 1. or secondTrkPt < 1.:
-                if verbose: print("if first trk pt or second trk pt<1 continue")
-                continue
-
-            if firstTrkPt < 10. and secondTrkPt < 10.:
-                if verbose: print("if first trk pt and second trk pt<10 continue")
-                continue
-
-            #DiTrks deltaR cut---------------------------------------------------
-            deltaEta = firstTrkEta - secondTrkEta
-            deltaPhi = abs(firstTrkPhi - secondTrkPhi)
-            if deltaPhi > math.pi: deltaPhi = 2*math.pi - deltaPhi
-
-            deltaRTrks = math.sqrt(deltaEta*deltaEta + deltaPhi*deltaPhi)        
-            if deltaRTrks > 0.07:
-                if verbose: print("if deltaRTrks>0.07 continue")
-                continue
-
-            #Quadrimomentum calculation -------------------------------------------
-            firstTrkP4 = TLorentzVector() 
-            secondTrkP4 = TLorentzVector()
-
-            firstTrkP4.SetPtEtaPhiM(firstTrkPt, firstTrkEta, firstTrkPhi, 0.13957) #Pi mass            
-            secondTrkP4.SetPtEtaPhiM(secondTrkPt, secondTrkEta, secondTrkPhi, 0.13957)
-
-            pairP4 = firstTrkP4  + secondTrkP4
-
-            if verbose: print("PiPi pT =", pairP4.Pt())
-
-            #DiTrk pT cut----------------------------------------------------------
-            if pairP4.Pt() < 38:
-                if verbose: print("couplePt cut NOT passed, continue")
-                continue
-
-            #Meson inv mass---------------------------------------------------------
-            isMeson = False
-
-            mesonMassTrkTrk = pairP4.M()        
-
-            if 0.5 < mesonMassTrkTrk < 1.: isMeson = True           
-
-            if not isMeson: continue
-
-            #Isolation cut----------------------------------------------------------
-            if isoMesonCh < 0.9:
-                print("No isolation cut passed, continue")
-                continue
-
-            #nEventsMesonIsolationFilter+=1
-            #histo_map["nEvents"].SetBinContent(4, nEventsMesonIsolationFilter)
-
-            #pT max of the event filter ----------------------------------------------
-            if verbose: print("Current bestMeson_Pt =", bestMesonPt)
-
-            if pairP4.Pt() <= bestMesonPt:
-                if verbose: print("Not passed: pT lower than the current best meson of the event. Continue")
-                continue
-
-            bestMesonPt = pairP4.Pt() 
-
-            if verbose:
-                print(f"pairP4.Pt() = {bestMesonPt}")
-                print("This is the best meson so far!")
-
-            isBestMesonOfTheEventFound = True
-
-            #Save variables if best meson has been found
-            deltaRTrks_chosen    = deltaRTrks
-            isMeson_chosen       = isMeson
-            firstTrkP4_chosen    = firstTrkP4
-            secondTrkP4_chosen   = secondTrkP4
-            mesonP4_chosen       = pairP4
-            mesonIsoCh_chosen    = isoMesonCh
-
-            mesonTreeMass_chosen    = mesonTreeMass
-            mesonTreeMassKin_chosen = mesonTreeMassKin
-            mesonTreePt_chosen      = mesonTreePt
-            mesonTreeEta_chosen     = mesonTreeEta
-            mesonTreePhi_chosen     = mesonTreePhi
-
-            #for MC truth
-            #genTrk1Pt_chosen = genTrk1Pt
-            #genTrk2Pt_chosen = genTrk2Pt
-            #genMesonMass_chosen = genMesonMass
-            #genMesonPt_chosen = genMesonPt
-
-        #meson loop end------------------
-    #isRho end-------------------------------------------------------------------------------------------
-
-    if isPhiAnalysis:
-        for i in range(len(mytree.phi_mass)):
-            firstTrkPt   = mytree.phi_trk1_pt[i]
-            firstTrkEta  = mytree.phi_trk1_eta[i]
-            firstTrkPhi  = mytree.phi_trk1_phi[i]
-            secondTrkPt  = mytree.phi_trk2_pt[i]
-            secondTrkEta = mytree.phi_trk2_eta[i]
-            secondTrkPhi = mytree.phi_trk2_phi[i]
-            isoMesonCh   = mytree.phi_iso[i]
-
-            mesonTreeMass    = mytree.phi_mass[i]
-            mesonTreeMassKin = mytree.phi_kin_mass[i]
-            mesonTreePt      = mytree.phi_kin_pt[i]
-            mesonTreeEta     = mytree.phi_kin_eta[i] 
-            mesonTreePhi     = mytree.phi_kin_phi[i] 
-
-        
-            #Tracks pt cuts------------------------------------------------
-            if firstTrkPt < 1. or secondTrkPt < 1.:
-                if verbose: print("if first trk pt or second trk pt<1 continue")
-                continue
-
-            if firstTrkPt < 10. and secondTrkPt < 10.:
-                if verbose: print("if first trk pt and second trk pt<10 continue")
-                continue
-
-            #DiTrks deltaR cut---------------------------------------------------
-            deltaEta = firstTrkEta - secondTrkEta
-            deltaPhi = abs(firstTrkPhi - secondTrkPhi)
-            if deltaPhi > math.pi: deltaPhi = 2*math.pi - deltaPhi
-
-            deltaRTrks = math.sqrt(deltaEta*deltaEta + deltaPhi*deltaPhi)        
-            if deltaRTrks > 0.07:
-                if verbose: print("if deltaRTrks>0.07 continue")
-                continue
-
-            #Quadrimomentum calculation -------------------------------------------
-            firstTrkP4 = TLorentzVector() 
-            secondTrkP4 = TLorentzVector()
-
-            firstTrkP4.SetPtEtaPhiM(firstTrkPt, firstTrkEta, firstTrkPhi, 0.4937) #K mass            
-            secondTrkP4.SetPtEtaPhiM(secondTrkPt, secondTrkEta, secondTrkPhi, 0.4937)
-
-            pairP4 = firstTrkP4  + secondTrkP4
-
-            if verbose: print("KK pT =", pairP4.Pt())
-
-            #DiTrk pT cut----------------------------------------------------------
-            if pairP4.Pt() < 38:
-                if verbose: print("couplePt cut NOT passed, continue")
-                continue
-
-            #Meson inv mass---------------------------------------------------------
-            isMeson = False
-
-            mesonMassTrkTrk = pairP4.M()        
-
-            if 1. < mesonMassTrkTrk < 1.05: isMeson = True           
-
-            if not isMeson: continue
-
-            #Isolation cut----------------------------------------------------------
-            if isoMesonCh < 0.9:
-                print("No isolation cut passed, continue")
-                continue
-
-            #nEventsMesonIsolationFilter+=1
-            histo_map["nEvents"].SetBinContent(4, nEventsMesonIsolationFilter)
-
-            #pT max of the event filter ----------------------------------------------
-            if verbose: print("Current bestMeson_Pt =", bestMesonPt)
-
-            if pairP4.Pt() <= bestMesonPt:
-                if verbose: print("Not passed: pT lower than the current best meson of the event. Continue")
-                continue
-
-            bestMesonPt = pairP4.Pt() 
-
-            if verbose:
-                print("pairP4.Pt() =", bestMesonPt)
-                print("This is the best meson so far!")
-
-            isBestMesonOfTheEventFound = True
-
-            #Save variables if best meson has been found
-            deltaRTrks_chosen    = deltaRTrks
-            isMeson_chosen       = isMeson
-            firstTrkP4_chosen    = firstTrkP4
-            secondTrkP4_chosen   = secondTrkP4
-            mesonP4_chosen       = pairP4
-            mesonIsoCh_chosen    = isoMesonCh
-
-            mesonTreeMass_chosen    = mesonTreeMass
-            mesonTreeMassKin_chosen = mesonTreeMassKin
-            mesonTreePt_chosen      = mesonTreePt
-            mesonTreeEta_chosen     = mesonTreeEta
-            mesonTreePhi_chosen     = mesonTreePhi
-
-            #for MC truth
-            #genTrk1Pt_chosen = genTrk1Pt
-            #genTrk2Pt_chosen = genTrk2Pt
-            #genMesonMass_chosen = genMesonMass
-            #genMesonPt_chosen = genMesonPt
-
-        #meson loop end------------------
-    #isPhi end----------------------------------------------------------------------------------------------------
-
-    if isKAnalysis:
-        for i in range(len(mytree.K0Star_mass)):
-            firstTrkPt   = mytree.K0Star_pion_pt[i]
-            firstTrkEta  = mytree.K0Star_pion_eta[i]
-            firstTrkPhi  = mytree.K0Star_pion_phi[i]
-            firstTrkCharge = mytree.K0Star_pion_charge[i]
-            secondTrkPt  = mytree.K0Star_kaon_pt[i]
-            secondTrkEta = mytree.K0Star_kaon_eta[i]
-            secondTrkPhi = mytree.K0Star_kaon_phi[i]
-            secondTrkCharge = mytree.K0Star_kaon_charge[i]
-            isoMesonCh   = mytree.K0Star_iso[i]
-
-            mesonTreeMass    = mytree.K0Star_mass[i]
-            mesonTreeMassKin = mytree.K0Star_kin_mass[i]
-            mesonTreePt      = mytree.K0Star_kin_pt[i]
-            mesonTreeEta     = mytree.K0Star_kin_eta[i] 
-            mesonTreePhi     = mytree.K0Star_kin_phi[i] 
-
-
-            if firstTrkCharge*secondTrkCharge >= 0: continue
-
-            #Tracks pt cuts------------------------------------------------
-            if firstTrkPt < 1. or secondTrkPt < 1.:
-                if verbose: print("if first trk pt or second trk pt<1 continue")
-                continue
-
-            if firstTrkPt < 10. and secondTrkPt < 10.:
-                if verbose: print("if first trk pt and second trk pt<10 continue")
-                continue
-
-            #DiTrks deltaR cut---------------------------------------------------
-            deltaEta = firstTrkEta - secondTrkEta
-            deltaPhi = abs(firstTrkPhi - secondTrkPhi)
-            if deltaPhi > math.pi: deltaPhi = 2*math.pi - deltaPhi
-
-            deltaRTrks = math.sqrt(deltaEta*deltaEta + deltaPhi*deltaPhi)        
-            if deltaRTrks > 0.07:
-                if verbose: print("if deltaRTrks>0.07 continue")
-                continue
-
-            #Quadrimomentum calculation -------------------------------------------
-            firstTrkP4 = TLorentzVector() 
-            secondTrkP4 = TLorentzVector()            
-
-            firstTrkP4.SetPtEtaPhiM(firstTrkPt, firstTrkEta, firstTrkPhi, 0.13957) #Pi mass            
-            secondTrkP4.SetPtEtaPhiM(secondTrkPt, secondTrkEta, secondTrkPhi, 0.4937)#K mass
-
-            pairP4 = firstTrkP4  + secondTrkP4
-
-            if verbose: print("PiK pT =", pairP4.Pt())
-
-            #DiTrk pT cut----------------------------------------------------------
-            if pairP4.Pt() < 38:
-                if verbose: print("couplePt cut NOT passed, continue")
-                continue
-
-            #Meson inv mass---------------------------------------------------------
-            isMeson = False
-
-            mesonMassTrkTrk = pairP4.M()        
-            
-            if 0.6 < mesonMassTrkTrk < 1.: isMeson = True           
-
-            if not isMeson: continue
-
-            #Isolation cut----------------------------------------------------------
-            if isoMesonCh < 0.9:
-                print("No isolation cut passed, continue")
-                continue
-
-            #nEventsMesonIsolationFilter+=1
-            histo_map["nEvents"].SetBinContent(4, nEventsMesonIsolationFilter)
-
-            #pT max of the event filter ----------------------------------------------
-            if verbose: print("Current bestMeson_Pt =", bestMesonPt)
-
-            if pairP4.Pt() <= bestMesonPt:
-                if verbose: print("Not passed: pT lower than the current best meson of the event. Continue")
-                continue
-
-            bestMesonPt = pairP4.Pt() 
-
-            if verbose:
-                print("pairP4.Pt() =", bestMesonPt)
-                print("This is the best meson so far!")
-
-            isBestMesonOfTheEventFound = True
-
-            #Save variables if best meson has been found
-            deltaRTrks_chosen    = deltaRTrks
-            isMeson_chosen       = isMeson
-            firstTrkP4_chosen    = firstTrkP4
-            secondTrkP4_chosen   = secondTrkP4
-            mesonP4_chosen       = pairP4
-            mesonIsoCh_chosen    = isoMesonCh
-
-            mesonTreeMass_chosen    = mesonTreeMass
-            mesonTreeMassKin_chosen = mesonTreeMassKin
-            mesonTreePt_chosen      = mesonTreePt
-            mesonTreeEta_chosen     = mesonTreeEta
-            mesonTreePhi_chosen     = mesonTreePhi
-
-            #for MC truth
-            #genTrk1Pt_chosen = genTrk1Pt
-            #genTrk2Pt_chosen = genTrk2Pt
-            #genMesonMass_chosen = genMesonMass
-            #genMesonPt_chosen = genMesonPt
-
-        #meson loop end------------------
-    #isK* end----------------------------------------------------------------------------------------------------
-
     if not isBestMesonOfTheEventFound:
         print("No best couple detected for current event, RETURN.")
         continue  
