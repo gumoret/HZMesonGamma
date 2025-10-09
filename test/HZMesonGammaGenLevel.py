@@ -96,11 +96,7 @@ tree_output.Branch('genTrack2_mass', _genTrack2_mass, '_genTrack2_mass/D')
 #EVENTS LOOP #######################################################################################################
 nentries = mytree.GetEntriesFast()
 
-genBoson_ID, genBoson_pT, genBoson_eta, genBoson_phi, genBoson_mass = [-999] * 5
-genMeson_ID, genMeson_pT, genMeson_eta, genMeson_phi, genMeson_mass = [-999] * 5
-genGamma_ID, genGamma_pT, genGamma_eta, genGamma_phi = [-999] * 4
-genTrack1_ID, genTrack1_pT, genTrack1_eta, genTrack1_phi, genTrack1_mass = [-999] * 5
-genTrack2_ID, genTrack2_pT, genTrack2_eta, genTrack2_phi, genTrack2_mass = [-999] * 5
+
 
 boson_not_found_count = 0
 
@@ -127,8 +123,14 @@ for jentry in range(nentries):
                 meson_to_daughters[mother_idx].append(d)  
 
 
-        #print("   - particle number ", d, "  ID = ", mytree.GenPart_pdgId[d], "  mother ID = ", mytree.GenPart_pdgId[mother_idx]  )
+        print("   - particle number ", d, "  ID = ", mytree.GenPart_pdgId[d], "  mother ID = ", mytree.GenPart_pdgId[mother_idx]  )
 
+
+    genBoson_ID, genBoson_pT, genBoson_eta, genBoson_phi, genBoson_mass = [-999] * 5
+    genMeson_ID, genMeson_pT, genMeson_eta, genMeson_phi, genMeson_mass = [-999] * 5
+    genGamma_ID, genGamma_pT, genGamma_eta, genGamma_phi = [-999] * 4
+    genTrack1_ID, genTrack1_pT, genTrack1_eta, genTrack1_phi, genTrack1_mass = [-999] * 5
+    genTrack2_ID, genTrack2_pT, genTrack2_eta, genTrack2_phi, genTrack2_mass = [-999] * 5
 
     for i in range(mytree.nGenPart):
         daughters = mother_to_daughters.get(i, [])  # retrieve daughters
@@ -229,9 +231,9 @@ for jentry in range(nentries):
 
     if genBoson_ID == -999: boson_not_found_count+=1
 
-    #print("bosons with ID = -999:", boson_not_found_count)
-    #print("boson ID =", genBoson_ID, "boson mass =", genBoson_mass)
-    #print("meson ID =", genMeson_ID, "meson mass =", genMeson_mass)
+    print("bosons with ID = -999:", boson_not_found_count)
+    print("boson ID =", genBoson_ID, "boson mass =", genBoson_mass)
+    print("meson ID =", genMeson_ID, "meson mass =", genMeson_mass)
     
 #Tree writing ##########################################################################################################
 tree_output.Write()
