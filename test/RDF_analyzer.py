@@ -4,7 +4,7 @@ import argparse
 # multithreading
 
 # following bools are given as input
-verbose       = False
+verbose       = True
 isPhiAnalysis = False # for H -> Phi Gamma
 isRhoAnalysis = False # for H -> Rho Gamma
 
@@ -136,9 +136,9 @@ df = df.Filter("nGoodPhotons > 0", "At least one good photon")
 n_photon = df.Filter("nGoodPhotons").Count().GetValue()
 
 # pT, eta, phi, p4 of the selected photon (if it exists)
-df = df.Define("bestPhoton_pt",  "bestPhotonIdx >= 0 ? Photon_pt[bestPhotonIdx]  : -1.")
-df = df.Define("bestPhoton_eta", "bestPhotonIdx >= 0 ? Photon_eta[bestPhotonIdx] : -999.")
-df = df.Define("bestPhoton_phi", "bestPhotonIdx >= 0 ? Photon_phi[bestPhotonIdx] : -999.")
+df = df.Define("bestPhoton_pt",  "(float)bestPhotonIdx >= 0 ? Photon_pt[bestPhotonIdx]  : -1.f")
+df = df.Define("bestPhoton_eta", "(float)bestPhotonIdx >= 0 ? Photon_eta[bestPhotonIdx] : -999.f")
+df = df.Define("bestPhoton_phi", "(float)bestPhotonIdx >= 0 ? Photon_phi[bestPhotonIdx] : -999.f")
 df = df.Define("photon_p4", "make_photon_p4(Photon_pt, Photon_eta, Photon_phi, bestPhotonIdx)")
 
 
@@ -167,3 +167,13 @@ h_cutflow.Write()
 output.Close()
 
 print("Output saved in:", output_file)
+
+# ---------------------------------------------------------------------
+# DEBUG PRINTS
+# ---------------------------------------------------------------------
+if verbose:
+    all_photon_pts  = df.Take["ROOT::VecOps::RVec<float>"]("Photon_pt")
+    best_photon_pts = df.Take["float"]("bestPhoton_pt")
+
+    for i, (a, b) in enumerate(zip(all_photon_pts, best_photon_pts)):
+        print(f"Event {i}: Photon pTs = {list(a)},  best = {b}")
