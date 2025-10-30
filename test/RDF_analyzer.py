@@ -8,6 +8,7 @@ ROOT.ROOT.EnableImplicitMT()
 verbose       = True
 isPhiAnalysis = False # for H -> Phi Gamma
 isRhoAnalysis = False # for H -> Rho Gamma
+ismesonFromTracks = True # debug for reconstructing meson from tracks
 
 # PARSER and INPUT 
 p = argparse.ArgumentParser(description="RDataFrame analyzer for H→meson+γ")
@@ -109,7 +110,7 @@ struct MesonSelection {
     int bestIdx;
 };
 
-MesonSelection select_mesons(const RVec<float>& pt, const RVec<float>& eta, const RVec<float>& phi,
+MesonSelection select_mesons_kin(const RVec<float>& pt, const RVec<float>& eta, const RVec<float>& phi,
                              const RVec<float>& mass, const RVec<float>& iso, float mass_low, float mass_high,
                              const RVec<float>& trk1_pt, const RVec<float>& trk1_eta, const RVec<float>& trk1_phi,
                              const RVec<float>& trk2_pt, const RVec<float>& trk2_eta, const RVec<float>& trk2_phi) {
@@ -123,9 +124,8 @@ MesonSelection select_mesons(const RVec<float>& pt, const RVec<float>& eta, cons
     auto deltaR = sqrt(dEta * dEta + dPhi * dPhi);
     
     // Track-level cuts
-    auto trk_mask =  (trk1_pt >= 10.) && (trk2_pt >= 10.) && (deltaR <= 0.07);
-    
-    
+    auto trk_mask = !((trk1_pt < 1.0f) || (trk2_pt < 1.0f)) && !((trk1_pt < 10.0f) && (trk2_pt < 10.0f)) && (deltaR < 0.07f);
+        
     // Meson cuts: mass window, iso > 0.9, pt > 38, |eta| < 2.5
     auto meson_mask = (pt > 38) && (abs(eta) < 2.5) && (mass > mass_low) && (mass < mass_high) && (iso > 0.9);
 
@@ -155,6 +155,69 @@ TLorentzVector make_meson_p4(const RVec<float>& pt, const RVec<float>& eta,
     p4.SetPtEtaPhiM(pt[idx], eta[idx], phi[idx], mass[idx]);
     return p4;
 }
+
+// debug: meson reconstruction using tracks instead of nanoaod variables
+
+MesonSelection select_mesons_tracks(const RVec<float>& iso, 
+                                    const RVec<float>& trk1_pt, const RVec<float>& trk1_eta, const RVec<float>& trk1_phi,
+                                    const RVec<float>& trk2_pt, const RVec<float>& trk2_eta, const RVec<float>& trk2_phi,
+                                    float mass_trk1, float mass_trk2, float mass_low, float mass_high, float dR_max, float pt_pair_min){
+
+    MesonSelection out{0, -1};
+    const int N = trk1_pt.size();
+    float bestPt = -1.f;
+
+    for (int i = 0; i < N; ++i) {
+
+        // Track pT cuts
+        if (trk1_pt[i] < 1.f || trk2_pt[i] < 1.f) continue;
+        if (trk1_pt[i] < 10.f && trk2_pt[i] < 10.f) continue;
+
+        // ΔR
+        float dphi = fabs(trk1_phi[i] - trk2_phi[i]);
+        if (dphi > M_PI) dphi = 2.f * M_PI - dphi;
+        float deta = trk1_eta[i] - trk2_eta[i];
+        float dR = sqrt(deta*deta + dphi*dphi);
+        if (dR > dR_max) continue;
+
+        // Build p4 from track
+        TLorentzVector t1, t2;
+        t1.SetPtEtaPhiM(trk1_pt[i], trk1_eta[i], trk1_phi[i], mass_trk1);
+        t2.SetPtEtaPhiM(trk2_pt[i], trk2_eta[i], trk2_phi[i], mass_trk2);
+        TLorentzVector pair = t1 + t2;
+
+        // pT cut
+        float ptPair = pair.Pt();
+        if (ptPair < pt_pair_min) continue;
+
+        // Mass window
+        float mPair = pair.M();
+        if (mPair <= mass_low || mPair >= mass_high) continue;
+
+        // Isolation
+        if (iso[i] < 0.9f) continue;
+
+        out.nGood++;
+        if (ptPair > bestPt) {
+            bestPt = ptPair;
+            out.bestIdx = i;
+        }
+    }
+
+    return out;
+}
+
+// build meson 4-vector from 2 tracks
+TLorentzVector build_meson_from_tracks(float pt1, float eta1, float phi1, float mass1,
+                                      float pt2, float eta2, float phi2, float mass2)
+{
+    TLorentzVector t1, t2;
+    t1.SetPtEtaPhiM(pt1, eta1, phi1, mass1);
+    t2.SetPtEtaPhiM(pt2, eta2, phi2, mass2);
+    return (t1 + t2);
+}
+
+
 """)
 
 # Create the dataframe
@@ -201,49 +264,103 @@ df = df.Define("photon_p4", "make_photon_p4(Photon_pt, Photon_eta, Photon_phi, b
 # ------------------------------------------------------------
 if isPhiAnalysis:
     mass_low, mass_high = 1.00, 1.05
+    mass_trk1, mass_trk2 = 0.4937, 0.4937  # Kaon mass
     meson_prefix = "phi"
 elif isRhoAnalysis:
     mass_low, mass_high = 0.50, 1.00
+    mass_trk1, mass_trk2 = 0.13957, 0.13957  #Pion mass
     meson_prefix = "rho"
 else:
     print("Unknown meson type!")
     mass_low, mass_high = 0.0, 99.0
     meson_prefix = "phi"
 
-df = df.Define("meson_sel", 
-               f"select_mesons({meson_prefix}_kin_pt, {meson_prefix}_kin_eta, {meson_prefix}_kin_phi, "
-               f"{meson_prefix}_kin_mass, {meson_prefix}_iso, {mass_low}, {mass_high}, "
-               f"{meson_prefix}_trk1_pt, {meson_prefix}_trk1_eta, {meson_prefix}_trk1_phi, "
-               f"{meson_prefix}_trk2_pt, {meson_prefix}_trk2_eta, {meson_prefix}_trk2_phi)")
-df = df.Define("nGoodMesons", "meson_sel.nGood")
-df = df.Define("bestMesonIdx", "meson_sel.bestIdx")
-df = df.Filter("nGoodMesons > 0", "At least one good meson")
-n_meson = df.Filter("nGoodMesons").Count().GetValue()
+if not ismesonFromTracks:
+    print("### Mode: meson from NanoAOD (kinematics branches) ###")
 
-# pT, eta, phi, p4 of the selected meson (if it exists)
-df = df.Define("meson_p4", f"make_meson_p4({meson_prefix}_kin_pt, {meson_prefix}_kin_eta, {meson_prefix}_kin_phi, {meson_prefix}_kin_mass, bestMesonIdx)")
-df = df.Define("bestMeson_pt",  f"bestMesonIdx  >= 0 ? {meson_prefix}_kin_pt[bestMesonIdx] : -1.f")
-df = df.Define("bestMeson_eta", f"bestMesonIdx  >= 0 ? {meson_prefix}_kin_eta[bestMesonIdx] : -999.f")
-df = df.Define("bestMeson_phi", f"bestMesonIdx  >= 0 ? {meson_prefix}_kin_phi[bestMesonIdx] : -999.f")
-df = df.Define("bestMeson_mass",f"bestMesonIdx  >= 0 ? {meson_prefix}_kin_mass[bestMesonIdx] : -1.f")
+    df = df.Define("meson_sel", 
+                f"select_mesons_kin({meson_prefix}_kin_pt, {meson_prefix}_kin_eta, {meson_prefix}_kin_phi, "
+                f"{meson_prefix}_kin_mass, {meson_prefix}_iso, {mass_low}, {mass_high}, "
+                f"{meson_prefix}_trk1_pt, {meson_prefix}_trk1_eta, {meson_prefix}_trk1_phi, "
+                f"{meson_prefix}_trk2_pt, {meson_prefix}_trk2_eta, {meson_prefix}_trk2_phi)")
+    df = df.Define("nGoodMesons", "meson_sel.nGood")
+    df = df.Define("bestMesonIdx", "meson_sel.bestIdx")
 
-# final tracks pT selection
-df = df.Define("trk1_pt_best", f"bestMesonIdx  >= 0 ? {meson_prefix}_trk1_pt[bestMesonIdx] : -1.f")
-df = df.Define("trk2_pt_best", f"bestMesonIdx  >= 0 ? {meson_prefix}_trk2_pt[bestMesonIdx] : -1.f")
-df = df.Define("firstTrk_pt", "trk1_pt_best > trk2_pt_best ? trk1_pt_best : trk2_pt_best")
-df = df.Define("secondTrk_pt", "trk1_pt_best > trk2_pt_best ? trk2_pt_best : trk1_pt_best")
-df = df.Filter("firstTrk_pt > 20 && secondTrk_pt > 5", "Final track pT selection")
-n_meson_trks = df.Filter("firstTrk_pt").Count().GetValue()
 
-# eta, phi of the best meson tracks
-df = df.Define("trk1_eta_best", f"bestMesonIdx  >= 0 ? {meson_prefix}_trk1_eta[bestMesonIdx] : -999.f")
-df = df.Define("trk1_phi_best", f"bestMesonIdx  >= 0 ? {meson_prefix}_trk1_phi[bestMesonIdx] : -999.f")
-df = df.Define("trk2_eta_best", f"bestMesonIdx  >= 0 ? {meson_prefix}_trk2_eta[bestMesonIdx] : -999.f")
-df = df.Define("trk2_phi_best", f"bestMesonIdx  >= 0 ? {meson_prefix}_trk2_phi[bestMesonIdx] : -999.f")
-df = df.Define("firstTrk_eta", "trk1_pt_best  > trk2_pt_best ? trk1_eta_best : trk2_eta_best")
-df = df.Define("firstTrk_phi", "trk1_pt_best  > trk2_pt_best ? trk1_phi_best : trk2_phi_best")
-df = df.Define("secondTrk_eta", "trk1_pt_best  > trk2_pt_best ? trk2_eta_best : trk1_eta_best")
-df = df.Define("secondTrk_phi", "trk1_pt_best  > trk2_pt_best ? trk2_phi_best : trk1_phi_best")
+    df = df.Filter("nGoodMesons > 0", "At least one good meson")
+    n_meson = df.Filter("nGoodMesons").Count().GetValue()
+
+    # pT, eta, phi, p4 of the selected meson (if it exists)
+    df = df.Define("meson_p4", f"make_meson_p4({meson_prefix}_kin_pt, {meson_prefix}_kin_eta, {meson_prefix}_kin_phi, {meson_prefix}_kin_mass, bestMesonIdx)")
+    df = df.Define("bestMeson_pt",  f"bestMesonIdx  >= 0 ? {meson_prefix}_kin_pt[bestMesonIdx] : -1.f")
+    df = df.Define("bestMeson_eta", f"bestMesonIdx  >= 0 ? {meson_prefix}_kin_eta[bestMesonIdx] : -999.f")
+    df = df.Define("bestMeson_phi", f"bestMesonIdx  >= 0 ? {meson_prefix}_kin_phi[bestMesonIdx] : -999.f")
+    df = df.Define("bestMeson_mass",f"bestMesonIdx  >= 0 ? {meson_prefix}_kin_mass[bestMesonIdx] : -1.f")
+
+    # final tracks pT selection
+    df = df.Define("trk1_pt_best", f"bestMesonIdx  >= 0 ? {meson_prefix}_trk1_pt[bestMesonIdx] : -1.f")
+    df = df.Define("trk2_pt_best", f"bestMesonIdx  >= 0 ? {meson_prefix}_trk2_pt[bestMesonIdx] : -1.f")
+    df = df.Define("firstTrk_pt", "trk1_pt_best > trk2_pt_best ? trk1_pt_best : trk2_pt_best")
+    df = df.Define("secondTrk_pt", "trk1_pt_best > trk2_pt_best ? trk2_pt_best : trk1_pt_best")
+    df = df.Filter("firstTrk_pt >= 20 && secondTrk_pt >= 5", "Final track pT selection")
+    n_meson_trks = df.Filter("firstTrk_pt").Count().GetValue()
+
+    # eta, phi of the best meson tracks
+    df = df.Define("trk1_eta_best", f"bestMesonIdx  >= 0 ? {meson_prefix}_trk1_eta[bestMesonIdx] : -999.f")
+    df = df.Define("trk1_phi_best", f"bestMesonIdx  >= 0 ? {meson_prefix}_trk1_phi[bestMesonIdx] : -999.f")
+    df = df.Define("trk2_eta_best", f"bestMesonIdx  >= 0 ? {meson_prefix}_trk2_eta[bestMesonIdx] : -999.f")
+    df = df.Define("trk2_phi_best", f"bestMesonIdx  >= 0 ? {meson_prefix}_trk2_phi[bestMesonIdx] : -999.f")
+    df = df.Define("firstTrk_eta", "trk1_pt_best  > trk2_pt_best ? trk1_eta_best : trk2_eta_best")
+    df = df.Define("firstTrk_phi", "trk1_pt_best  > trk2_pt_best ? trk1_phi_best : trk2_phi_best")
+    df = df.Define("secondTrk_eta", "trk1_pt_best  > trk2_pt_best ? trk2_eta_best : trk1_eta_best")
+    df = df.Define("secondTrk_phi", "trk1_pt_best  > trk2_pt_best ? trk2_phi_best : trk1_phi_best")
+
+else:
+    print("### Mode: meson reconstructed from tracks (vectorized) ###")
+
+    df = (
+        df
+        # meson selection 
+        .Define("meson_sel",
+                f"select_mesons_tracks({meson_prefix}_iso, "
+                f"{meson_prefix}_trk1_pt, {meson_prefix}_trk1_eta, {meson_prefix}_trk1_phi, "
+                f"{meson_prefix}_trk2_pt, {meson_prefix}_trk2_eta, {meson_prefix}_trk2_phi, "
+                f"{mass_trk1}f, {mass_trk2}f, {mass_low}f, {mass_high}f, "
+                f"0.07f, 38.f)")
+        .Define("nGoodMesons", "meson_sel.nGood")
+        .Define("bestMesonIdx", "meson_sel.bestIdx")
+        .Filter("nGoodMesons > 0", "At least one good meson (tracks-based)"))
+    n_meson = df.Filter("nGoodMesons").Count().GetValue()
+    
+    # tracks of the selected meson
+    df = (
+        df
+        .Define("trk1_pt_best",  f"{meson_prefix}_trk1_pt[bestMesonIdx]")
+        .Define("trk1_eta_best", f"{meson_prefix}_trk1_eta[bestMesonIdx]")
+        .Define("trk1_phi_best", f"{meson_prefix}_trk1_phi[bestMesonIdx]")
+        .Define("trk2_pt_best",  f"{meson_prefix}_trk2_pt[bestMesonIdx]")
+        .Define("trk2_eta_best", f"{meson_prefix}_trk2_eta[bestMesonIdx]")
+        .Define("trk2_phi_best", f"{meson_prefix}_trk2_phi[bestMesonIdx]")
+        # meson p4 from tracks 
+        .Define("meson_p4",
+                f"build_meson_from_tracks(trk1_pt_best, trk1_eta_best, trk1_phi_best, {mass_trk1}f, "
+                f"trk2_pt_best, trk2_eta_best, trk2_phi_best, {mass_trk2}f)")
+        .Define("bestMeson_pt",   "float(meson_p4.Pt())")
+        .Define("bestMeson_eta",  "float(meson_p4.Eta())")
+        .Define("bestMeson_phi",  "float(meson_p4.Phi())")
+        .Define("bestMeson_mass", "float(meson_p4.M())")
+        # tracks sorting
+        .Define("firstTrk_pt",  "trk1_pt_best  > trk2_pt_best ? trk1_pt_best  : trk2_pt_best")
+        .Define("firstTrk_eta", "trk1_pt_best  > trk2_pt_best ? trk1_eta_best : trk2_eta_best")
+        .Define("firstTrk_phi", "trk1_pt_best  > trk2_pt_best ? trk1_phi_best : trk2_phi_best")
+        .Define("secondTrk_pt",  "trk1_pt_best  > trk2_pt_best ? trk2_pt_best  : trk1_pt_best")
+        .Define("secondTrk_eta", "trk1_pt_best  > trk2_pt_best ? trk2_eta_best : trk1_eta_best")
+        .Define("secondTrk_phi", "trk1_pt_best  > trk2_pt_best ? trk2_phi_best : trk1_phi_best")
+        # final tracks cut
+        .Filter("firstTrk_pt >= 20 && secondTrk_pt >= 5", "Final track pT selection")
+    )
+    n_meson_trks = df.Filter("firstTrk_pt").Count().GetValue()
+
 
 # ------------------------------------------------------------
 # Boson
@@ -270,7 +387,7 @@ df.Snapshot("tree_output", output_file, columns_to_save)
 # --------------------------------------------------------------------
 cut_names = ["All events", "Triggered", "Best photon", "Best meson", "Trks cut"]
 
-h_cutflow = ROOT.TH1F("cutflow", "Cutflow;Selection;Events", len(cut_names), 0, len(cut_names))
+h_cutflow = ROOT.TH1F("nEvents", "Event counting in different steps; ; Events", len(cut_names), 0, len(cut_names))
 for i, (label, val) in enumerate(zip(cut_names, [n_total, n_trigger, n_photon, n_meson, n_meson_trks]), start=1):
     h_cutflow.SetBinContent(i, val)
     h_cutflow.GetXaxis().SetBinLabel(i, label)
