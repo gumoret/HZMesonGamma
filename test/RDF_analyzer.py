@@ -269,6 +269,17 @@ df = ROOT.RDataFrame(input_tree_name, input_file)
 n_total = df.Count().GetValue()
 
 # ------------------------------------------------------------
+# Pileup
+# ------------------------------------------------------------
+df = df.Define("nPU", "Pileup_nPU")
+h_pu = df.Histo1D(("pileup", "Pileup distribution", 130, 0, 130), "nPU")
+
+# ------------------------------------------------------------
+# MC weight
+# ------------------------------------------------------------
+df = df.Define("MC_Weight", "Generator_weight")
+
+# ------------------------------------------------------------
 # Trigger
 # ------------------------------------------------------------
 df = df.Filter("HLT_Photon35_TwoProngs35", "Two-prong photon trigger")
@@ -335,17 +346,19 @@ if not ismesonFromTracks:
     df = df.Filter("nGoodMesons > 0", "At least one good meson")
     n_meson = df.Filter("nGoodMesons").Count().GetValue()
 
-    # pT, eta, phi, p4 of the selected meson (if it exists)
-    df = df.Define("meson_p4", f"make_meson_p4({meson_prefix}_kin_pt, {meson_prefix}_kin_eta, {meson_prefix}_kin_phi, {meson_prefix}_kin_mass, bestMesonIdx)")
-    df = df.Define("bestMeson_pt",  f"bestMesonIdx  >= 0 ? {meson_prefix}_kin_pt[bestMesonIdx] : -1.f")
-    df = df.Define("bestMeson_eta", f"bestMesonIdx  >= 0 ? {meson_prefix}_kin_eta[bestMesonIdx] : -999.f")
-    df = df.Define("bestMeson_phi", f"bestMesonIdx  >= 0 ? {meson_prefix}_kin_phi[bestMesonIdx] : -999.f")
-    df = df.Define("bestMeson_mass",f"bestMesonIdx  >= 0 ? {meson_prefix}_kin_mass[bestMesonIdx] : -1.f")
+    # pT, eta, phi, p4, iso of the selected meson (if it exists)
+    df = df.Define("meson_p4",       f"make_meson_p4({meson_prefix}_kin_pt, {meson_prefix}_kin_eta, {meson_prefix}_kin_phi, {meson_prefix}_kin_mass, bestMesonIdx)")
+    df = df.Define("bestMeson_pt",   f"bestMesonIdx  >= 0 ? {meson_prefix}_kin_pt[bestMesonIdx] : -1.f")
+    df = df.Define("bestMeson_eta",  f"bestMesonIdx  >= 0 ? {meson_prefix}_kin_eta[bestMesonIdx] : -999.f")
+    df = df.Define("bestMeson_phi",  f"bestMesonIdx  >= 0 ? {meson_prefix}_kin_phi[bestMesonIdx] : -999.f")
+    df = df.Define("bestMeson_mass", f"bestMesonIdx  >= 0 ? {meson_prefix}_kin_mass[bestMesonIdx] : -1.f")
+    df = df.Define("isoMeson",       f"bestMesonIdx  >= 0 ? {meson_prefix}_iso[bestMesonIdx] : -1.f")
+
 
     # final tracks pT selection
     df = df.Define("trk1_pt_best", f"bestMesonIdx  >= 0 ? {meson_prefix}_trk1_pt[bestMesonIdx] : -1.f")
     df = df.Define("trk2_pt_best", f"bestMesonIdx  >= 0 ? {meson_prefix}_trk2_pt[bestMesonIdx] : -1.f")
-    df = df.Define("firstTrk_pt", "trk1_pt_best > trk2_pt_best ? trk1_pt_best : trk2_pt_best")
+    df = df.Define("firstTrk_pt",  "trk1_pt_best > trk2_pt_best ? trk1_pt_best : trk2_pt_best")
     df = df.Define("secondTrk_pt", "trk1_pt_best > trk2_pt_best ? trk2_pt_best : trk1_pt_best")
     df = df.Filter("firstTrk_pt >= 20 && secondTrk_pt >= 5", "Final track pT selection")
     n_meson_trks = df.Filter("firstTrk_pt").Count().GetValue()
@@ -355,8 +368,8 @@ if not ismesonFromTracks:
     df = df.Define("trk1_phi_best", f"bestMesonIdx  >= 0 ? {meson_prefix}_trk1_phi[bestMesonIdx] : -999.f")
     df = df.Define("trk2_eta_best", f"bestMesonIdx  >= 0 ? {meson_prefix}_trk2_eta[bestMesonIdx] : -999.f")
     df = df.Define("trk2_phi_best", f"bestMesonIdx  >= 0 ? {meson_prefix}_trk2_phi[bestMesonIdx] : -999.f")
-    df = df.Define("firstTrk_eta", "trk1_pt_best  > trk2_pt_best ? trk1_eta_best : trk2_eta_best")
-    df = df.Define("firstTrk_phi", "trk1_pt_best  > trk2_pt_best ? trk1_phi_best : trk2_phi_best")
+    df = df.Define("firstTrk_eta",  "trk1_pt_best  > trk2_pt_best ? trk1_eta_best : trk2_eta_best")
+    df = df.Define("firstTrk_phi",  "trk1_pt_best  > trk2_pt_best ? trk1_phi_best : trk2_phi_best")
     df = df.Define("secondTrk_eta", "trk1_pt_best  > trk2_pt_best ? trk2_eta_best : trk1_eta_best")
     df = df.Define("secondTrk_phi", "trk1_pt_best  > trk2_pt_best ? trk2_phi_best : trk1_phi_best")
 
@@ -384,6 +397,7 @@ else:
             .Define("trk2_pt_best",  f"{meson_prefix}_trk2_pt[bestMesonIdx]")
             .Define("trk2_eta_best", f"{meson_prefix}_trk2_eta[bestMesonIdx]")
             .Define("trk2_phi_best", f"{meson_prefix}_trk2_phi[bestMesonIdx]")
+            
             # meson p4 from tracks 
             .Define("meson_p4", f"build_meson_from_tracks(trk1_pt_best, trk1_eta_best, trk1_phi_best, {mass_trk1}f, "
                                                           f"trk2_pt_best, trk2_eta_best, trk2_phi_best, {mass_trk2}f)")
@@ -391,6 +405,10 @@ else:
             .Define("bestMeson_eta",  "float(meson_p4.Eta())")
             .Define("bestMeson_phi",  "float(meson_p4.Phi())")
             .Define("bestMeson_mass", "float(meson_p4.M())")
+
+            # meson isolation
+            .Define("isoMeson", f"{meson_prefix}_iso[bestMesonIdx]")
+
             # tracks sorting
             .Define("firstTrk_pt",  "trk1_pt_best  > trk2_pt_best ? trk1_pt_best  : trk2_pt_best")
             .Define("firstTrk_eta", "trk1_pt_best  > trk2_pt_best ? trk1_eta_best : trk2_eta_best")
@@ -398,6 +416,7 @@ else:
             .Define("secondTrk_pt",  "trk1_pt_best  > trk2_pt_best ? trk2_pt_best  : trk1_pt_best")
             .Define("secondTrk_eta", "trk1_pt_best  > trk2_pt_best ? trk2_eta_best : trk1_eta_best")
             .Define("secondTrk_phi", "trk1_pt_best  > trk2_pt_best ? trk2_phi_best : trk1_phi_best")
+
             # final tracks cut
             .Filter("firstTrk_pt >= 20 && secondTrk_pt >= 5", "Final track pT selection") 
         )       
@@ -436,14 +455,17 @@ else:
 # ---------------------------------------------------------------------
 # TTree writing
 # ---------------------------------------------------------------------
-columns_to_save = ["HLT_Photon35_TwoProngs35", "nMuons10", "nMuons20", "nElectrons10", "nElectrons20", 
+columns_to_save = ["nPU", "MC_Weight", "HLT_Photon35_TwoProngs35", "nMuons10", "nMuons20", "nElectrons10", "nElectrons20", 
                    "nGoodPhotons", "bestPhoton_pt", "bestPhoton_eta", "bestPhoton_phi",
-                   "bestMeson_pt", "bestMeson_eta", "bestMeson_phi", "bestMeson_mass",
+                   "bestMeson_pt", "bestMeson_eta", "bestMeson_phi", "bestMeson_mass", "isoMeson",
                    "firstTrk_pt", "firstTrk_eta", "firstTrk_phi", "secondTrk_pt", "secondTrk_eta", "secondTrk_phi",
                    "H_mass", "H_pt", "H_eta", "H_phi",
                    "isPhotonMatched", "isMesonMatched", "isBosonMatched"]
 
 df.Snapshot("tree_output", output_file, columns_to_save)
+
+# pileup histogram construction -----------------
+h_pu.GetValue()
 
 # ---------------------------------------------------------------------
 # efficiency histogram
@@ -451,13 +473,17 @@ df.Snapshot("tree_output", output_file, columns_to_save)
 cut_names = ["All events", "Triggered", "Best photon", "Best meson", "Trks cut"]
 
 h_cutflow = ROOT.TH1F("nEvents", "Event counting in different steps; ; Events", len(cut_names), 0, len(cut_names))
+
 for i, (label, val) in enumerate(zip(cut_names, [n_total, n_trigger, n_photon, n_meson, n_meson_trks]), start=1):
     h_cutflow.SetBinContent(i, val)
     h_cutflow.GetXaxis().SetBinLabel(i, label)
 
-# histo writing
+# ---------------------------------------------------------------------
+# histos writing
+# ---------------------------------------------------------------------
 output = ROOT.TFile(output_file, "UPDATE")
 output.cd()
+h_pu.Write()
 h_cutflow.Write()
 output.Close()
 
