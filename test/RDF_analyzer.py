@@ -6,9 +6,10 @@ ROOT.ROOT.EnableImplicitMT()
 
 # following bools are given as input
 verbose       = True
+debug         = False
 isPhiAnalysis = False # for H -> Phi Gamma
 isRhoAnalysis = False # for H -> Rho Gamma
-ismesonFromTracks = True # debug for reconstructing meson from tracks
+ismesonFromTracks = False # debug for reconstructing meson from tracks
 
 # PARSER and INPUT 
 p = argparse.ArgumentParser(description="RDataFrame analyzer for H→meson+γ")
@@ -217,6 +218,49 @@ TLorentzVector build_meson_from_tracks(float pt1, float eta1, float phi1, float 
     return (t1 + t2);
 }
 
+//--------------------------------------------------------------------------------------
+
+// MC truth matching
+struct MCMatching {
+    bool isPhotonMatched;
+    bool isMesonMatched;
+    bool isBosonMatched;
+};
+
+MCMatching match_mc(const RVec<int>& pdgId, const RVec<int>& motherIdx, const RVec<int>& motherPdgId,
+                    const RVec<float>& pt, const RVec<float>& eta, const RVec<float>& phi,
+                    float recoPhoton_eta, float recoPhoton_phi, float recoMeson_eta,  float recoMeson_phi){
+
+    MCMatching out{false,false,false};
+
+   // boolean vector for photon and meson candidates
+    auto isPhoton = (pdgId == 22) && (Take(motherPdgId, motherIdx) == 25 || Take(motherPdgId, motherIdx) == 23); // take(v, indices) returns a vector with the elements of v corresponding to the position of indices
+    auto isMeson  = ((abs(pdgId) == 333) || (abs(pdgId) == 113) || (abs(pdgId) == 313)) && (Take(motherPdgId, motherIdx) == 25 || Take(motherPdgId, motherIdx) == 23);
+ 
+    
+    // gen eta/phi vectors of the candidates
+    auto genPhoton_eta = eta[isPhoton]; // vector with the elements fulfilling the condition isPhoton==true
+    auto genPhoton_phi = phi[isPhoton];
+    auto genMeson_eta  = eta[isMeson];
+    auto genMeson_phi  = phi[isMeson];
+
+    // if they exist, match in ΔR
+    if (genPhoton_eta.size() > 0) {
+        auto dphi = abs(recoPhoton_phi - genPhoton_phi); // vector, dphi[i] = abs(recoPhoton_phi - genPhoton_phi[i])  
+        dphi = Map(dphi, [](float x){ return x > M_PI ? 2*M_PI - x : x; }); // 1st argument: input vector (dphi), 2nd arg: lambda function (return 2pi-dphi if dphi > pi, else return dphi)
+        auto dR = sqrt((recoPhoton_eta - genPhoton_eta)*(recoPhoton_eta - genPhoton_eta) + dphi*dphi); //vector
+        out.isPhotonMatched = Any(dR < 0.2); // return True if any element of the dR vector is < 0.2 -> if at least 1 gen photon is at dR<0.2 from the reco one, match done 
+    }
+    if (genMeson_eta.size() > 0) {
+        auto dphi = abs(recoMeson_phi - genMeson_phi);
+        dphi = Map(dphi, [](float x){ return x > M_PI ? 2*M_PI - x : x; });
+        auto dR = sqrt((recoMeson_eta - genMeson_eta)*(recoMeson_eta - genMeson_eta) + dphi*dphi);
+        out.isMesonMatched = Any(dR < 0.3);
+    }
+
+    out.isBosonMatched = out.isPhotonMatched && out.isMesonMatched;
+    return out;
+}
 
 """)
 
@@ -224,9 +268,9 @@ TLorentzVector build_meson_from_tracks(float pt1, float eta1, float phi1, float 
 df = ROOT.RDataFrame(input_tree_name, input_file)
 n_total = df.Count().GetValue()
 
-# ---------------------------------------------------------------------
+# ------------------------------------------------------------
 # Trigger
-# ---------------------------------------------------------------------
+# ------------------------------------------------------------
 df = df.Filter("HLT_Photon35_TwoProngs35", "Two-prong photon trigger")
 n_trigger = df.Filter("HLT_Photon35_TwoProngs35").Count().GetValue()
 
@@ -276,7 +320,8 @@ else:
     meson_prefix = "phi"
 
 if not ismesonFromTracks:
-    print("### Mode: meson from NanoAOD (kinematics branches) ###")
+    if verbose:
+        print("### Mode: meson from NanoAOD (kinematics branches) ###")
 
     df = df.Define("meson_sel", 
                 f"select_mesons_kin({meson_prefix}_kin_pt, {meson_prefix}_kin_eta, {meson_prefix}_kin_phi, "
@@ -316,49 +361,46 @@ if not ismesonFromTracks:
     df = df.Define("secondTrk_phi", "trk1_pt_best  > trk2_pt_best ? trk2_phi_best : trk1_phi_best")
 
 else:
-    print("### Mode: meson reconstructed from tracks (vectorized) ###")
+    if verbose:
+        print("### Mode: meson reconstructed from tracks (vectorized) ###")
 
-    df = (
-        df
-        # meson selection 
-        .Define("meson_sel",
-                f"select_mesons_tracks({meson_prefix}_iso, "
-                f"{meson_prefix}_trk1_pt, {meson_prefix}_trk1_eta, {meson_prefix}_trk1_phi, "
-                f"{meson_prefix}_trk2_pt, {meson_prefix}_trk2_eta, {meson_prefix}_trk2_phi, "
-                f"{mass_trk1}f, {mass_trk2}f, {mass_low}f, {mass_high}f, "
-                f"0.07f, 38.f)")
-        .Define("nGoodMesons", "meson_sel.nGood")
-        .Define("bestMesonIdx", "meson_sel.bestIdx")
-        .Filter("nGoodMesons > 0", "At least one good meson (tracks-based)"))
+    # meson selection 
+    df = (df         
+            .Define("meson_sel",  f"select_mesons_tracks({meson_prefix}_iso, "
+                                                       f"{meson_prefix}_trk1_pt, {meson_prefix}_trk1_eta, {meson_prefix}_trk1_phi, "
+                                                       f"{meson_prefix}_trk2_pt, {meson_prefix}_trk2_eta, {meson_prefix}_trk2_phi, "
+                                                       f"{mass_trk1}f, {mass_trk2}f, {mass_low}f, {mass_high}f, 0.07f, 38.f)")
+            .Define("nGoodMesons", "meson_sel.nGood")
+            .Define("bestMesonIdx", "meson_sel.bestIdx")
+            .Filter("nGoodMesons > 0", "At least one good meson (tracks-based)")
+         )               
     n_meson = df.Filter("nGoodMesons").Count().GetValue()
     
     # tracks of the selected meson
-    df = (
-        df
-        .Define("trk1_pt_best",  f"{meson_prefix}_trk1_pt[bestMesonIdx]")
-        .Define("trk1_eta_best", f"{meson_prefix}_trk1_eta[bestMesonIdx]")
-        .Define("trk1_phi_best", f"{meson_prefix}_trk1_phi[bestMesonIdx]")
-        .Define("trk2_pt_best",  f"{meson_prefix}_trk2_pt[bestMesonIdx]")
-        .Define("trk2_eta_best", f"{meson_prefix}_trk2_eta[bestMesonIdx]")
-        .Define("trk2_phi_best", f"{meson_prefix}_trk2_phi[bestMesonIdx]")
-        # meson p4 from tracks 
-        .Define("meson_p4",
-                f"build_meson_from_tracks(trk1_pt_best, trk1_eta_best, trk1_phi_best, {mass_trk1}f, "
-                f"trk2_pt_best, trk2_eta_best, trk2_phi_best, {mass_trk2}f)")
-        .Define("bestMeson_pt",   "float(meson_p4.Pt())")
-        .Define("bestMeson_eta",  "float(meson_p4.Eta())")
-        .Define("bestMeson_phi",  "float(meson_p4.Phi())")
-        .Define("bestMeson_mass", "float(meson_p4.M())")
-        # tracks sorting
-        .Define("firstTrk_pt",  "trk1_pt_best  > trk2_pt_best ? trk1_pt_best  : trk2_pt_best")
-        .Define("firstTrk_eta", "trk1_pt_best  > trk2_pt_best ? trk1_eta_best : trk2_eta_best")
-        .Define("firstTrk_phi", "trk1_pt_best  > trk2_pt_best ? trk1_phi_best : trk2_phi_best")
-        .Define("secondTrk_pt",  "trk1_pt_best  > trk2_pt_best ? trk2_pt_best  : trk1_pt_best")
-        .Define("secondTrk_eta", "trk1_pt_best  > trk2_pt_best ? trk2_eta_best : trk1_eta_best")
-        .Define("secondTrk_phi", "trk1_pt_best  > trk2_pt_best ? trk2_phi_best : trk1_phi_best")
-        # final tracks cut
-        .Filter("firstTrk_pt >= 20 && secondTrk_pt >= 5", "Final track pT selection")
-    )
+    df = (df
+            .Define("trk1_pt_best",  f"{meson_prefix}_trk1_pt[bestMesonIdx]")
+            .Define("trk1_eta_best", f"{meson_prefix}_trk1_eta[bestMesonIdx]")
+            .Define("trk1_phi_best", f"{meson_prefix}_trk1_phi[bestMesonIdx]")
+            .Define("trk2_pt_best",  f"{meson_prefix}_trk2_pt[bestMesonIdx]")
+            .Define("trk2_eta_best", f"{meson_prefix}_trk2_eta[bestMesonIdx]")
+            .Define("trk2_phi_best", f"{meson_prefix}_trk2_phi[bestMesonIdx]")
+            # meson p4 from tracks 
+            .Define("meson_p4", f"build_meson_from_tracks(trk1_pt_best, trk1_eta_best, trk1_phi_best, {mass_trk1}f, "
+                                                          f"trk2_pt_best, trk2_eta_best, trk2_phi_best, {mass_trk2}f)")
+            .Define("bestMeson_pt",   "float(meson_p4.Pt())")
+            .Define("bestMeson_eta",  "float(meson_p4.Eta())")
+            .Define("bestMeson_phi",  "float(meson_p4.Phi())")
+            .Define("bestMeson_mass", "float(meson_p4.M())")
+            # tracks sorting
+            .Define("firstTrk_pt",  "trk1_pt_best  > trk2_pt_best ? trk1_pt_best  : trk2_pt_best")
+            .Define("firstTrk_eta", "trk1_pt_best  > trk2_pt_best ? trk1_eta_best : trk2_eta_best")
+            .Define("firstTrk_phi", "trk1_pt_best  > trk2_pt_best ? trk1_phi_best : trk2_phi_best")
+            .Define("secondTrk_pt",  "trk1_pt_best  > trk2_pt_best ? trk2_pt_best  : trk1_pt_best")
+            .Define("secondTrk_eta", "trk1_pt_best  > trk2_pt_best ? trk2_eta_best : trk1_eta_best")
+            .Define("secondTrk_phi", "trk1_pt_best  > trk2_pt_best ? trk2_phi_best : trk1_phi_best")
+            # final tracks cut
+            .Filter("firstTrk_pt >= 20 && secondTrk_pt >= 5", "Final track pT selection") 
+        )       
     n_meson_trks = df.Filter("firstTrk_pt").Count().GetValue()
 
 
@@ -371,6 +413,26 @@ df = df.Define("H_pt", "H_p4.Pt()")
 df = df.Define("H_eta", "H_p4.Eta()")
 df = df.Define("H_phi", "H_p4.Phi()")
 
+
+# ------------------------------------------------------------
+# MC truth
+# ------------------------------------------------------------
+if not runningOnData:
+    df = df.Define("mc_match", "match_mc(GenPart_pdgId, GenPart_genPartIdxMother, GenPart_pdgId, "
+                                         "GenPart_pt, GenPart_eta, GenPart_phi, "
+                                         "bestPhoton_eta, bestPhoton_phi, bestMeson_eta, bestMeson_phi)")
+
+    df = df.Define("isPhotonMatched", "mc_match.isPhotonMatched")
+    df = df.Define("isMesonMatched",  "mc_match.isMesonMatched")
+    df = df.Define("isBosonMatched",  "mc_match.isBosonMatched")
+    n_matched_boson = df.Filter("isBosonMatched").Count().GetValue()
+    #print(f"n_matched_boson = {n_matched_boson}")
+
+else:
+    df = df.Define("isPhotonMatched", "false") \
+           .Define("isMesonMatched",  "false") \
+           .Define("isBosonMatched",  "false")
+
 # ---------------------------------------------------------------------
 # TTree writing
 # ---------------------------------------------------------------------
@@ -378,7 +440,8 @@ columns_to_save = ["HLT_Photon35_TwoProngs35", "nMuons10", "nMuons20", "nElectro
                    "nGoodPhotons", "bestPhoton_pt", "bestPhoton_eta", "bestPhoton_phi",
                    "bestMeson_pt", "bestMeson_eta", "bestMeson_phi", "bestMeson_mass",
                    "firstTrk_pt", "firstTrk_eta", "firstTrk_phi", "secondTrk_pt", "secondTrk_eta", "secondTrk_phi",
-                   "H_mass", "H_pt", "H_eta", "H_phi"]
+                   "H_mass", "H_pt", "H_eta", "H_phi",
+                   "isPhotonMatched", "isMesonMatched", "isBosonMatched"]
 
 df.Snapshot("tree_output", output_file, columns_to_save)
 
@@ -398,29 +461,13 @@ output.cd()
 h_cutflow.Write()
 output.Close()
 
-print("Output saved in:", output_file)
+if verbose:
+    print("Output saved in:", output_file)
 
 # ---------------------------------------------------------------------
 # DEBUG PRINTS
 # ---------------------------------------------------------------------
-'''
-if verbose:
-    all_photon_pts  = df.Take["ROOT::VecOps::RVec<float>"]("Photon_pt")
-    best_photon_pts = df.Take["float"]("bestPhoton_pt")
-
-    for i, (a, b) in enumerate(zip(all_photon_pts, best_photon_pts)):
-        print(f"Event {i}: Photon pTs = {list(a)},  best = {b}")
-
-
-if verbose:
-    all_meson_pts  = df.Take["ROOT::VecOps::RVec<float>"](f"{meson_prefix}_kin_pt")
-    best_meson_pts = df.Take["float"]("bestMeson_pt")
-    n_good_mesons  = df.Take["int"]("nGoodMesons")
-
-    for i, (pts, n_good, best_pt) in enumerate(zip(all_meson_pts, n_good_mesons, best_meson_pts)):
-        print(f"Event {i}: meson pTs = {list(pts)},  nGood = {n_good},  best = {best_pt:.2f}")
-'''
-if verbose:
+if debug:
     # --- Photons ---
     all_photon_pts   = df.Take["ROOT::VecOps::RVec<float>"]("Photon_pt")
     best_photon_pts  = df.Take["float"]("bestPhoton_pt")
@@ -436,4 +483,19 @@ if verbose:
         print(f"\nEvent {i}:")
         print(f"  Photons -> all pTs = {list(ph_all)},  nGood = {n_ph},  best = {ph_best:.2f}")
         print(f"  Mesons  -> all pTs = {list(mes_all)},  nGood = {n_mes},  best = {mes_best:.2f}")
-    print("=====================================================\n")        
+    print("=====================================================\n")       
+
+# ------------------------------------------------------------
+# Summary prints
+# ------------------------------------------------------------
+print("\nEVENT SUMMARY REPORT\n")
+print(f"Total events:            {n_total}")
+print(f"After trigger:           {n_trigger}")
+print(f"After photon selection:  {n_photon}")
+print(f"After meson selection:   {n_meson}")
+print(f"After track-level cuts:  {n_meson_trks}")
+
+if not runningOnData:
+    print(f"Selection efficiency:    {100.0 * n_meson_trks / n_total:.1f}%\n")
+    print(f"Bosons matched to MC truth:  {n_matched_boson}")
+    print(f"Matching efficiency:         {100.0 * n_matched_boson / n_meson_trks:.1f}%")
