@@ -6,7 +6,7 @@ ROOT.ROOT.EnableImplicitMT()
 
 # following bools are given as input
 verbose       = True
-debug         = False
+debug         = True
 isPhiAnalysis = False # for H -> Phi Gamma
 isRhoAnalysis = False # for H -> Rho Gamma
 ismesonFromTracks = False # debug for reconstructing meson from tracks
@@ -495,21 +495,73 @@ if verbose:
 # ---------------------------------------------------------------------
 if debug:
     # --- Photons ---
-    all_photon_pts   = df.Take["ROOT::VecOps::RVec<float>"]("Photon_pt")
-    best_photon_pts  = df.Take["float"]("bestPhoton_pt")
-    n_good_photons   = df.Take["int"]("nGoodPhotons")
+    all_photon_pts   = df.Take["ROOT::VecOps::RVec<float>"]("Photon_pt").GetValue()
+    best_photon_pt   = df.Take["float"]("bestPhoton_pt").GetValue()
+    n_good_photons   = df.Take["int"]("nGoodPhotons").GetValue()
 
     # --- Mesons ---
-    all_meson_pts    = df.Take["ROOT::VecOps::RVec<float>"](f"{meson_prefix}_kin_pt")
-    best_meson_pts   = df.Take["float"]("bestMeson_pt")
-    n_good_mesons    = df.Take["int"]("nGoodMesons")
+    all_meson_pts    = df.Take["ROOT::VecOps::RVec<float>"](f"{meson_prefix}_kin_pt").GetValue()
+    best_meson_pt    = df.Take["float"]("bestMeson_pt").GetValue()
+    n_good_mesons    = df.Take["int"]("nGoodMesons").GetValue()
+    best_meson_mass  = df.Take["float"]("bestMeson_mass").GetValue()
 
+    # --- Boson ---
+    boson_pt   = df.Take["double"]("H_pt").GetValue()
+    boson_mass = df.Take["double"]("H_mass").GetValue()
+
+    # --- MC matching ---
+    isPhotonMatched = df.Take["bool"]("isPhotonMatched").GetValue()
+    isMesonMatched  = df.Take["bool"]("isMesonMatched").GetValue()
+    is_boson_matched  = df.Take["bool"]("isBosonMatched").GetValue()
+
+    '''
     print("\n==================== EVENT DEBUG ====================")
-    for i, (ph_all, n_ph, ph_best, mes_all, n_mes, mes_best) in enumerate(zip(all_photon_pts, n_good_photons, best_photon_pts, all_meson_pts, n_good_mesons, best_meson_pts)):
+    for i, (ph_all, n_ph, ph_best, mes_all, n_mes, mes_best) in enumerate(zip(all_photon_pts, n_good_photons, best_photon_pt, all_meson_pts, n_good_mesons, best_meson_pt)):
         print(f"\nEvent {i}:")
         print(f"  Photons -> all pTs = {list(ph_all)},  nGood = {n_ph},  best = {ph_best:.2f}")
         print(f"  Mesons  -> all pTs = {list(mes_all)},  nGood = {n_mes},  best = {mes_best:.2f}")
     print("=====================================================\n")       
+    '''
+
+    print("\n==================== FULL EVENT DEBUG ====================\n")
+
+    # counters
+    nEventsBosonMatched = 0
+    nEventsBosonNotMatched = 0
+
+    for i in range(len(best_photon_pt)):
+
+        print(f"Event {i}")
+        #print("-----------------------------------------")
+
+        # RECO INFO
+        print(f"Reco Photon:")
+        print(f"  pT  = {best_photon_pt[i]:.2f}")
+
+        print(f"\nReco Meson (NanoAOD kin):")
+        print(f"  pT  = {best_meson_pt[i]:.2f}")
+        print(f"  mass     = {best_meson_mass[i]:.2f}")
+
+        print(f"\nReco Boson:")
+        print(f"  pT   = {boson_pt[i]:.2f}")
+        print(f"  mass = {boson_mass[i]:.3f}")
+
+        # MC TRUTH MATCHING
+        #print("\nMC Truth Matching:")
+        #print(f"  Photon matched = {isPhotonMatched[i]}")
+        #print(f"  Meson  matched = {isMesonMatched[i]}")
+
+        if is_boson_matched[i]:
+            nEventsBosonMatched += 1
+            print("\n**BOSON FOUND **")
+        else:
+            nEventsBosonNotMatched += 1
+            print("THAT'S NOT A HIGGS or a Z!")
+
+        print(f"MC H or Z FOUND = {nEventsBosonMatched}, MC H or Z NOT FOUND = {nEventsBosonNotMatched}")
+        print("---------------------------------------------------------------")
+
+    print("===============================================================\n")
 
 # ------------------------------------------------------------
 # Summary prints
