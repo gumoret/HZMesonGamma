@@ -355,7 +355,7 @@ elif isKAnalysis:
     trk2_phi = f"{meson_prefix}_pion_phi"  
 elif isDAnalysis:
     mass_low, mass_high = 2.00, 2.05
-    mass_trk1, mass_trk2 = 0.4937, 0.13957  # K, Pion
+    mass_trk1, mass_trk2 = 0.4937, 0.13957  # Kaon, Pion
     meson_prefix = "d0pi0"
     #dictionary for tracks names
     trk1_pt  = f"{meson_prefix}_kaon_pt"
