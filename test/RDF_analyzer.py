@@ -9,7 +9,8 @@ verbose       = True
 debug         = True
 isPhiAnalysis = False # for H -> Phi Gamma
 isRhoAnalysis = False # for H -> Rho Gamma
-isKAnalysis   = False # for H -> K* Gamma
+isKAnalysis   = False # for H -> K*0 Gamma
+isDAnalysis   = False # for H -> D*0 Gamma
 ismesonFromTracks = False # debug for reconstructing meson from tracks
 
 # PARSER and INPUT 
@@ -23,6 +24,7 @@ args = p.parse_args()
 if args.meson_option == "phi": isPhiAnalysis = True
 elif args.meson_option == "rho": isRhoAnalysis = True
 elif args.meson_option == "K": isKAnalysis = True
+elif args.meson_option == "D": isDAnalysis = True
 else: print("meson_option must be <<phi>> or <<rho>> or <<K*>> or <<DO*>>")
 
 
@@ -160,7 +162,6 @@ TLorentzVector make_meson_p4(const RVec<float>& pt, const RVec<float>& eta,
 }
 
 // debug: meson reconstruction using tracks instead of nanoaod variables
-
 MesonSelection select_mesons_tracks(const RVec<float>& iso, 
                                     const RVec<float>& trk1_pt, const RVec<float>& trk1_eta, const RVec<float>& trk1_phi,
                                     const RVec<float>& trk2_pt, const RVec<float>& trk2_eta, const RVec<float>& trk2_phi,
@@ -237,7 +238,7 @@ MCMatching match_mc(const RVec<int>& pdgId, const RVec<int>& motherIdx, const RV
 
    // boolean vector for photon and meson candidates
     auto isPhoton = (pdgId == 22) && (Take(motherPdgId, motherIdx) == 25 || Take(motherPdgId, motherIdx) == 23); // take(v, indices) returns a vector with the elements of v corresponding to the position of indices
-    auto isMeson  = ((abs(pdgId) == 333) || (abs(pdgId) == 113) || (abs(pdgId) == 313)) && (Take(motherPdgId, motherIdx) == 25 || Take(motherPdgId, motherIdx) == 23);
+    auto isMeson  = ((abs(pdgId) == 333) || (abs(pdgId) == 113) || (abs(pdgId) == 313) || (abs(pdgId) == 423)) && (Take(motherPdgId, motherIdx) == 25 || Take(motherPdgId, motherIdx) == 23);
  
     
     // gen eta/phi vectors of the candidates
@@ -351,7 +352,18 @@ elif isKAnalysis:
     trk1_phi = f"{meson_prefix}_kaon_phi"
     trk2_pt  = f"{meson_prefix}_pion_pt"
     trk2_eta = f"{meson_prefix}_pion_eta"
-    trk2_phi = f"{meson_prefix}_pion_phi"   
+    trk2_phi = f"{meson_prefix}_pion_phi"  
+elif isDAnalysis:
+    mass_low, mass_high = 2.00, 2.05
+    mass_trk1, mass_trk2 = 0.4937, 0.13957  # K, Pion
+    meson_prefix = "d0pi0"
+    #dictionary for tracks names
+    trk1_pt  = f"{meson_prefix}_kaon_pt"
+    trk1_eta = f"{meson_prefix}_kaon_eta"
+    trk1_phi = f"{meson_prefix}_kaon_phi"
+    trk2_pt  = f"{meson_prefix}_pion_pt"
+    trk2_eta = f"{meson_prefix}_pion_eta"
+    trk2_phi = f"{meson_prefix}_pion_phi" 
 else:
     print("Unknown meson type!")
     mass_low, mass_high = 0.0, 99.0
