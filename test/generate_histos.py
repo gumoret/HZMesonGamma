@@ -37,6 +37,7 @@ args = p.parse_args()
 fInput = ROOT.TFile(args.rootfile_name)
 output_filename = args.outputfile_option
 mytree = fInput.Get("tree_output")
+h_Events = fInput.Get("nEvents")
 
 if args.runningOnData_option == "signal": runningOnData = False
 elif args.runningOnData_option == "data": runningOnData = True
@@ -340,6 +341,13 @@ for jentry in range(nentries):
 
     tree_output.Fill()
 
+    if debug:
+        print("***********************************")
+        print("*** EVENT RECORDED: tree filled ***")
+        print("***********************************")
+    
+    #counters
+    nEventsOverCuts += 1
 
 #HISTO LABELS #########################################################################################################
 histo_map["h_bosonMass"].GetXaxis().SetTitle("m_{meson#gamma} [GeV/c^2]")
@@ -395,20 +403,20 @@ histo_map["h_efficiency"].GetYaxis().SetTitle("#epsilon (%)")
 #Tree writing ##########################################################################################################
 tree_output.Write()
 
-'''
+
 #Variables for cut overflow
 bin1content  = h_Events.GetBinContent(1)
-nEventsProcessed = bin1content
 bin2content  = h_Events.GetBinContent(2)
-nEventsTriggered = bin2content
 bin3content  = h_Events.GetBinContent(3)
-nEventsPhoton = bin3content
 bin4content  = h_Events.GetBinContent(4)
 bin5content  = h_Events.GetBinContent(5)
-bin6content  = h_Events.GetBinContent(6)
-nEventsMesonMassSR = nEventsRightSB + nEventsLeftSB
-if isBDT: bin7content = nTightSelection
+if isBDT: bin6content = nTightSelection
 
+#variables for final print
+nEventsProcessed = bin1content
+nEventsTriggered = bin2content
+nEventsPhoton = bin3content
+nEventsMesonMassSR = nEventsRightSB + nEventsLeftSB
 
 nSignal      = bin1content
 scale_factor = 100/nSignal
@@ -418,18 +426,71 @@ histo_map["h_efficiency"].Fill(1.5,bin2content*scale_factor)
 histo_map["h_efficiency"].Fill(2.5,bin3content*scale_factor)
 histo_map["h_efficiency"].Fill(3.5,bin4content*scale_factor)
 histo_map["h_efficiency"].Fill(4.5,bin5content*scale_factor)
-histo_map["h_efficiency"].Fill(5.5,bin6content*scale_factor)
-if isBDT: histo_map["h_efficiency"].Fill(6.5,bin7content*scale_factor)    
+if isBDT: histo_map["h_efficiency"].Fill(5.5,bin6content*scale_factor)    
 
 
 histo_map["h_efficiency"].GetXaxis().SetBinLabel(1,"Events processed")
 histo_map["h_efficiency"].GetXaxis().SetBinLabel(2,"Events triggered")
 histo_map["h_efficiency"].GetXaxis().SetBinLabel(3,"Photon requested")
-histo_map["h_efficiency"].GetXaxis().SetBinLabel(4,"Iso selection")
-histo_map["h_efficiency"].GetXaxis().SetBinLabel(5,"Best couple found")
-histo_map["h_efficiency"].GetXaxis().SetBinLabel(6,"trk-cand pT selection")
-if isBDT:  histo_map["h_efficiency"].GetXaxis().SetBinLabel(7,"Tight selection")
-'''
+#histo_map["h_efficiency"].GetXaxis().SetBinLabel(4,"Iso selection")
+histo_map["h_efficiency"].GetXaxis().SetBinLabel(4,"Best couple found")
+histo_map["h_efficiency"].GetXaxis().SetBinLabel(5,"trk-cand pT selection")
+if isBDT:  histo_map["h_efficiency"].GetXaxis().SetBinLabel(6,"Tight selection")
+
+c11 = ROOT.TCanvas()
+c11.cd()
+histo_map["h_efficiency"].SetFillColor(1) 
+histo_map["h_efficiency"].SetFillStyle(3003)
+ROOT.gStyle.SetPaintTextFormat("4.2f %")
+ROOT.gStyle.SetOptStat(0)
+histo_map["h_efficiency"].SetMarkerSize(1.4)
+histo_map["h_efficiency"].GetXaxis().SetRangeUser(0.,4.1)##modify
+#histo_map["h_efficiency"].GetYaxis().SetRangeUser(0.,30.)
+#histo_map["h_efficiency"].SetMaximum(max(histo_map["h_efficiency"].GetHistogram().GetMaximum(),30.))
+histo_map["h_efficiency"].Draw("HIST TEXT0")
+
+if not runningOnData: 
+    c11.SaveAs("/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/rootfiles/latest_productions/h_efficiency.pdf")
+    c11.SaveAs("/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/rootfiles/latest_productions/h_efficiency.png")
+
+
+#FINAL PRINTS ###########################################################
+print("\n\nCUT OVERFLOW")
+print("---------------------------------------")
+print("CRflag                    = ",CRFlag)
+print("nEventsProcessed          = ",nEventsProcessed," (n. events in dataset)")
+print("nEventsTriggered          = ",nEventsTriggered," (n. events over HLT)")
+print("nEventsPhoton             = ",nEventsPhoton," (n. events with a best photon found)")
+print("nEventsAfterRegionDefiner = ",nEventsAfterRegionDefiner," (split in SR or CR of the meson inv mass)")
+print("nEventsOverLeptonVeto     = ",nEventsOverLeptonVeto," (n. events without any electron or muon)")
+print("nEventsInBosonMassRange   = ",nEventsInBosonMassRange," (n. events in 50 < bosonMass < 200 GeV)")
+print("nEventsMesonMassSR        = ",nEventsMesonMassSR," (Events in SR of MesonMass and in SBs of bosonMass)")
+print("\n----------- SUMMARY -----------------------")
+if isBDT:
+    print("BDT output used = ",BDT_OUT)
+if not runningOnData:
+    print("Signal MC sample")
+if isBDT:
+    print("n. events after preselection = ",jentry)
+print("nEventsInBosonMassRange   = ",nEventsInBosonMassRange," (n. events in 50 < bosonMass < 200 GeV)")
+print("n. events after cuts      = " , nEventsOverCuts)
+
+if runningOnData and CRFlag == 'SR':
+    print( "n. events in the left sideband counted = ",nEventsLeftSB)
+    print("n. events in the right sideband counted = ",nEventsRightSB) 
+    print( "Total events in the sidebands = ", nEventsRightSB + nEventsLeftSB)
+
+if not runningOnData:
+    #print("Signal weight sum   = ",float(weightSum))
+    #if isPhiAnalysis: print "Signal integral     = ",histo_map["h_ZMass"].Integral()
+    #else : print "Signal integral     = ",histo_map["h_ZMass"].Integral()#/(weightSum_eff)*(1928000/0.0336)*luminosity
+    #print "Total signal weight = ",weightSum_eff
+    print("Total signal events       = ",bin1content)
+    print("Signal efficiency         = ",nEventsOverCuts/bin1content)
+    #print "new eff             = ",weightSum/weightSum_eff
+    
+print("-------------------------------------------\n\n")
+
 #HISTOS WRITING ########################################################################################################
 fOut.cd()
 for hist_name in list_histos:
