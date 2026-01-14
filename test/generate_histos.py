@@ -306,7 +306,6 @@ for jentry in range(nentries):
     else:
         histo_map["h_bosonMass"].Fill(bosonMass, eventWeight)
 
-    histo_map["h_bosonMass"].Fill(bosonMass, eventWeight)    
     histo_map["h_mesonMass"].Fill(mesonMass, eventWeight) 
     histo_map["h_firstTrkPt"].Fill(firstTrkPt, eventWeight)
     histo_map["h_secondTrkPt"].Fill(secondTrkPt, eventWeight)
@@ -450,9 +449,10 @@ histo_map["h_efficiency"].GetXaxis().SetRangeUser(0.,4.1)##modify
 histo_map["h_efficiency"].Draw("HIST TEXT0")
 
 if not runningOnData: 
-    c11.SaveAs("/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/rootfiles/latest_productions/h_efficiency.pdf")
-    c11.SaveAs("/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/rootfiles/latest_productions/h_efficiency.png")
-
+#    c11.SaveAs("/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/rootfiles/latest_productions/h_efficiency.pdf")
+#    c11.SaveAs("/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/rootfiles/latest_productions/h_efficiency.png")
+     c11.SaveAs("rootfiles/latest_productions/histos/h_efficiency.pdf")       
+     c11.SaveAs("rootfiles/latest_productions/histos/h_efficiency.png")
 
 #FINAL PRINTS ###########################################################
 print("\n\nCUT OVERFLOW")
@@ -497,3 +497,13 @@ for hist_name in list_histos:
     histo_map[hist_name].Write()
 
 fOut.Close()
+
+'''
+#Copy on CERNBOX
+import subprocess
+import os
+
+destination = "eferrand@lxplus.cern.ch/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/"
+
+subprocess.run(["rsync", "-avz", output_filename, destination])
+'''

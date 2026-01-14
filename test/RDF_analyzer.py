@@ -6,7 +6,7 @@ ROOT.ROOT.EnableImplicitMT()
 
 # following bools are given as input
 verbose       = True
-debug         = True
+debug         = False
 isPhiAnalysis = False # for H -> Phi Gamma
 isRhoAnalysis = False # for H -> Rho Gamma
 isKAnalysis   = False # for H -> K*0 Gamma
@@ -32,11 +32,25 @@ if args.runningOnData_option == "signal": runningOnData = False
 elif args.runningOnData_option == "data": runningOnData = True
 else: print("runninOnData must be <<signal>> or <<data>>")
 
-
+read_list = True
 input_file = args.rootfile_name
+files = [
+    "root://xrootd.cmsaf.mit.edu//store/user/paus/nanohr/D07/Tau+Run2024C-MINIv6NANOv15-v1+MINIAOD/00178afc-9f51-4c04-9666-2545fe71226a.root",
+    "root://xrootd.cmsaf.mit.edu//store/user/paus/nanohr/D07/Tau+Run2024C-MINIv6NANOv15-v1+MINIAOD/00643479-e965-4e5f-abc1-6129da488339.root",
+    "root://xrootd.cmsaf.mit.edu//store/user/paus/nanohr/D07/Tau+Run2024C-MINIv6NANOv15-v1+MINIAOD/007b9dec-eaf7-4704-a99a-558918c02360.root",
+    "root://xrootd.cmsaf.mit.edu//store/user/paus/nanohr/D07/Tau+Run2024C-MINIv6NANOv15-v1+MINIAOD/01648901-63c9-4954-a6a4-ee680af67f2b.root",
+    "root://xrootd.cmsaf.mit.edu//store/user/paus/nanohr/D07/Tau+Run2024C-MINIv6NANOv15-v1+MINIAOD/0166b810-a06a-4f54-a931-788e08216e19.root",
+    "root://xrootd.cmsaf.mit.edu//store/user/paus/nanohr/D07/Tau+Run2024C-MINIv6NANOv15-v1+MINIAOD/01bc66e3-9291-4ef3-a90a-e14d391c02eb.root",
+    "root://xrootd.cmsaf.mit.edu//store/user/paus/nanohr/D07/Tau+Run2024C-MINIv6NANOv15-v1+MINIAOD/01d2576f-51b9-4249-a99e-8330e4e5bf88.root",
+    "root://xrootd.cmsaf.mit.edu//store/user/paus/nanohr/D07/Tau+Run2024C-MINIv6NANOv15-v1+MINIAOD/01ecbcee-8262-47df-a5ad-ee9788be0132.root",
+    "root://xrootd.cmsaf.mit.edu//store/user/paus/nanohr/D07/Tau+Run2024C-MINIv6NANOv15-v1+MINIAOD/0201b769-2c30-4aac-ba16-a6da68d2da46.root",
+    "root://xrootd.cmsaf.mit.edu//store/user/paus/nanohr/D07/Tau+Run2024C-MINIv6NANOv15-v1+MINIAOD/028e0199-5800-4461-a7f7-4585aca76a9d.root"
+    ]
+if read_list: input_file = files
 output_file = args.outputfile_option
 input_tree_name = "Events"
 
+print("running...")
 
 # ------------------------------------------------------------
 # C++ functions 
@@ -274,13 +288,18 @@ n_total = df.Count().GetValue()
 # ------------------------------------------------------------
 # Pileup
 # ------------------------------------------------------------
-df = df.Define("nPU", "Pileup_nPU")
+if not runningOnData: df = df.Define("nPU", "Pileup_nPU")
+else: df = df.Define("nPU", "0")
 h_pu = df.Histo1D(("pileup", "Pileup distribution", 130, 0, 130), "nPU")
 
 # ------------------------------------------------------------
 # MC weight
 # ------------------------------------------------------------
-df = df.Define("MC_Weight", "Generator_weight")
+if not runningOnData:
+    df = df.Define("MC_Weight", "Generator_weight")
+else:
+    df = df.Define("MC_Weight", "1.0")
+
 
 # ------------------------------------------------------------
 # Trigger
@@ -590,29 +609,30 @@ if debug:
         #print(f"  Photon matched = {isPhotonMatched[i]}")
         #print(f"  Meson  matched = {isMesonMatched[i]}")
 
-        if is_boson_matched[i]:
-            nEventsBosonMatched += 1
-            print("\n**BOSON FOUND **")
-        else:
-            nEventsBosonNotMatched += 1
-            print("THAT'S NOT A HIGGS or a Z!")
+        if not runningOnData:
+            if is_boson_matched[i]:
+                nEventsBosonMatched += 1
+                print("\n**BOSON FOUND **")
+            else:
+                nEventsBosonNotMatched += 1
+                print("THAT'S NOT A HIGGS or a Z!")
 
-        print(f"MC H or Z FOUND = {nEventsBosonMatched}, MC H or Z NOT FOUND = {nEventsBosonNotMatched}")
+            print(f"MC H or Z FOUND = {nEventsBosonMatched}, MC H or Z NOT FOUND = {nEventsBosonNotMatched}")
         print("---------------------------------------------------------------")
 
     print("===============================================================\n")
 
-# ------------------------------------------------------------
-# Summary prints
-# ------------------------------------------------------------
-print("\nEVENT SUMMARY REPORT\n")
-print(f"Total events:            {n_total}")
-print(f"After trigger:           {n_trigger}")
-print(f"After photon selection:  {n_photon}")
-print(f"After meson selection:   {n_meson}")
-print(f"After track-level cuts:  {n_meson_trks}")
+    # ------------------------------------------------------------
+    # Summary prints
+    # ------------------------------------------------------------
+    print("\nEVENT SUMMARY REPORT\n")
+    print(f"Total events:            {n_total}")
+    print(f"After trigger:           {n_trigger}")
+    print(f"After photon selection:  {n_photon}")
+    print(f"After meson selection:   {n_meson}")
+    print(f"After track-level cuts:  {n_meson_trks}")
 
-if not runningOnData:
-    print(f"Selection efficiency:    {100.0 * n_meson_trks / n_total:.1f}%\n")
-    print(f"Bosons matched to MC truth:  {n_matched_boson}")
-    print(f"Matching efficiency:         {100.0 * n_matched_boson / n_meson_trks:.1f}%")
+    if not runningOnData:
+        print(f"Selection efficiency:    {100.0 * n_meson_trks / n_total:.1f}%\n")
+        print(f"Bosons matched to MC truth:  {n_matched_boson}")
+        print(f"Matching efficiency:         {100.0 * n_matched_boson / n_meson_trks:.1f}%")
