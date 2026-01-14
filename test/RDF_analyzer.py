@@ -34,6 +34,7 @@ else: print("runninOnData must be <<signal>> or <<data>>")
 
 read_list = True
 input_file = args.rootfile_name
+'''
 files = [
     "root://xrootd.cmsaf.mit.edu//store/user/paus/nanohr/D07/Tau+Run2024C-MINIv6NANOv15-v1+MINIAOD/00178afc-9f51-4c04-9666-2545fe71226a.root",
     "root://xrootd.cmsaf.mit.edu//store/user/paus/nanohr/D07/Tau+Run2024C-MINIv6NANOv15-v1+MINIAOD/00643479-e965-4e5f-abc1-6129da488339.root",
@@ -46,6 +47,180 @@ files = [
     "root://xrootd.cmsaf.mit.edu//store/user/paus/nanohr/D07/Tau+Run2024C-MINIv6NANOv15-v1+MINIAOD/0201b769-2c30-4aac-ba16-a6da68d2da46.root",
     "root://xrootd.cmsaf.mit.edu//store/user/paus/nanohr/D07/Tau+Run2024C-MINIv6NANOv15-v1+MINIAOD/028e0199-5800-4461-a7f7-4585aca76a9d.root"
     ]
+
+files = [
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_0.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_259.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_419.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_58.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_74.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_1.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_26.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_42.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_580.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_740.root",
+
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_10.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_260.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_420.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_581.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_741.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_100.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_261.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_421.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_582.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_742.root",
+
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_101.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_262.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_422.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_583.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_743.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_102.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_263.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_423.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_584.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_744.root",
+
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_103.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_264.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_424.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_585.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_745.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_104.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_265.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_425.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_586.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_746.root",
+
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_105.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_266.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_426.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_587.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_747.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_106.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_267.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_427.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_588.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_748.root",
+
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_107.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_268.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_428.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_589.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_749.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_108.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_269.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_429.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_59.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_75.root",
+
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_109.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_27.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_43.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_590.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_750.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_11.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_270.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_430.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_591.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_751.root",
+
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_110.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_271.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_431.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_592.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_752.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_111.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_272.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_432.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_593.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_753.root",
+
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_112.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_273.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_433.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_594.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_754.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_113.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_274.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_434.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_595.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_755.root",
+
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_114.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_275.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_435.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_596.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_756.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_115.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_276.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_436.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_597.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_757.root",
+
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_116.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_277.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_437.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_598.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_758.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_117.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_278.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_438.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_599.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_759.root",
+
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_118.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_279.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_439.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_6.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_76.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_119.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_28.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_44.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_60.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_760.root",
+
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_12.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_280.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_440.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_600.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_761.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_120.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_281.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_441.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_601.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_762.root",
+
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_121.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_282.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_442.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_602.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_763.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_122.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_283.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_443.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_603.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_764.root",
+
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_123.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_284.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_444.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_604.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_765.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_124.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_285.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_445.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_605.root",
+"/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC/output_TauC_2024_766.root",
+]
+'''
+import glob
+
+input_dir = "/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024/Tau+RunC"
+
+files = sorted(glob.glob(f"{input_dir}/output_TauC_2024_*.root"))
+
 if read_list: input_file = files
 output_file = args.outputfile_option
 input_tree_name = "Events"
@@ -620,19 +795,19 @@ if debug:
             print(f"MC H or Z FOUND = {nEventsBosonMatched}, MC H or Z NOT FOUND = {nEventsBosonNotMatched}")
         print("---------------------------------------------------------------")
 
-    print("===============================================================\n")
+print("===============================================================\n")
 
-    # ------------------------------------------------------------
-    # Summary prints
-    # ------------------------------------------------------------
-    print("\nEVENT SUMMARY REPORT\n")
-    print(f"Total events:            {n_total}")
-    print(f"After trigger:           {n_trigger}")
-    print(f"After photon selection:  {n_photon}")
-    print(f"After meson selection:   {n_meson}")
-    print(f"After track-level cuts:  {n_meson_trks}")
+# ------------------------------------------------------------
+# Summary prints
+# ------------------------------------------------------------
+print("\nEVENT SUMMARY REPORT\n")
+print(f"Total events:            {n_total}")
+print(f"After trigger:           {n_trigger}")
+print(f"After photon selection:  {n_photon}")
+print(f"After meson selection:   {n_meson}")
+print(f"After track-level cuts:  {n_meson_trks}")
 
-    if not runningOnData:
-        print(f"Selection efficiency:    {100.0 * n_meson_trks / n_total:.1f}%\n")
-        print(f"Bosons matched to MC truth:  {n_matched_boson}")
-        print(f"Matching efficiency:         {100.0 * n_matched_boson / n_meson_trks:.1f}%")
+if not runningOnData:
+    print(f"Selection efficiency:    {100.0 * n_meson_trks / n_total:.1f}%\n")
+    print(f"Bosons matched to MC truth:  {n_matched_boson}")
+    print(f"Matching efficiency:         {100.0 * n_matched_boson / n_meson_trks:.1f}%")
