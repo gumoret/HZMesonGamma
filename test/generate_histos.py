@@ -65,8 +65,7 @@ CRFlag = args.region_option
 if CRFlag == "SR": print("Processing the signal region")
 if CRFlag == "CR": print("Processing the control region")
 
-if (args.isBDT_option == "BDT"):
-    isBDT = True
+if (args.isBDT_option == "BDT"): isBDT = True
 
 isWideRange = False  #bool for wide range or zoomed range
 
