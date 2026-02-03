@@ -30,7 +30,7 @@ p.add_argument('meson_channel', help='type <<rho>> or <<phi>> or <<K>> or <<D>>'
 p.add_argument('region_option', help='Type <<SR>> for Signal Region, <<CR>> for Control Region') #flag for bkg estimation
 p.add_argument('isBDT_option', help='Type <<preselection>> or <<BDT>>') #flag for loose selection or tight selection (from BDT output)
 p.add_argument('rootfile_name', help='Type rootfile name')
-p.add_argument('outputfile_option', help='Provide output file name')
+p.add_argument('outputfile_name', help='Provide output file name')
 args = p.parse_args()
 
 
