@@ -27,7 +27,7 @@ args = parser.parse_args()
 signal_magnify = float(args.signal_scale)
 CR_magnify = 1.
 
-plotOnlyData = False
+#plotOnlyData = False
 
 if args.tightSelection == "tight": 
     isTightSelection = True
@@ -159,7 +159,7 @@ for filename in list_inputfiles:
             histo_container[-1].SetBinErrorOption(ROOT.TH1.kPoisson)
             hstack[histo_name].Add(histo_container[-1])
 
-        if plotOnlyData: hstack[histo_name].Add(histo_container[-1])
+        #if plotOnlyData: hstack[histo_name].Add(histo_container[-1])
 
 
         if histo_name == "h_bosonMass" : #Add the legend only once (InvMass_TwoTrk_Photon is just a random variable)            
@@ -176,23 +176,23 @@ for histo_name in list_histos:
     canvas[histo_name] = ROOT.TCanvas("Canvas_" + histo_name,"",200,106,600,600)
     canvas[histo_name].cd()
  
-    if not plotOnlyData :   ##########################################
-        pad1 = ROOT.TPad("pad_" + histo_name,"",0,0.28,1,1.)
-        pad2 = ROOT.TPad("pad_" + histo_name,'',0,0.01,1,0.27)
-        #pad1.SetTopMargin(0.047)
-        pad1.SetBottomMargin(0.02)
-        pad1.SetBorderMode(0)
-        pad1.SetBorderSize(0)
-        pad1.SetFrameBorderSize(0)
-        pad1.SetTicks(2,1) #ticks on the right and the upper axis are drawn inside
-        pad2.SetBorderSize(0)
-        pad2.SetFrameBorderSize(0)
-        pad2.SetBottomMargin(0.3)
-        pad2.SetBorderMode(0)
-        pad1.Draw()
-        pad2.Draw()
-        if histo_name == "h_nMuons" or histo_name == "h_nElectrons": pad1.SetLogy()        
-        pad1.cd()
+    #if not plotOnlyData :   ##########################################
+    pad1 = ROOT.TPad("pad_" + histo_name,"",0,0.28,1,1.)
+    pad2 = ROOT.TPad("pad_" + histo_name,'',0,0.01,1,0.27)
+    #pad1.SetTopMargin(0.047)
+    pad1.SetBottomMargin(0.02)
+    pad1.SetBorderMode(0)
+    pad1.SetBorderSize(0)
+    pad1.SetFrameBorderSize(0)
+    pad1.SetTicks(2,1) #ticks on the right and the upper axis are drawn inside
+    pad2.SetBorderSize(0)
+    pad2.SetFrameBorderSize(0)
+    pad2.SetBottomMargin(0.3)
+    pad2.SetBorderMode(0)
+    pad1.Draw()
+    pad2.Draw()
+    if histo_name == "h_nMuons" or histo_name == "h_nElectrons": pad1.SetLogy()        
+    pad1.cd()
 
     hstack[histo_name].SetTitle("")
     hdata[histo_name].SetTitle("")
@@ -201,119 +201,119 @@ for histo_name in list_histos:
     #hsignalVBF[histo_name].SetTitle("")
 
 
-    if not plotOnlyData :
+    #if not plotOnlyData :
+    hstack[histo_name].Draw("histo")
+    hstack[histo_name].GetYaxis().SetTitleSize(0.07)
+    hstack[histo_name].GetYaxis().SetTitleOffset(0.7)
+    hstack[histo_name].GetYaxis().SetTitle("Events")
+    hstack[histo_name].SetTitle("#sqrt{s} = 13.6 TeV       lumi = 39.54/fb")
+    hstack[histo_name].GetXaxis().SetLabelOffset(999)
+    hstack[histo_name].GetYaxis().SetMaxDigits(3)
 
-        hstack[histo_name].Draw("histo")
-        hstack[histo_name].GetYaxis().SetTitleSize(0.07)
-        hstack[histo_name].GetYaxis().SetTitleOffset(0.7)
-        hstack[histo_name].GetYaxis().SetTitle("Events")
-        hstack[histo_name].SetTitle("#sqrt{s} = 13.6 TeV       lumi = 39.54/fb")
-        hstack[histo_name].GetXaxis().SetLabelOffset(999)
-        hstack[histo_name].GetYaxis().SetMaxDigits(3)
-
-        if histo_name == "h_nMuons" or histo_name == "h_nElectrons":
-            hstack[histo_name].SetMaximum(10 * hdata[histo_name].GetMaximum())
-            hstack[histo_name].SetMinimum(1.)  #cannot use values < 1 otherwise log is negative
-        elif histo_name == "h_bosonMass" and isTightSelection and isPhi :
-            hstack[histo_name].SetMaximum(2.* hdata[histo_name].GetMaximum()) 
-        elif histo_name == "h_bosonMass" and isTightSelection and not isPhi :
-            hstack[histo_name].SetMaximum(2.* hdata[histo_name].GetMaximum())                  
-        else:
-            hstack[histo_name].SetMaximum(1.5 * hdata[histo_name].GetMaximum())
+    if histo_name == "h_nMuons" or histo_name == "h_nElectrons":
+        hstack[histo_name].SetMaximum(10 * hdata[histo_name].GetMaximum())
+        hstack[histo_name].SetMinimum(1.)  #cannot use values < 1 otherwise log is negative
+    elif histo_name == "h_bosonMass" and isTightSelection and isPhi :
+        hstack[histo_name].SetMaximum(2.* hdata[histo_name].GetMaximum()) 
+    elif histo_name == "h_bosonMass" and isTightSelection and not isPhi :
+        hstack[histo_name].SetMaximum(2.* hdata[histo_name].GetMaximum())                  
+    else:
+        hstack[histo_name].SetMaximum(1.5 * hdata[histo_name].GetMaximum())
 
 
-        if histo_name == "h_bosonMass":
-            #hstack[histo_name].Rebin(2)            
-            hstack[histo_name].GetXaxis().SetTitle("m_{ditrk#gamma} [GeV]")
-            hstack[histo_name].GetXaxis().SetRangeUser(0.,200.)
-            
-        if histo_name == "h_mesonMass" :
-            hstack[histo_name].GetXaxis().SetTitle("m_{ditrk} [GeV]")
-            if isPhiAnalysis: hstack[histo_name].GetXaxis().SetRangeUser(1.00, 1.05)
-            elif isRhoAnalysis: hstack[histo_name].GetXaxis().SetRangeUser(0.5, 1.)
-            elif isKAnalysis: hstack[histo_name].GetXaxis().SetRangeUser(0.8, 0.99)
-
-        if histo_name == "h_firstTrkPt" :
-            hstack[histo_name].GetXaxis().SetTitle("p_{T}^{Trk_{1}} [GeV]")
-            #hstack[histo_name].GetXaxis().SetRangeUser(15.,60.)
-
-        if histo_name == "h_secondTrkPt" :
-            hstack[histo_name].GetXaxis().SetTitle("p_{T}^{Trk_{2}} [GeV]")
-            #hstack[histo_name].GetXaxis().SetRangeUser(5.,50.)
-
-        if histo_name == "h_firstTrkEta" :
-            hstack[histo_name].GetXaxis().SetTitle("#eta_{Trk_{1}}")
-            hstack[histo_name].GetXaxis().SetRangeUser(-2.5,2.5)
-
-        if histo_name == "h_secondTrkEta" :
-            hstack[histo_name].GetXaxis().SetTitle("#eta_{Trk_{2}}")
-            hstack[histo_name].GetXaxis().SetRangeUser(-2.5,2.5)
-
-        if histo_name == "h_mesonPt" :
-            hstack[histo_name].GetXaxis().SetTitle("p_{T}^{ditrk} [GeV]")
-
-        if histo_name == "h_mesonEta" :
-            hstack[histo_name].GetXaxis().SetTitle("#eta_{ditrk}")
-            hstack[histo_name].GetXaxis().SetRangeUser(-2.5,2.5)
-
-        if histo_name == "h_firstTrkPhi" :
-            hstack[histo_name].GetXaxis().SetTitle("#phi_{Trk_{1}} [rad]")
-
-        if histo_name == "h_secondTrkPhi" :
-            hstack[histo_name].GetXaxis().SetTitle("#phi_{Trk_{2}} [rad]")
-
-        if histo_name == "h_firstTrkIso" :
-            hstack[histo_name].GetXaxis().SetTitle("p_{T}^{Trk_{1}}/(#Sigmap_{T} + p_{T}^{Trk_{1}})")
-            #if isTightSelection: hstack[histo_name].GetXaxis().SetRangeUser(0.6,1.)
-
-        if histo_name == "h_secondTrkIso" :
-            hstack[histo_name].GetXaxis().SetTitle("p_{T}^{Trk_{2}}/(#Sigmap_{T} + p_{T}^{Trk_{2}})")
-            #if isTightSelection: hstack[histo_name].GetXaxis().SetRangeUser(0.5,1.)
-
-        if histo_name == "h_firstTrkIsoCh" :
-            hstack[histo_name].GetXaxis().SetTitle("p_{T}^{Trk_{1}}/(#Sigmap_{T}^{ch} + p_{T}^{Trk_{1}})")      
-            #if isTightSelection: hstack[histo_name].GetXaxis().SetRangeUser(0.94,1.)
-
-        if histo_name == "h_secondTrkIsoCh" :
-            hstack[histo_name].GetXaxis().SetTitle("p_{T}^{Trk_{2}}/(#Sigmap_{T}^{ch} + p_{T}^{Trk_{2}})")
-            #if isTightSelection: hstack[histo_name].GetXaxis().SetRangeUser(0.92,1.)
-
-        if histo_name == "h_mesonIso" :
-            hstack[histo_name].GetXaxis().SetTitle("p_{T}^{ditrk}/(#Sigmap_{T} + p_{T}^{ditrk})")
-            #if isTightSelection: hstack[histo_name].GetXaxis().SetRangeUser(0.7,1.)
-
-        if histo_name == "h_pairIsoCh" :
-            hstack[histo_name].GetXaxis().SetTitle("p_{T}^{ditrk}/(#Sigmap_{T}^{ch} + p_{T}^{ditrk})")
-            #if isTightSelection: hstack[histo_name].GetXaxis().SetRangeUser(0.97,1.)
-
-        if histo_name == "h_pairIsoNeutral" :
-            hstack[histo_name].GetXaxis().SetTitle("p_{T}^{ditrk}/(#Sigmap_{T}^{0} + p_{T}^{ditrk})")
-            #if isTightSelection: hstack[histo_name].GetXaxis().SetRangeUser(0.7,1.)
-
-        if histo_name == "h_trksDeltaR" :
-            hstack[histo_name].GetXaxis().SetTitle("#DeltaR_{ditrk}")
+    if histo_name == "h_bosonMass":
+        #hstack[histo_name].Rebin(2)            
+        hstack[histo_name].GetXaxis().SetTitle("m_{ditrk#gamma} [GeV]")
+        hstack[histo_name].GetXaxis().SetRangeUser(0.,200.)
         
-        if histo_name == "h_photonEnergy" :
-            hstack[histo_name].GetXaxis().SetTitle("E_{T}^{#gamma}[GeV]")
-            #hstack[histo_name].GetXaxis().SetRangeUser(35.,160.)
-            #if isTightSelection: hstack[histo_name].GetXaxis().SetRangeUser(35.,120.)
+    if histo_name == "h_mesonMass" :
+        hstack[histo_name].GetXaxis().SetTitle("m_{ditrk} [GeV]")
+        if isPhiAnalysis: hstack[histo_name].GetXaxis().SetRangeUser(1.00, 1.05)
+        elif isRhoAnalysis: hstack[histo_name].GetXaxis().SetRangeUser(0.5, 1.)
+        elif isKAnalysis: hstack[histo_name].GetXaxis().SetRangeUser(0.8, 0.99)
 
-        if histo_name == "h_photonEta" :
-            hstack[histo_name].GetXaxis().SetTitle("#eta_{#gamma}")
+    if histo_name == "h_firstTrkPt" :
+        hstack[histo_name].GetXaxis().SetTitle("p_{T}^{Trk_{1}} [GeV]")
+        #hstack[histo_name].GetXaxis().SetRangeUser(15.,60.)
 
-        if histo_name == "h_nElectrons" :
-            hstack[histo_name].GetXaxis().SetTitle("n.electrons")
-            hstack[histo_name].GetXaxis().SetRangeUser(-0.5,2.5)
+    if histo_name == "h_secondTrkPt" :
+        hstack[histo_name].GetXaxis().SetTitle("p_{T}^{Trk_{2}} [GeV]")
+        #hstack[histo_name].GetXaxis().SetRangeUser(5.,50.)
 
-        if histo_name == "h_nMuons" :
-            hstack[histo_name].GetXaxis().SetTitle("n.muons")
-            hstack[histo_name].GetXaxis().SetRangeUser(-0.5,3.5)
-        
-        if histo_name == "h_MesonGammaDeltaPhi" :
-            hstack[histo_name].GetXaxis().SetTitle("#Delta#phi_{meson, #gamma} [rad] ")
+    if histo_name == "h_firstTrkEta" :
+        hstack[histo_name].GetXaxis().SetTitle("#eta_{Trk_{1}}")
+        hstack[histo_name].GetXaxis().SetRangeUser(-2.5,2.5)
 
-        hstack[histo_name].Draw("SAME,histo")
+    if histo_name == "h_secondTrkEta" :
+        hstack[histo_name].GetXaxis().SetTitle("#eta_{Trk_{2}}")
+        hstack[histo_name].GetXaxis().SetRangeUser(-2.5,2.5)
 
+    if histo_name == "h_mesonPt" :
+        hstack[histo_name].GetXaxis().SetTitle("p_{T}^{ditrk} [GeV]")
+
+    if histo_name == "h_mesonEta" :
+        hstack[histo_name].GetXaxis().SetTitle("#eta_{ditrk}")
+        hstack[histo_name].GetXaxis().SetRangeUser(-2.5,2.5)
+
+    if histo_name == "h_firstTrkPhi" :
+        hstack[histo_name].GetXaxis().SetTitle("#phi_{Trk_{1}} [rad]")
+
+    if histo_name == "h_secondTrkPhi" :
+        hstack[histo_name].GetXaxis().SetTitle("#phi_{Trk_{2}} [rad]")
+
+    if histo_name == "h_firstTrkIso" :
+        hstack[histo_name].GetXaxis().SetTitle("p_{T}^{Trk_{1}}/(#Sigmap_{T} + p_{T}^{Trk_{1}})")
+        #if isTightSelection: hstack[histo_name].GetXaxis().SetRangeUser(0.6,1.)
+
+    if histo_name == "h_secondTrkIso" :
+        hstack[histo_name].GetXaxis().SetTitle("p_{T}^{Trk_{2}}/(#Sigmap_{T} + p_{T}^{Trk_{2}})")
+        #if isTightSelection: hstack[histo_name].GetXaxis().SetRangeUser(0.5,1.)
+
+    if histo_name == "h_firstTrkIsoCh" :
+        hstack[histo_name].GetXaxis().SetTitle("p_{T}^{Trk_{1}}/(#Sigmap_{T}^{ch} + p_{T}^{Trk_{1}})")      
+        #if isTightSelection: hstack[histo_name].GetXaxis().SetRangeUser(0.94,1.)
+
+    if histo_name == "h_secondTrkIsoCh" :
+        hstack[histo_name].GetXaxis().SetTitle("p_{T}^{Trk_{2}}/(#Sigmap_{T}^{ch} + p_{T}^{Trk_{2}})")
+        #if isTightSelection: hstack[histo_name].GetXaxis().SetRangeUser(0.92,1.)
+
+    if histo_name == "h_mesonIso" :
+        hstack[histo_name].GetXaxis().SetTitle("p_{T}^{ditrk}/(#Sigmap_{T} + p_{T}^{ditrk})")
+        #if isTightSelection: hstack[histo_name].GetXaxis().SetRangeUser(0.7,1.)
+
+    if histo_name == "h_pairIsoCh" :
+        hstack[histo_name].GetXaxis().SetTitle("p_{T}^{ditrk}/(#Sigmap_{T}^{ch} + p_{T}^{ditrk})")
+        #if isTightSelection: hstack[histo_name].GetXaxis().SetRangeUser(0.97,1.)
+
+    if histo_name == "h_pairIsoNeutral" :
+        hstack[histo_name].GetXaxis().SetTitle("p_{T}^{ditrk}/(#Sigmap_{T}^{0} + p_{T}^{ditrk})")
+        #if isTightSelection: hstack[histo_name].GetXaxis().SetRangeUser(0.7,1.)
+
+    if histo_name == "h_trksDeltaR" :
+        hstack[histo_name].GetXaxis().SetTitle("#DeltaR_{ditrk}")
+    
+    if histo_name == "h_photonEnergy" :
+        hstack[histo_name].GetXaxis().SetTitle("E_{T}^{#gamma}[GeV]")
+        #hstack[histo_name].GetXaxis().SetRangeUser(35.,160.)
+        #if isTightSelection: hstack[histo_name].GetXaxis().SetRangeUser(35.,120.)
+
+    if histo_name == "h_photonEta" :
+        hstack[histo_name].GetXaxis().SetTitle("#eta_{#gamma}")
+
+    if histo_name == "h_nElectrons" :
+        hstack[histo_name].GetXaxis().SetTitle("n.electrons")
+        hstack[histo_name].GetXaxis().SetRangeUser(-0.5,2.5)
+
+    if histo_name == "h_nMuons" :
+        hstack[histo_name].GetXaxis().SetTitle("n.muons")
+        hstack[histo_name].GetXaxis().SetRangeUser(-0.5,3.5)
+    
+    if histo_name == "h_MesonGammaDeltaPhi" :
+        hstack[histo_name].GetXaxis().SetTitle("#Delta#phi_{meson, #gamma} [rad] ")
+
+    hstack[histo_name].Draw("SAME,histo")
+
+    '''
     if plotOnlyData:
         hstack[histo_name].Draw("")
         hstack[histo_name].GetYaxis().SetTitleSize(0.07)
@@ -334,7 +334,8 @@ for histo_name in list_histos:
             elif isKAnalysis: 
                 hstack[histo_name].GetXaxis().SetRangeUser(0.9, 0.99)
                 hstack[histo_name].GetXaxis().SetTitle("m_{K#pi} [GeV]")
-
+    
+    '''
     if signal_magnify != 1:
         hsignal[histo_name].Scale(signal_magnify)   
         if histo_name == "h_bosonMass" and isPhiAnalysis: hsignal[histo_name].Scale(0.2) #0.2
@@ -355,72 +356,72 @@ for histo_name in list_histos:
     hMCErr.SetMarkerStyle(0)
     hMCErr.SetFillColor(ROOT.kBlack)
     hMCErr.SetLineColor(0)
-    if not plotOnlyData : hMCErr.Draw("sameE2")
+    #if not plotOnlyData : 
+    hMCErr.Draw("sameE2")
 
     leg1.Draw()
 
-    if not plotOnlyData:
-        CMS_lumi.CMS_lumi(pad1, iPeriod, iPos) #Print integrated lumi and energy information
-    else: 
-        CMS_lumi.CMS_lumi(canvas[histo_name], iPeriod, iPos) #Print integrated lumi and energy information
+    #if not plotOnlyData:
+    CMS_lumi.CMS_lumi(pad1, iPeriod, iPos) #Print integrated lumi and energy information
+    #else: CMS_lumi.CMS_lumi(canvas[histo_name], iPeriod, iPos) #Print integrated lumi and energy information
 
 
     ################################################
 
-    if not plotOnlyData :
-        pad2.cd()
-        pad2.SetTopMargin(0.03)
-        pad2.SetFillColor(0)
-        pad2.SetFillStyle(0)
-        ROOT.gStyle.SetOptStat(0)
-        totalMC = copy.deepcopy(hMCErr)
-        totalData = copy.deepcopy(hdata[histo_name])
-        totalData_forErrors = copy.deepcopy(hdata[histo_name])
-        totalData.Divide(totalMC)
+    #if not plotOnlyData :
+    pad2.cd()
+    pad2.SetTopMargin(0.03)
+    pad2.SetFillColor(0)
+    pad2.SetFillStyle(0)
+    ROOT.gStyle.SetOptStat(0)
+    totalMC = copy.deepcopy(hMCErr)
+    totalData = copy.deepcopy(hdata[histo_name])
+    totalData_forErrors = copy.deepcopy(hdata[histo_name])
+    totalData.Divide(totalMC)
 
-        for bin in range(1,hMCErr_size+1):
-        
-            #Set MC error band to MC relative uncertainty
-            if not totalMC.GetBinContent(bin) == 0:
-                new_MC_BinError = totalMC.GetBinError(bin)/totalMC.GetBinContent(bin)
-            else: new_MC_BinError = 0.
-
-            #Set data/MC ratio points error bar to data relative uncertainty
-            if not totalData_forErrors.GetBinContent(bin) == 0:
-                new_Data_BinError = totalData_forErrors.GetBinError(bin)/totalData_forErrors.GetBinContent(bin)
-            else: new_Data_BinError = 0.
-
-            totalMC.SetBinError(bin,new_MC_BinError)
-            totalMC.SetBinContent(bin,1.)
-            totalData.SetBinError(bin,new_Data_BinError)
+    for bin in range(1,hMCErr_size+1):
     
-        totalData.SetTitle("")
-        totalData.SetMarkerStyle(8)
-        totalData.SetMarkerColor(1)
-        totalData.SetLineColor(1)
-        totalData.GetYaxis().SetLabelSize(0.1)
-        totalData.GetYaxis().SetTitle("Data/Bkg")
-        totalData.GetYaxis().SetTitleSize(0.16)
-        totalData.GetYaxis().SetTitleOffset(0.3)
-        totalData.GetYaxis().SetRangeUser(0.8,1.2)
-        if (isPhiAnalysis or CAT == "BDTcat0"): totalData.GetYaxis().SetRangeUser(0.5,1.5)
-        totalData.GetYaxis().SetNdivisions(502,ROOT.kFALSE)
-        totalData.GetXaxis().SetLabelSize(0.10)
-        totalData.GetXaxis().SetTitleSize(0.12)
-        totalData.GetXaxis().SetTitleOffset(1.0)
-        totalData.GetXaxis().SetTitle(hstack[histo_name].GetXaxis().GetTitle())
+        #Set MC error band to MC relative uncertainty
+        if not totalMC.GetBinContent(bin) == 0:
+            new_MC_BinError = totalMC.GetBinError(bin)/totalMC.GetBinContent(bin)
+        else: new_MC_BinError = 0.
 
-        totalMC.SetTitle("")
-        totalMC.SetFillStyle(3002)
+        #Set data/MC ratio points error bar to data relative uncertainty
+        if not totalData_forErrors.GetBinContent(bin) == 0:
+            new_Data_BinError = totalData_forErrors.GetBinError(bin)/totalData_forErrors.GetBinContent(bin)
+        else: new_Data_BinError = 0.
 
-        totalData.GetXaxis().SetRangeUser(hstack[histo_name].GetXaxis().GetXmin(),hstack[histo_name].GetXaxis().GetXmax())
-        line_on_one = ROOT.TLine(totalData.GetXaxis().GetXmin(),1.,totalData.GetXaxis().GetXmax(),1.)
-        line_on_one.SetLineColor(4)
-        line_on_one.SetLineStyle(2)
+        totalMC.SetBinError(bin,new_MC_BinError)
+        totalMC.SetBinContent(bin,1.)
+        totalData.SetBinError(bin,new_Data_BinError)
 
-        totalData.Draw("E1,X0")
-        totalMC.Draw("sameE2")
-        line_on_one.Draw("SAME")
+    totalData.SetTitle("")
+    totalData.SetMarkerStyle(8)
+    totalData.SetMarkerColor(1)
+    totalData.SetLineColor(1)
+    totalData.GetYaxis().SetLabelSize(0.1)
+    totalData.GetYaxis().SetTitle("Data/Bkg")
+    totalData.GetYaxis().SetTitleSize(0.16)
+    totalData.GetYaxis().SetTitleOffset(0.3)
+    totalData.GetYaxis().SetRangeUser(0.8,1.2)
+    if (isPhiAnalysis or CAT == "BDTcat0"): totalData.GetYaxis().SetRangeUser(0.5,1.5)
+    totalData.GetYaxis().SetNdivisions(502,ROOT.kFALSE)
+    totalData.GetXaxis().SetLabelSize(0.10)
+    totalData.GetXaxis().SetTitleSize(0.12)
+    totalData.GetXaxis().SetTitleOffset(1.0)
+    totalData.GetXaxis().SetTitle(hstack[histo_name].GetXaxis().GetTitle())
+
+    totalMC.SetTitle("")
+    totalMC.SetFillStyle(3002)
+
+    totalData.GetXaxis().SetRangeUser(hstack[histo_name].GetXaxis().GetXmin(),hstack[histo_name].GetXaxis().GetXmax())
+    line_on_one = ROOT.TLine(totalData.GetXaxis().GetXmin(),1.,totalData.GetXaxis().GetXmax(),1.)
+    line_on_one.SetLineColor(4)
+    line_on_one.SetLineStyle(2)
+
+    totalData.Draw("E1,X0")
+    totalMC.Draw("sameE2")
+    line_on_one.Draw("SAME")
     ################################################
     '''
     if isPhi and CAT == "preselection" :
