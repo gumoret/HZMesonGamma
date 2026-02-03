@@ -1,45 +1,63 @@
 import ROOT
 import math
 import copy
-import sys
+import argparse
+import os
 import tdrstyle, CMS_lumi
 from ROOT import gROOT
 
 #Supress the opening of many Canvas's
 ROOT.gROOT.SetBatch(True)   
 
-signal_magnify = float(sys.argv[1])
-CR_magnify = 1. #2079./1179.
+isTightSelection = False
+isPhiAnalysis    = False # for H/Z -> Phi Gamma
+isRhoAnalysis    = False # for H/Z -> Rho Gamma
+isKAnalysis      = False # for H/Z -> K* Gamma
+
+parser = argparse.ArgumentParser(description="Overlay Data vs CR-background vs Signal for HZ→Meson+γ analysis")
+parser.add_argument("signal_scale", help="Scale factor for signal histogram")
+parser.add_argument("tightSelection", help="Use tight selection, type tight or loose")
+parser.add_argument("meson_channel", help="Define channel, type phi or rho or K")
+parser.add_argument("datafile",  help="ROOT file with DATA histograms")
+parser.add_argument("signalfile", help="ROOT file with SIGNAL histograms")
+parser.add_argument("sidebandsfile", help="ROOT file with SIDEBANDS histograms")
+
+args = parser.parse_args()
+
+signal_magnify = float(args.signal_scale)
+CR_magnify = 1.
 
 plotOnlyData = False
-isTightSelection = int(sys.argv[2])
 
-isPhi = int(sys.argv[3]) #note that in python true = 1 and false = 0
-
-
-if not isTightSelection:
-    inputnames = ["Data","Signal","SidebandsNorm"]
-else:
+if args.tightSelection == "tight": 
+    isTightSelection = True
     inputnames = ["Data","Signal"]
 
-list_inputfiles = []
-for filename in sys.argv[4:]:
-    list_inputfiles.append(filename)
+if args.tightSelection == "loose": 
+    isTightSelection = False
+    inputnames = ["Data","Signal","SidebandsNorm"]
 
+if args.meson_channel == "phi":
+    isPhiAnalysis = True
+    print("Meson: phi") 
+if args.meson_channel == "rho": 
+    isRhoAnalysis = True
+    print("Meson: rho") 
+if args.meson_channel == "K": 
+    isKAnalysis = True
+    print("Meson: K*0")
+
+
+list_inputfiles = [args.datafile, args.signalfile, args.sidebandsfile]
 fileIn = ROOT.TFile(list_inputfiles[0])
-CAT = (filename.split("_")[3]) 
 
-print ("#############################")
-print( "is Phi = ",isPhi)
-print( "Category = ", CAT)
-print( "#############################")
 
 #CMS-style plotting 
 tdrstyle.setTDRStyle()
 iPeriod = 4
 iPos = 11
 CMS_lumi.lumiTextSize = 0.9
-CMS_lumi.cmsTextSize = 1.5
+CMS_lumi.cmsTextSize = 1.
 CMS_lumi.lumi_13TeV = "39.54 fb^{-1}"
 
 hstack     = dict()
@@ -51,34 +69,33 @@ canvas     = dict()
 histo_container = [] #just for memory management
 
 #Get the list of histograms
-if isPhi :
-    signalfile = ROOT.TFile("histos/latest_productions/SR_Phi_"+CAT+"_Signal.root")
-else :
-    signalfile = ROOT.TFile("histos/latest_productions/SR_Rho_"+CAT+"_Signal.root")
+signalfile = ROOT.TFile.Open(args.signalfile)
 
 list_histos = []
 keylist = signalfile.GetListOfKeys()
 key = ROOT.TKey()
 for key in keylist :
     obj_class = ROOT.gROOT.GetClass(key.GetClassName())
-    if not obj_class.InheritsFrom("TH1") :
-        continue
-    if not (key.ReadObj().GetName() == "h_efficiency" or key.ReadObj().GetName() == "h_cutOverflow"): #h_efficiency and h_cutOverflow is a plot plotted in other way   
-        list_histos.append( key.ReadObj().GetName() )
+    if not obj_class.InheritsFrom("TH1"): continue
+    if not (key.ReadObj().GetName() == "h_efficiency" or key.ReadObj().GetName() == "h_cutOverflow"): list_histos.append(key.ReadObj().GetName()) #h_efficiency and h_cutOverflow is a plot plotted in other way   
+        
 
-for hname in list_histos:
-    hstack[hname] = ROOT.THStack("hstack_" + hname,"")
+for hname in list_histos: hstack[hname] = ROOT.THStack("hstack_" + hname,"")
 
 #COLOR MASK
 colors_mask = dict()
 #colors_mask["bkgEstimationCR"]   = ROOT.kRed-7
 #colors_mask["Sidebands"]          = ROOT.kRed-7
-if isPhi:
-    colors_mask["SidebandsNorm"]      = ROOT.kCyan-7
+if isPhiAnalysis:
+    colors_mask["SidebandsNorm"] = ROOT.kCyan-7
     decayChannel = "#phi#gamma "
-else:
-    colors_mask["SidebandsNorm"]      = ROOT.kRed-4
+elif isRhoAnalysis:
+    colors_mask["SidebandsNorm"] = ROOT.kRed-4
     decayChannel = "#rho#gamma "
+elif isKAnalysis:
+    colors_mask["SidebandsNorm"] = ROOT.kRed-1
+    decayChannel = "#Kst#gamma "
+
 
 colors_mask["GammaJets"]           = ROOT.kOrange
 colors_mask["QCD"]                 = ROOT.kRed
@@ -87,19 +104,7 @@ colors_mask["ttbarlnu"]            = ROOT.kRed+2
 colors_mask["ttbarToHadronic"]     = ROOT.kRed-4
 
 
-
-#LEGEND
-#leg1 = ROOT.TLegend(0.6868687,0.6120093,0.9511784,0.9491917) #right positioning
-#leg1.SetHeader(" ")
-#leg1.SetFillColor(0)
-#leg1.SetBorderSize(0)
-#leg1.SetLineColor(1)
-#leg1.SetLineStyle(1)
-#leg1.SetLineWidth(1)
-#leg1.SetFillStyle(1001)
-
-
-leg1 = ROOT.TLegend(0.65,0.62,0.95,0.95) #right positioning
+leg1 = ROOT.TLegend(0.65,0.75,0.95,0.95) #right positioning
 #leg1 = ROOT.TLegend(0.321,0.58,0.981,0.95) #right positioning
 leg1.SetHeader(" ")
 leg1.SetFillColorAlpha(0,0.)
@@ -111,39 +116,30 @@ leg1.SetFillStyle(1001)
 leg1.SetNColumns(1)
 
 #create a list of histos you don't want to plot with bkg estimation
-histo_blacklist = {"h_genPhotonEt","h_genMesonPt","h_RecoVsGenPhotonPtRel","h_RecoVsGenMesonPtRel","h_MrecoMinusMgen"} 
+#histo_blacklist = {"h_genPhotonEt","h_genMesonPt","h_RecoVsGenPhotonPtRel","h_RecoVsGenMesonPtRel","h_MrecoMinusMgen"} 
 
 for filename in list_inputfiles:
     fileIn = ROOT.TFile(filename)
-    sample_name = (filename.split("_")[4])[:-5] 
-    print( "=============== ", sample_name)
+    sample_name = os.path.basename(filename).split("_")[-1].replace(".root","") 
+    print("=============== ", sample_name)
     for histo_name in list_histos:
-        if histo_name in histo_blacklist: continue
+        #if histo_name in histo_blacklist: continue
         histo = fileIn.Get(histo_name)
-        print( "histo_name = ",histo_name)
+        print("histo_name = ", histo_name)
         # Set to 0 the bins containing negative values, due to negative weights
         hsize = histo.GetSize() - 2 # GetSize() returns the number of bins +2 (that is + overflow + underflow) 
-        for bin in range(1,hsize+1): # The +1 is in order to get the last bin
+        for bin in range(1, hsize+1): # The +1 is in order to get the last bin
             bincontent = histo.GetBinContent(bin)
-            if bincontent < 0.:
-                histo.SetBinContent(bin,0.)
+            if bincontent < 0.: histo.SetBinContent(bin, 0.)
 
         histo_container.append(copy.copy(histo))
         
-        if not histo_name == "h_nMuons" and not histo_name == "h_nJets25" and not histo_name == "h_nElectrons":
-            if isTightSelection and not (histo_name == "h_firstTrkIso" or histo_name == "h_firstTrkIsoCh" '''or histo_name == "h_firstTrkIso_neutral"''' or histo_name == "h_secondTrkIso" or histo_name == "h_secondTrkIsoCh" or histo_name == "h_pairIsoCh" or histo_name == "h_pairIso" or histo_name == "h_ZMass"):
-                histo_container[-1].Rebin(6)
-            elif isTightSelection and histo_name == "h_ZMass" and isPhi:
-                histo_container[-1].Rebin(6)
-            elif isTightSelection and histo_name == "h_ZMass" and not isPhi:
-                histo_container[-1].Rebin(5)
-                #hsignalVBF[histo_name].Rebin(1/5)
-                #hsignalggH[histo_name].Rebin(1/5)
-            elif not isTightSelection and histo_name == "h_ZMass":
-                histo_container[-1].Rebin(5)
-
-            else:
-                histo_container[-1].Rebin(5)
+        if not histo_name == "h_nMuons" and not histo_name == "h_nElectrons":
+            if isTightSelection and not (histo_name == "h_mesonIso" or histo_name == "h_bosonMass"): histo_container[-1].Rebin(6)
+            elif isTightSelection and histo_name == "h_bosonMass" and isPhiAnalysis: histo_container[-1].Rebin(6)
+            elif isTightSelection and histo_name == "h_bosonMass" and isRhoAnalysis: histo_container[-1].Rebin(5)
+            elif not isTightSelection and histo_name == "h_bosonMass": histo_container[-1].Rebin(5)
+            else: histo_container[-1].Rebin(5)
 
         if sample_name == "Signal":
             histo_container[-1].SetLineStyle(1)   
@@ -163,30 +159,20 @@ for filename in list_inputfiles:
             histo_container[-1].SetBinErrorOption(ROOT.TH1.kPoisson)
             hstack[histo_name].Add(histo_container[-1])
 
-        if plotOnlyData :
-            hstack[histo_name].Add(histo_container[-1])
+        if plotOnlyData: hstack[histo_name].Add(histo_container[-1])
 
 
-        if histo_name == "h_ZMass" : #Add the legend only once (InvMass_TwoTrk_Photon is just a random variable)
-            
-            if not sample_name == "Data" and not sample_name == "Signal" :
-                leg1.AddEntry(histo_container[-1],"bkg estimation","f")
-                
-            elif sample_name == "Data":
-                leg1.AddEntry(histo_container[-1],sample_name,"ep")
-            
-            elif sample_name == "Signal":
-                leg1.AddEntry(histo_container[-1],decayChannel + "BR: " + str(signal_magnify), "f")
-                #leg1.AddEntry(histo_container[-1],"signal_magnify","f")##################################
-
+        if histo_name == "h_bosonMass" : #Add the legend only once (InvMass_TwoTrk_Photon is just a random variable)            
+            if not sample_name == "Data" and not sample_name == "Signal": leg1.AddEntry(histo_container[-1],"bkg estimation","f")                
+            elif sample_name == "Data": leg1.AddEntry(histo_container[-1],sample_name,"ep")            
+            elif sample_name == "Signal": leg1.AddEntry(histo_container[-1],decayChannel + "BR: " + str(signal_magnify), "f")
+            #leg1.AddEntry(histo_container[-1],"signal_magnify","f")##################################
    
     fileIn.Close()
 
 
 for histo_name in list_histos:
-
-    if histo_name in histo_blacklist: continue
-
+    #if histo_name in histo_blacklist: continue
     canvas[histo_name] = ROOT.TCanvas("Canvas_" + histo_name,"",200,106,600,600)
     canvas[histo_name].cd()
  
@@ -205,9 +191,7 @@ for histo_name in list_histos:
         pad2.SetBorderMode(0)
         pad1.Draw()
         pad2.Draw()
-        if histo_name == "h_nJets25" or histo_name == "h_nMuons" or histo_name == "h_nElectrons" '''or histo_name == "h_nPhotons38WP80" or histo_name == "h_nPhotons20WP90"''':
-            pad1.SetLogy()
-        
+        if histo_name == "h_nMuons" or histo_name == "h_nElectrons": pad1.SetLogy()        
         pad1.cd()
 
     hstack[histo_name].SetTitle("")
@@ -223,36 +207,31 @@ for histo_name in list_histos:
         hstack[histo_name].GetYaxis().SetTitleSize(0.07)
         hstack[histo_name].GetYaxis().SetTitleOffset(0.7)
         hstack[histo_name].GetYaxis().SetTitle("Events")
-        hstack[histo_name].SetTitle("#sqrt{s} = 13 TeV       lumi = 39.54/fb")
+        hstack[histo_name].SetTitle("#sqrt{s} = 13.6 TeV       lumi = 39.54/fb")
         hstack[histo_name].GetXaxis().SetLabelOffset(999)
         hstack[histo_name].GetYaxis().SetMaxDigits(3)
 
-        if histo_name == "h_nJets25" or histo_name == "h_nMuons" or histo_name == "h_nElectrons" '''or histo_name == "h_nPhotons"''':
+        if histo_name == "h_nMuons" or histo_name == "h_nElectrons":
             hstack[histo_name].SetMaximum(10 * hdata[histo_name].GetMaximum())
             hstack[histo_name].SetMinimum(1.)  #cannot use values < 1 otherwise log is negative
-        elif histo_name == "h_ZMass" and isTightSelection and isPhi :
+        elif histo_name == "h_bosonMass" and isTightSelection and isPhi :
             hstack[histo_name].SetMaximum(2.* hdata[histo_name].GetMaximum()) 
-        elif histo_name == "h_ZMass" and isTightSelection and not isPhi :
+        elif histo_name == "h_bosonMass" and isTightSelection and not isPhi :
             hstack[histo_name].SetMaximum(2.* hdata[histo_name].GetMaximum())                  
         else:
-            hstack[histo_name].SetMaximum(1.2 * hdata[histo_name].GetMaximum())
+            hstack[histo_name].SetMaximum(1.5 * hdata[histo_name].GetMaximum())
 
 
-        if histo_name == "h_ZMass":
+        if histo_name == "h_bosonMass":
             #hstack[histo_name].Rebin(2)            
             hstack[histo_name].GetXaxis().SetTitle("m_{ditrk#gamma} [GeV]")
             hstack[histo_name].GetXaxis().SetRangeUser(0.,200.)
             
-        if histo_name == "h_nJets25":
-            hstack[histo_name].GetXaxis().SetTitle("nJets")
-            hstack[histo_name].GetXaxis().SetRangeUser(-0.5,6.5)
-
-        if histo_name == "h_MesonMass" :
+        if histo_name == "h_mesonMass" :
             hstack[histo_name].GetXaxis().SetTitle("m_{ditrk} [GeV]")
-            if isPhi:
-                hstack[histo_name].GetXaxis().SetRangeUser(1.00,1.05)
-            else:
-                hstack[histo_name].GetXaxis().SetRangeUser(0.501,0.999)
+            if isPhiAnalysis: hstack[histo_name].GetXaxis().SetRangeUser(1.00, 1.05)
+            elif isRhoAnalysis: hstack[histo_name].GetXaxis().SetRangeUser(0.5, 1.)
+            elif isKAnalysis: hstack[histo_name].GetXaxis().SetRangeUser(0.8, 0.99)
 
         if histo_name == "h_firstTrkPt" :
             hstack[histo_name].GetXaxis().SetTitle("p_{T}^{Trk_{1}} [GeV]")
@@ -270,7 +249,10 @@ for histo_name in list_histos:
             hstack[histo_name].GetXaxis().SetTitle("#eta_{Trk_{2}}")
             hstack[histo_name].GetXaxis().SetRangeUser(-2.5,2.5)
 
-        if histo_name == "h_bestPairEta" :
+        if histo_name == "h_mesonPt" :
+            hstack[histo_name].GetXaxis().SetTitle("p_{T}^{ditrk} [GeV]")
+
+        if histo_name == "h_mesonEta" :
             hstack[histo_name].GetXaxis().SetTitle("#eta_{ditrk}")
             hstack[histo_name].GetXaxis().SetRangeUser(-2.5,2.5)
 
@@ -279,17 +261,6 @@ for histo_name in list_histos:
 
         if histo_name == "h_secondTrkPhi" :
             hstack[histo_name].GetXaxis().SetTitle("#phi_{Trk_{2}} [rad]")
-
-        if histo_name == "h_bestPairPt" :
-            hstack[histo_name].GetXaxis().SetTitle("p_{T}^{ditrk} [GeV]")
-
-        if histo_name == "h_bestJetPt" :
-            hstack[histo_name].GetXaxis().SetTitle("p_{T}^{jet} [GeV]")
-            #if isTightSelection: hstack[histo_name].GetXaxis().SetRangeUser(40.,140.)
-
-        if histo_name == "h_bestJetEta" :
-            hstack[histo_name].GetXaxis().SetTitle("#eta_{jet}")
-            hstack[histo_name].GetXaxis().SetRangeUser(-2.5,2.5)
 
         if histo_name == "h_firstTrkIso" :
             hstack[histo_name].GetXaxis().SetTitle("p_{T}^{Trk_{1}}/(#Sigmap_{T} + p_{T}^{Trk_{1}})")
@@ -307,7 +278,7 @@ for histo_name in list_histos:
             hstack[histo_name].GetXaxis().SetTitle("p_{T}^{Trk_{2}}/(#Sigmap_{T}^{ch} + p_{T}^{Trk_{2}})")
             #if isTightSelection: hstack[histo_name].GetXaxis().SetRangeUser(0.92,1.)
 
-        if histo_name == "h_pairIso" :
+        if histo_name == "h_mesonIso" :
             hstack[histo_name].GetXaxis().SetTitle("p_{T}^{ditrk}/(#Sigmap_{T} + p_{T}^{ditrk})")
             #if isTightSelection: hstack[histo_name].GetXaxis().SetRangeUser(0.7,1.)
 
@@ -319,8 +290,8 @@ for histo_name in list_histos:
             hstack[histo_name].GetXaxis().SetTitle("p_{T}^{ditrk}/(#Sigmap_{T}^{0} + p_{T}^{ditrk})")
             #if isTightSelection: hstack[histo_name].GetXaxis().SetRangeUser(0.7,1.)
 
-        if histo_name == "h_bestPairDeltaR" :
-            hstack[histo_name].GetXaxis().SetTitle("#DeltaR_{ditrk}/m_{ditrk}")
+        if histo_name == "h_trksDeltaR" :
+            hstack[histo_name].GetXaxis().SetTitle("#DeltaR_{ditrk}")
         
         if histo_name == "h_photonEnergy" :
             hstack[histo_name].GetXaxis().SetTitle("E_{T}^{#gamma}[GeV]")
@@ -352,22 +323,25 @@ for histo_name in list_histos:
         #hstack[histo_name].GetXaxis().SetLabelOffset(999)
         hstack[histo_name].GetYaxis().SetMaxDigits(2)
 
-        if histo_name == "h_MesonMass" :
+        if histo_name == "h_mesonMass" :
             hstack[histo_name].SetMaximum(2.1 * hdata[histo_name].GetMaximum())
-            if isPhi:
+            if isPhiAnalysis:
                 hstack[histo_name].GetXaxis().SetRangeUser(1.,1.04)
                 hstack[histo_name].GetXaxis().SetTitle("m_{KK} [GeV]")
-            else:
-                hstack[histo_name].GetXaxis().SetRangeUser(0.5,1.)
+            elif isRhoAnalysis:
+                hstack[histo_name].GetXaxis().SetRangeUser(0.55, 1.)
                 hstack[histo_name].GetXaxis().SetTitle("m_{#pi#pi} [GeV]")
+            elif isKAnalysis: 
+                hstack[histo_name].GetXaxis().SetRangeUser(0.9, 0.99)
+                hstack[histo_name].GetXaxis().SetTitle("m_{K#pi} [GeV]")
 
     if signal_magnify != 1:
         hsignal[histo_name].Scale(signal_magnify)   
-        if histo_name == "h_ZMass" and isPhi:
-            hsignal[histo_name].Scale(0.2) #0.2
-        if histo_name == "h_ZMass" and not isPhi:
-            hsignal[histo_name].Scale(0.2)#0.2
-            #hsignalggH[histo_name].Rebin(1/5)#do this to have more granularity in the signal curve
+        if histo_name == "h_bosonMass" and isPhiAnalysis: hsignal[histo_name].Scale(0.2) #0.2
+        if histo_name == "h_bosonMass" and isRhoAnalysis: hsignal[histo_name].Scale(0.2)#0.2
+        if histo_name == "h_bosonMass" and isKAnalysis: hsignal[histo_name].Scale(0.2)#0.2
+        
+        #hsignalggH[histo_name].Rebin(1/5)#do this to have more granularity in the signal curve
 
     hdata[histo_name].Draw("SAME,E1,X0")
     hsignal[histo_name].Draw("SAME,hist")
@@ -381,8 +355,7 @@ for histo_name in list_histos:
     hMCErr.SetMarkerStyle(0)
     hMCErr.SetFillColor(ROOT.kBlack)
     hMCErr.SetLineColor(0)
-    if not plotOnlyData :
-        hMCErr.Draw("sameE2")
+    if not plotOnlyData : hMCErr.Draw("sameE2")
 
     leg1.Draw()
 
@@ -410,14 +383,12 @@ for histo_name in list_histos:
             #Set MC error band to MC relative uncertainty
             if not totalMC.GetBinContent(bin) == 0:
                 new_MC_BinError = totalMC.GetBinError(bin)/totalMC.GetBinContent(bin)
-            else:
-                new_MC_BinError = 0.
+            else: new_MC_BinError = 0.
 
             #Set data/MC ratio points error bar to data relative uncertainty
             if not totalData_forErrors.GetBinContent(bin) == 0:
                 new_Data_BinError = totalData_forErrors.GetBinError(bin)/totalData_forErrors.GetBinContent(bin)
-            else:
-                new_Data_BinError = 0.
+            else: new_Data_BinError = 0.
 
             totalMC.SetBinError(bin,new_MC_BinError)
             totalMC.SetBinContent(bin,1.)
@@ -432,7 +403,7 @@ for histo_name in list_histos:
         totalData.GetYaxis().SetTitleSize(0.16)
         totalData.GetYaxis().SetTitleOffset(0.3)
         totalData.GetYaxis().SetRangeUser(0.8,1.2)
-        if (isPhi or CAT == "BDTcat0"): totalData.GetYaxis().SetRangeUser(0.5,1.5)
+        if (isPhiAnalysis or CAT == "BDTcat0"): totalData.GetYaxis().SetRangeUser(0.5,1.5)
         totalData.GetYaxis().SetNdivisions(502,ROOT.kFALSE)
         totalData.GetXaxis().SetLabelSize(0.10)
         totalData.GetXaxis().SetTitleSize(0.12)
@@ -466,6 +437,8 @@ for histo_name in list_histos:
         output_dir = "/eos/user/e/eferrand/ZMesonGamma/CMSSW_10_6_27/src/ZMesonGammaAnalysis/ZTOMesonGamma/plots/Rho/bkg_BDT/"
     '''
     output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/histos/"
+
+
 
     canvas[histo_name].SaveAs(output_dir + histo_name + ".pdf")
     canvas[histo_name].SaveAs(output_dir + histo_name + ".png")
