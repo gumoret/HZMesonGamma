@@ -455,7 +455,9 @@ for histo_name in list_histos:
         #output_dir = "/eos/user/e/eferrand/ZMesonGamma/CMSSW_10_6_27/src/ZMesonGammaAnalysis/ZTOMesonGamma/plots/Data/Rho/BDT/"
         output_dir = "/eos/user/e/eferrand/ZMesonGamma/CMSSW_10_6_27/src/ZMesonGammaAnalysis/ZTOMesonGamma/plots/Rho/bkg_BDT/"
     '''
-    output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/latest_production/preselection_latest_production/"
+    #output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/latest_production/preselection_latest_production/"
+    output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/histos/"
+
 
     canvas[histo_name].SaveAs(output_dir + histo_name + ".pdf")
     canvas[histo_name].SaveAs(output_dir + histo_name + ".png")
