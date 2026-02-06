@@ -28,14 +28,15 @@ p.add_argument("runningOnData_option", help="Type <<signal>> for signal, <<data>
 p.add_argument('boson_channel', help='type <<H>> or <<Z>>')
 p.add_argument('meson_channel', help='type <<rho>> or <<phi>> or <<K>> or <<D>>')
 p.add_argument('region_option', help='Type <<SR>> for Signal Region, <<CR>> for Control Region') #flag for bkg estimation
+p.add_argument('blind_option', help='Type <<blind>> for blind analysis, <<unblind>> for unblinded analysis') #flag for blindness
 p.add_argument('isBDT_option', help='Type <<preselection>> or <<BDT>>') #flag for loose selection or tight selection (from BDT output)
 p.add_argument('rootfile_name', help='Type rootfile name')
-p.add_argument('outputfile_option', help='Provide output file name')
+p.add_argument('outputfile_name', help='Provide output file name')
 args = p.parse_args()
 
 
 fInput = ROOT.TFile(args.rootfile_name)
-output_filename = args.outputfile_option
+output_filename = args.outputfile_name
 mytree = fInput.Get("tree_output")
 h_Events = fInput.Get("nEvents")
 
@@ -65,7 +66,11 @@ CRFlag = args.region_option
 if CRFlag == "SR": print("Processing the signal region")
 if CRFlag == "CR": print("Processing the control region")
 
-if (args.isBDT_option == "BDT"): isBDT = True
+if args.blind_option == "blind": isDataBlind = True
+if args.blind_option == "unblind": isDataBlind = False
+
+if (args.isBDT_option == "BDT"):
+    isBDT = True
 
 isWideRange = False  #bool for wide range or zoomed range
 
@@ -108,9 +113,9 @@ if isWideRange:
 else:
     if isZAnalysis: histo_map[list_histos[0]]   = ROOT.TH1F(list_histos[0],"M_{Z}", 300, 60., 120.) 
     elif isHAnalysis: histo_map[list_histos[0]] = ROOT.TH1F(list_histos[0],"M_{H}", 150, 120, 130) 
-    if   isPhiAnalysis: histo_map[list_histos[1]] = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 0.95, 1.1) 
-    elif isRhoAnalysis: histo_map[list_histos[1]] = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 0.5, 1.)
-    elif isKAnalysis: histo_map[list_histos[1]]   = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 0.6, 1.3) 
+    if   isPhiAnalysis: histo_map[list_histos[1]] = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 1., 1.04) 
+    elif isRhoAnalysis: histo_map[list_histos[1]] = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 0.55, 1.)
+    elif isKAnalysis: histo_map[list_histos[1]]   = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 0.8, 0.99) 
     histo_map[list_histos[2]]  = ROOT.TH1F(list_histos[2],"p_{T} of the 1st track", 100, 0.,70.)
     histo_map[list_histos[3]]  = ROOT.TH1F(list_histos[3],"p_{T} of the 2nd track", 100, 0.,70.)
     histo_map[list_histos[4]]  = ROOT.TH1F(list_histos[4],"#eta of the 1st track", 100, -2.5,2.5)
@@ -229,11 +234,11 @@ for jentry in range(nentries):
 
     if isRhoAnalysis:
         if CRFlag == "SR" and not (mesonMass > 0.62 and mesonMass < 0.92): continue
-        if CRflag == "CR" and (mesonMass > 0.62 and mesonMass < 0.92): continue
+        if CRFlag == "CR" and (mesonMass > 0.62 and mesonMass < 0.92): continue
 
     if isKAnalysis:
-        if CRflag == "SR" and not (MesonMass > 0.842 and MesonMass < 0.942): continue
-        if CRflag == "CR" and (MesonMass > 0.842 and MesonMass < 0.942): continue
+        if CRFlag == "SR" and not (mesonMass > 0.842 and mesonMass < 0.942): continue
+        if CRFlag == "CR" and (mesonMass > 0.842 and mesonMass < 0.942): continue
 
     nEventsAfterRegionDefiner+=1
 
@@ -276,8 +281,8 @@ for jentry in range(nentries):
     '''
     if runningOnData == True:
         if isHAnalysis: #change limits 
-            if (CRFlag == 'SR' and bosonMass > 50. and bosonMass < 80.) : nEventsLeftSB  += 1
-            if (CRFlag == 'SR' and bosonMass > 101. and bosonMass < 200.) : nEventsRightSB += 1
+            if (CRFlag == 'SR' and bosonMass > 50. and bosonMass < 120.) : nEventsLeftSB  += 1
+            if (CRFlag == 'SR' and bosonMass > 130. and bosonMass < 200.) : nEventsRightSB += 1
         if isZAnalysis:
             if (CRFlag == 'SR' and bosonMass > 50. and bosonMass < 80.) : nEventsLeftSB  += 1
             if (CRFlag == 'SR' and bosonMass > 101. and bosonMass < 200.) : nEventsRightSB += 1
@@ -496,13 +501,3 @@ for hist_name in list_histos:
     histo_map[hist_name].Write()
 
 fOut.Close()
-
-'''
-#Copy on CERNBOX
-import subprocess
-import os
-
-destination = "eferrand@lxplus.cern.ch/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/"
-
-subprocess.run(["rsync", "-avz", output_filename, destination])
-'''
