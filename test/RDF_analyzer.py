@@ -309,9 +309,17 @@ n_total = df.Count().GetValue()
 # ------------------------------------------------------------
 # Pileup
 # ------------------------------------------------------------
+<<<<<<< HEAD
 if not runningOnData: df = df.Define("nPU", "Pileup_nPU")
 else: df = df.Define("nPU", "0")
 h_pu = df.Histo1D(("pileup", "Pileup distribution", 130, 0, 130), "nPU")
+=======
+if not runningOnData:
+    df = df.Define("nPU", "Pileup_nPU")
+    h_pu = df.Histo1D(("pileup", "Pileup distribution", 130, 0, 130), "nPU")
+else:
+    df = df.Define("nPU", "0")
+>>>>>>> 85adaea (add plot script)
 
 # ------------------------------------------------------------
 # MC weight
@@ -320,7 +328,10 @@ if not runningOnData:
     df = df.Define("MC_Weight", "Generator_weight")
 else:
     df = df.Define("MC_Weight", "1.0")
+<<<<<<< HEAD
 
+=======
+>>>>>>> 85adaea (add plot script)
 
 # ------------------------------------------------------------
 # Trigger

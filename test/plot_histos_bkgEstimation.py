@@ -4,6 +4,7 @@ import copy
 import argparse
 import os
 import tdrstyle, CMS_lumi
+<<<<<<< HEAD
 import cmsstyle
 from ROOT import gROOT
 
@@ -24,6 +25,14 @@ cmsstyle.SetLumi(34.8, run=None)
 cmsstyle.SetExtraText('')
 
 
+=======
+import sys
+from ROOT import gROOT
+
+#Supress the opening of many Canvas's
+ROOT.gROOT.SetBatch(True)   
+
+>>>>>>> 85adaea (add plot script)
 isTightSelection = False
 isPhiAnalysis    = False # for H/Z -> Phi Gamma
 isRhoAnalysis    = False # for H/Z -> Rho Gamma
@@ -44,6 +53,7 @@ CR_magnify = 1.
 
 #plotOnlyData = False
 
+<<<<<<< HEAD
 if args.tightSelection == "tight": 
     isTightSelection = True
     inputnames = ["Data","Signal"]
@@ -51,6 +61,13 @@ if args.tightSelection == "tight":
 if args.tightSelection == "loose": 
     isTightSelection = False
     inputnames = ["Data","Signal","SidebandsNorm"]
+=======
+if args.tightSelection == "tight": isTightSelection = True
+    #inputnames = ["Data","Signal"]
+
+if args.tightSelection == "loose": isTightSelection = False
+    #inputnames = ["Data","Signal","SidebandsNorm"]
+>>>>>>> 85adaea (add plot script)
 
 if args.meson_channel == "phi":
     isPhiAnalysis = True
@@ -63,6 +80,7 @@ if args.meson_channel == "K":
     print("Meson: K*0")
 
 
+<<<<<<< HEAD
 list_inputfiles = [args.datafile, args.signalfile, args.sidebandsfile]
 fileIn = ROOT.TFile(list_inputfiles[0])
 
@@ -77,6 +95,15 @@ CMS_lumi.lumi_13TeV = "39.54 fb^{-1}"
 CMS_lumi.relPosX = 0.045 #0.045                                                                                                                                                                                                                                           
 CMS_lumi.relPosY = 0.035 
 CMS_lumi.relExtraDY = 1.1
+=======
+#CMS-style plotting 
+tdrstyle.setTDRStyle()
+iPeriod = 4
+iPos = 11
+CMS_lumi.lumiTextSize = 0.9
+CMS_lumi.cmsTextSize = 1.
+CMS_lumi.lumi_13TeV = "39.54 fb^{-1}"
+>>>>>>> 85adaea (add plot script)
 
 hstack     = dict()
 hsignal    = dict()
@@ -136,6 +163,11 @@ leg1.SetNColumns(1)
 #create a list of histos you don't want to plot with bkg estimation
 #histo_blacklist = {"h_genPhotonEt","h_genMesonPt","h_RecoVsGenPhotonPtRel","h_RecoVsGenMesonPtRel","h_MrecoMinusMgen"} 
 
+<<<<<<< HEAD
+=======
+list_inputfiles = [args.datafile, args.signalfile, args.sidebandsfile]
+
+>>>>>>> 85adaea (add plot script)
 for filename in list_inputfiles:
     fileIn = ROOT.TFile(filename)
     sample_name = os.path.basename(filename).split("_")[-1].replace(".root","") 
@@ -194,7 +226,11 @@ for histo_name in list_histos:
     canvas[histo_name] = ROOT.TCanvas("Canvas_" + histo_name,"",200,106,600,600)
     canvas[histo_name].cd()
  
+<<<<<<< HEAD
     #if not plotOnlyData :   ##########################################
+=======
+    #if not plotOnlyData :
+>>>>>>> 85adaea (add plot script)
     pad1 = ROOT.TPad("pad_" + histo_name,"",0,0.28,1,1.)
     pad2 = ROOT.TPad("pad_" + histo_name,'',0,0.01,1,0.27)
     #pad1.SetTopMargin(0.047)
@@ -211,7 +247,10 @@ for histo_name in list_histos:
     pad2.Draw()
     if histo_name == "h_nMuons" or histo_name == "h_nElectrons": pad1.SetLogy()        
     pad1.cd()
+<<<<<<< HEAD
 
+=======
+>>>>>>> 85adaea (add plot script)
     hstack[histo_name].SetTitle("")
     hdata[histo_name].SetTitle("")
     hsignal[histo_name].SetTitle("")
@@ -279,6 +318,7 @@ for histo_name in list_histos:
     if histo_name == "h_secondTrkPhi" :
         hstack[histo_name].GetXaxis().SetTitle("#phi_{Trk_{2}} [rad]")
 
+<<<<<<< HEAD
     if histo_name == "h_firstTrkIso" :
         hstack[histo_name].GetXaxis().SetTitle("p_{T}^{Trk_{1}}/(#Sigmap_{T} + p_{T}^{Trk_{1}})")
         #if isTightSelection: hstack[histo_name].GetXaxis().SetRangeUser(0.6,1.)
@@ -293,18 +333,43 @@ for histo_name in list_histos:
 
     if histo_name == "h_secondTrkIsoCh" :
         hstack[histo_name].GetXaxis().SetTitle("p_{T}^{Trk_{2}}/(#Sigmap_{T}^{ch} + p_{T}^{Trk_{2}})")
+=======
+    #if histo_name == "h_firstTrkIso" :
+        #hstack[histo_name].GetXaxis().SetTitle("p_{T}^{Trk_{1}}/(#Sigmap_{T} + p_{T}^{Trk_{1}})")
+        #if isTightSelection: hstack[histo_name].GetXaxis().SetRangeUser(0.6,1.)
+
+    #if histo_name == "h_secondTrkIso" :
+        #hstack[histo_name].GetXaxis().SetTitle("p_{T}^{Trk_{2}}/(#Sigmap_{T} + p_{T}^{Trk_{2}})")
+        #if isTightSelection: hstack[histo_name].GetXaxis().SetRangeUser(0.5,1.)
+
+    #if histo_name == "h_firstTrkIsoCh" :
+        #hstack[histo_name].GetXaxis().SetTitle("p_{T}^{Trk_{1}}/(#Sigmap_{T}^{ch} + p_{T}^{Trk_{1}})")      
+        #if isTightSelection: hstack[histo_name].GetXaxis().SetRangeUser(0.94,1.)
+
+    #if histo_name == "h_secondTrkIsoCh" :
+        #hstack[histo_name].GetXaxis().SetTitle("p_{T}^{Trk_{2}}/(#Sigmap_{T}^{ch} + p_{T}^{Trk_{2}})")
+>>>>>>> 85adaea (add plot script)
         #if isTightSelection: hstack[histo_name].GetXaxis().SetRangeUser(0.92,1.)
 
     if histo_name == "h_mesonIso" :
         hstack[histo_name].GetXaxis().SetTitle("p_{T}^{ditrk}/(#Sigmap_{T} + p_{T}^{ditrk})")
         #if isTightSelection: hstack[histo_name].GetXaxis().SetRangeUser(0.7,1.)
 
+<<<<<<< HEAD
     if histo_name == "h_pairIsoCh" :
         hstack[histo_name].GetXaxis().SetTitle("p_{T}^{ditrk}/(#Sigmap_{T}^{ch} + p_{T}^{ditrk})")
         #if isTightSelection: hstack[histo_name].GetXaxis().SetRangeUser(0.97,1.)
 
     if histo_name == "h_pairIsoNeutral" :
         hstack[histo_name].GetXaxis().SetTitle("p_{T}^{ditrk}/(#Sigmap_{T}^{0} + p_{T}^{ditrk})")
+=======
+    #if histo_name == "h_pairIsoCh" :
+        #hstack[histo_name].GetXaxis().SetTitle("p_{T}^{ditrk}/(#Sigmap_{T}^{ch} + p_{T}^{ditrk})")
+        #if isTightSelection: hstack[histo_name].GetXaxis().SetRangeUser(0.97,1.)
+
+    #if histo_name == "h_pairIsoNeutral" :
+        #hstack[histo_name].GetXaxis().SetTitle("p_{T}^{ditrk}/(#Sigmap_{T}^{0} + p_{T}^{ditrk})")
+>>>>>>> 85adaea (add plot script)
         #if isTightSelection: hstack[histo_name].GetXaxis().SetRangeUser(0.7,1.)
 
     if histo_name == "h_trksDeltaR" :
@@ -326,10 +391,20 @@ for histo_name in list_histos:
         hstack[histo_name].GetXaxis().SetTitle("n.muons")
         hstack[histo_name].GetXaxis().SetRangeUser(-0.5,3.5)
     
+<<<<<<< HEAD
     if histo_name == "h_MesonGammaDeltaPhi" :
         hstack[histo_name].GetXaxis().SetTitle("#Delta#phi_{meson, #gamma} [rad] ")
 
     hstack[histo_name].Draw("SAME,histo")
+=======
+    #if histo_name == "h_MesonGammaDeltaPhi" :
+    #hstack[histo_name].GetXaxis().SetTitle("#Delta#phi_{meson, #gamma} [rad] ")
+
+    hstack[histo_name].Draw("SAME, histo")
+
+    # hBkgTot = istogramma del fondo (SidebandsNorm)
+   
+>>>>>>> 85adaea (add plot script)
 
     '''
     if plotOnlyData:
@@ -352,7 +427,10 @@ for histo_name in list_histos:
             elif isKAnalysis: 
                 hstack[histo_name].GetXaxis().SetRangeUser(0.9, 0.99)
                 hstack[histo_name].GetXaxis().SetTitle("m_{K#pi} [GeV]")
+<<<<<<< HEAD
     
+=======
+>>>>>>> 85adaea (add plot script)
     '''
     if signal_magnify != 1:
         hsignal[histo_name].Scale(signal_magnify)   
@@ -362,19 +440,32 @@ for histo_name in list_histos:
         
         #hsignalggH[histo_name].Rebin(1/5)#do this to have more granularity in the signal curve
 
+<<<<<<< HEAD
     hdata[histo_name].Draw("SAME,E1,X0")
     hsignal[histo_name].Draw("SAME,hist")
+=======
+    hdata[histo_name].Draw("SAME, E1, X0")
+    hsignal[histo_name].Draw("SAME, hist")
+>>>>>>> 85adaea (add plot script)
     #hsignalggH[histo_name].Draw("SAME,hist")
     #hsignalVBF[histo_name].Draw("SAME,hist")
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 85adaea (add plot script)
     hMCErr = copy.deepcopy(hstack[histo_name].GetStack().Last())
     hMCErr_size = hMCErr.GetSize() - 2
     hMCErr.SetFillStyle(3005)
     hMCErr.SetMarkerStyle(0)
     hMCErr.SetFillColor(ROOT.kBlack)
     hMCErr.SetLineColor(0)
+<<<<<<< HEAD
     #if not plotOnlyData : 
+=======
+    #if not plotOnlyData: 
+>>>>>>> 85adaea (add plot script)
     hMCErr.Draw("sameE2")
 
     leg1.Draw()
@@ -385,7 +476,10 @@ for histo_name in list_histos:
 
 
     ################################################
+<<<<<<< HEAD
 
+=======
+>>>>>>> 85adaea (add plot script)
     #if not plotOnlyData :
     pad2.cd()
     pad2.SetTopMargin(0.03)
@@ -437,7 +531,11 @@ for histo_name in list_histos:
     line_on_one.SetLineColor(4)
     line_on_one.SetLineStyle(2)
 
+<<<<<<< HEAD
     totalData.Draw("E1,X0")
+=======
+    totalData.Draw("E1, X0")
+>>>>>>> 85adaea (add plot script)
     totalMC.Draw("sameE2")
     line_on_one.Draw("SAME")
     ################################################
@@ -455,7 +553,16 @@ for histo_name in list_histos:
         #output_dir = "/eos/user/e/eferrand/ZMesonGamma/CMSSW_10_6_27/src/ZMesonGammaAnalysis/ZTOMesonGamma/plots/Data/Rho/BDT/"
         output_dir = "/eos/user/e/eferrand/ZMesonGamma/CMSSW_10_6_27/src/ZMesonGammaAnalysis/ZTOMesonGamma/plots/Rho/bkg_BDT/"
     '''
+<<<<<<< HEAD
     output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/latest_production/preselection_latest_production/"
 
     canvas[histo_name].SaveAs(output_dir + histo_name + ".pdf")
     canvas[histo_name].SaveAs(output_dir + histo_name + ".png")
+=======
+    output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/histos/"
+
+
+
+    canvas[histo_name].SaveAs(output_dir + histo_name + ".pdf")
+    canvas[histo_name].SaveAs(output_dir + histo_name + ".png")
+>>>>>>> 85adaea (add plot script)
