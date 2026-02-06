@@ -1,8 +1,8 @@
 old_scripts/
 histos/
 rootfiles/
-old_scripts/
 plots/
 __pycache__/
-cmssw_config/
 plots/
+HMesonGamma_preselection.sh/
+mass_analysis/
