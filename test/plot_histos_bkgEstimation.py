@@ -4,10 +4,25 @@ import copy
 import argparse
 import os
 import tdrstyle, CMS_lumi
+import cmsstyle
 from ROOT import gROOT
+
+import matplotlib.pyplot as plt  # matplotlib library
+import mplhep as hep  # HEP (CMS) extensions/styling on top of mpl
+
+# For constructing examples
+import hist  # histogramming library
+import numpy as np
 
 #Supress the opening of many Canvas's
 ROOT.gROOT.SetBatch(True)   
+
+#by giulio: using mathplot lib
+cmsstyle.setCMSStyle()
+cmsstyle.SetEnergy(13.6)
+cmsstyle.SetLumi(34.8, run=None)
+cmsstyle.SetExtraText('')
+
 
 isTightSelection = False
 isPhiAnalysis    = False # for H/Z -> Phi Gamma
@@ -55,10 +70,13 @@ fileIn = ROOT.TFile(list_inputfiles[0])
 #CMS-style plotting 
 tdrstyle.setTDRStyle()
 iPeriod = 4
-iPos = 11
+iPos = 10
 CMS_lumi.lumiTextSize = 0.9
 CMS_lumi.cmsTextSize = 1.
 CMS_lumi.lumi_13TeV = "39.54 fb^{-1}"
+CMS_lumi.relPosX = 0.045 #0.045                                                                                                                                                                                                                                           
+CMS_lumi.relPosY = 0.035 
+CMS_lumi.relExtraDY = 1.1
 
 hstack     = dict()
 hsignal    = dict()
@@ -437,9 +455,7 @@ for histo_name in list_histos:
         #output_dir = "/eos/user/e/eferrand/ZMesonGamma/CMSSW_10_6_27/src/ZMesonGammaAnalysis/ZTOMesonGamma/plots/Data/Rho/BDT/"
         output_dir = "/eos/user/e/eferrand/ZMesonGamma/CMSSW_10_6_27/src/ZMesonGammaAnalysis/ZTOMesonGamma/plots/Rho/bkg_BDT/"
     '''
-    output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/histos/"
-
-
+    output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/latest_production/preselection_latest_production/"
 
     canvas[histo_name].SaveAs(output_dir + histo_name + ".pdf")
     canvas[histo_name].SaveAs(output_dir + histo_name + ".png")
