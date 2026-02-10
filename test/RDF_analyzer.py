@@ -63,7 +63,7 @@ files = sorted(files)
 #base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/GluGluHtoKStar0G_Par-M-125_TuneCP5_13p6TeV_powheg-pythia8-evtgen+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2+MINIAODSIM"
 
 #ZPhiGamma signal
-base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/ZtoPhiG_TuneCP5_13p6TeV_madgraphMLM-pythia8+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v3+MINIAODSIM"
+#base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/ZtoPhiG_TuneCP5_13p6TeV_madgraphMLM-pythia8+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v3+MINIAODSIM"
 
 #ZRhoGamma signal
 #base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/ZtoRhoG_TuneCP5_13p6TeV_madgraphMLM-pythia8+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v3+MINIAODSIM"

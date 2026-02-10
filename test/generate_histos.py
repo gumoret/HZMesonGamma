@@ -111,7 +111,7 @@ if isWideRange:
     histo_map[list_histos[15]] = ROOT.TH1F(list_histos[15],"n. of electrons", 5, -0.5, 5.5)
 
 else:
-    if isZAnalysis: histo_map[list_histos[0]]   = ROOT.TH1F(list_histos[0],"M_{Z}", 300, 60., 120.) 
+    if isZAnalysis: histo_map[list_histos[0]]   = ROOT.TH1F(list_histos[0],"M_{Z}", 300, 60., 200.) 
     elif isHAnalysis: histo_map[list_histos[0]] = ROOT.TH1F(list_histos[0],"M_{H}", 150, 120, 130) 
     if   isPhiAnalysis: histo_map[list_histos[1]] = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 1., 1.04) 
     elif isRhoAnalysis: histo_map[list_histos[1]] = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 0.55, 1.)
