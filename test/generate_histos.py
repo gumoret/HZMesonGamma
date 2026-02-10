@@ -354,7 +354,7 @@ for jentry in range(nentries):
 
 #HISTO LABELS #########################################################################################################
 histo_map["h_bosonMass"].GetXaxis().SetTitle("m_{meson#gamma} [GeV/c^2]")
-histo_map["h_bosonMass"].SetTitle("Meson+Photon invariant mass (Cut on phi inv. mass)")
+histo_map["h_bosonMass"].SetTitle("Meson+Photon invariant mass")
 
 histo_map["h_mesonMass"].GetXaxis().SetTitle("m_{meson} [GeV/c^2]")
 histo_map["h_mesonMass"].SetTitle("Meson kin mass")
