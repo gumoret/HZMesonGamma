@@ -422,7 +422,7 @@ for histo_name in list_histos:
     totalData.GetYaxis().SetTitleSize(0.16)
     totalData.GetYaxis().SetTitleOffset(0.3)
     totalData.GetYaxis().SetRangeUser(0.8,1.2)
-    if (isPhiAnalysis or CAT == "BDTcat0"): totalData.GetYaxis().SetRangeUser(0.5,1.5)
+    if isPhiAnalysis: totalData.GetYaxis().SetRangeUser(0.5,1.5)
     totalData.GetYaxis().SetNdivisions(502,ROOT.kFALSE)
     totalData.GetXaxis().SetLabelSize(0.10)
     totalData.GetXaxis().SetTitleSize(0.12)
