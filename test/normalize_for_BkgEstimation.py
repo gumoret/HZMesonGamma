@@ -2,15 +2,24 @@ import ROOT
 import argparse
 import numpy as np
 
+isHAnalysis   = False
+isZAnalysis   = False
 
 p = argparse.ArgumentParser(description='Select rootfile to plot')
-#p.add_argument('Category', help='Type the category') #flag for bkg estimation
+p.add_argument('boson_channel', help='Type H or Z')
 p.add_argument('SR_file', help='Type SR file')
 p.add_argument('CR_file', help='Type CR file')
 
 args = p.parse_args()
 #CAT = args.Category
 #Meson = args.Meson
+
+if args.boson_channel == "H": 
+    isHAnalysis = True
+    print("Boson: Higgs")  
+elif args.boson_channel == "Z":
+    isZAnalysis = True
+    print("Boson: Z")
 
 #Take data rootfiles for control regions
 
@@ -54,7 +63,8 @@ for histo_name in list_histos:
 
     if histo_name == "h_bosonMass" or histo_name == "h_InvMass_TwoTrk_Photon_NoPhiMassCut":
         #print "CRIntegral =", histoCR.Integral()
-        CRintegral = histoCR.Integral() - histoCR.Integral(histoCR.GetXaxis().FindBin(120.), histoCR.GetXaxis().FindBin(130.)) #since in this plot there is the blind window for data in SR, this trick is to make the divide properly. Remember to bypass it for the unblinding
+        if isHAnalysis: CRintegral = histoCR.Integral() - histoCR.Integral(histoCR.GetXaxis().FindBin(120.), histoCR.GetXaxis().FindBin(130.)) #since in this plot there is the blind window for data in SR, this trick is to make the divide properly. Remember to bypass it for the unblinding
+        if isZAnalysis: CRintegral = histoCR.Integral() - histoCR.Integral(histoCR.GetXaxis().FindBin(80.), histoCR.GetXaxis().FindBin(100.))        
         #print "ZMass CR integral = ", CRintegral
     else:
         CRintegral = histoCR.Integral()
