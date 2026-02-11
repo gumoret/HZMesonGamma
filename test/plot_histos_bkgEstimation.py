@@ -103,7 +103,7 @@ for hname in list_histos: hstack[hname] = ROOT.THStack("hstack_" + hname,"")
 #COLOR MASK
 colors_mask = dict()
 #colors_mask["bkgEstimationCR"]   = ROOT.kRed-7
-#colors_mask["Sidebands"]          = ROOT.kRed-7
+#colors_mask["Sidebands"]         = ROOT.kRed-7
 if isPhiAnalysis:
     colors_mask["SidebandsNorm"] = ROOT.kCyan-7
     decayChannel = "#phi#gamma "
@@ -111,8 +111,8 @@ elif isRhoAnalysis:
     colors_mask["SidebandsNorm"] = ROOT.kRed-4
     decayChannel = "#rho#gamma "
 elif isKAnalysis:
-    colors_mask["SidebandsNorm"] = ROOT.kRed-1
-    decayChannel = "#Kst#gamma "
+    colors_mask["SidebandsNorm"] = ROOT.kGreen+1
+    decayChannel = "K*#gamma "
 
 
 colors_mask["GammaJets"]           = ROOT.kOrange
