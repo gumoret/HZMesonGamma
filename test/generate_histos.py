@@ -4,6 +4,7 @@ import math
 import numpy as np
 import sys
 from array import array
+import os
 
 #Following bools are given as input
 debug         = False
@@ -112,7 +113,8 @@ if isWideRange:
 
 else:
     if isZAnalysis: histo_map[list_histos[0]]   = ROOT.TH1F(list_histos[0],"M_{Z}", 300, 60., 200.) 
-    elif isHAnalysis: histo_map[list_histos[0]] = ROOT.TH1F(list_histos[0],"M_{H}", 150, 120, 130) 
+    elif isHAnalysis and not runningOnData: histo_map[list_histos[0]] = ROOT.TH1F(list_histos[0],"M_{H}", 150, 120, 130)
+    elif isHAnalysis and runningOnData: histo_map[list_histos[0]] = ROOT.TH1F(list_histos[0],"M_{H}", 150, 100, 170) 
     if   isPhiAnalysis: histo_map[list_histos[1]] = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 1., 1.04) 
     elif isRhoAnalysis: histo_map[list_histos[1]] = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 0.55, 1.)
     elif isKAnalysis: histo_map[list_histos[1]]   = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 0.8, 0.99) 
@@ -452,11 +454,14 @@ histo_map["h_efficiency"].GetXaxis().SetRangeUser(0.,4.1)##modify
 #histo_map["h_efficiency"].SetMaximum(max(histo_map["h_efficiency"].GetHistogram().GetMaximum(),30.))
 histo_map["h_efficiency"].Draw("HIST TEXT0")
 
-if not runningOnData: 
-#    c11.SaveAs("/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/rootfiles/latest_productions/h_efficiency.pdf")
-#    c11.SaveAs("/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/rootfiles/latest_productions/h_efficiency.png")
-     c11.SaveAs("rootfiles/latest_productions/histos/h_efficiency.pdf")       
-     c11.SaveAs("rootfiles/latest_productions/histos/h_efficiency.png")
+if not runningOnData:
+    h_effinciencyName = os.path.basename(output_filename).replace(".root","") 
+    if isHAnalysis:
+        c11.SaveAs("/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/histos/H/"+h_effinciencyName+"_hefficiency.pdf")       
+        c11.SaveAs("/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/histos/H/"+h_effinciencyName+"_hefficiency.png")
+    if isZAnalysis:
+        c11.SaveAs("/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/histos/Z/"+h_effinciencyName+"_hefficiency.pdf")       
+        c11.SaveAs("/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/histos/Z/"+h_effinciencyName+"_hefficiency.png")
 
 #FINAL PRINTS ###########################################################
 print("\n\nCUT OVERFLOW")
