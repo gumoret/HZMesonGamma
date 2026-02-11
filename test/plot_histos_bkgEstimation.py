@@ -29,9 +29,14 @@ isPhiAnalysis    = False # for H/Z -> Phi Gamma
 isRhoAnalysis    = False # for H/Z -> Rho Gamma
 isKAnalysis      = False # for H/Z -> K* Gamma
 
+isHAnalysis   = False
+isZAnalysis   = False
+
+
 parser = argparse.ArgumentParser(description="Overlay Data vs CR-background vs Signal for HZ→Meson+γ analysis")
 parser.add_argument("signal_scale", help="Scale factor for signal histogram")
 parser.add_argument("tightSelection", help="Use tight selection, type tight or loose")
+parser.add_argument("boson_channel", help="Define boson, type H or Z")
 parser.add_argument("meson_channel", help="Define channel, type phi or rho or K")
 parser.add_argument("datafile",  help="ROOT file with DATA histograms")
 parser.add_argument("signalfile", help="ROOT file with SIGNAL histograms")
@@ -51,6 +56,13 @@ if args.tightSelection == "tight":
 if args.tightSelection == "loose": 
     isTightSelection = False
     inputnames = ["Data","Signal","SidebandsNorm"]
+
+if args.boson_channel == "H": 
+    isHAnalysis = True
+    print("Boson: Higgs")  
+elif args.boson_channel == "Z":
+    isZAnalysis = True
+    print("Boson: Z")
 
 if args.meson_channel == "phi":
     isPhiAnalysis = True
@@ -457,9 +469,11 @@ for histo_name in list_histos:
     '''
     #output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/latest_production/preselection_latest_production/"
     if isPhiAnalysis:
-        output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/H/Phi/Bkg_estimation_preselection/"
+        if isHAnalysis: output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/H/Phi/Bkg_estimation_preselection/"
+        if isZAnalysis: output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/Z/Phi/Bkg_estimation_preselection/"    
     if isRhoAnalysis:
-        output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/H/Rho/Bkg_estimation_preselection/"
+        if isHAnalysis: output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/H/Rho/Bkg_estimation_preselection/"
+        if isZAnalysis: output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/Z/Rho/Bkg_estimation_preselection/"
     if isKAnalysis:
         output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/H/Kst/Bkg_estimation_preselection/"
 
