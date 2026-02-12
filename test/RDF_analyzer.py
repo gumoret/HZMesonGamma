@@ -43,12 +43,17 @@ import glob
 
 
 #Tau2022
+'''
 base_dir = "/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D05" 
 
 files = []
 
 for era in ["12022", "22022"]:
     files.extend(glob.glob(f"{base_dir}/{era}/Tau+Run*/*.root"))
+'''
+#EGamma 2024
+base_dir = "/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024"
+files.extend(glob.glob(f"{base_dir}/EGamma*/*.root"))
 
 files = sorted(files)
 
