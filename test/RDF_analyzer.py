@@ -53,6 +53,8 @@ for era in ["12022", "22022"]:
 '''
 #EGamma 2024
 base_dir = "/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024"
+files = []
+
 files.extend(glob.glob(f"{base_dir}/EGamma*/*.root"))
 
 files = sorted(files)
