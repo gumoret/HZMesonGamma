@@ -61,7 +61,7 @@ files = sorted(files)
 
 
 #HRhogamma signal
-#base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/GluGluHtoRhoG_Par-M-125_TuneCP5_13p6TeV_powheg-pythia8-evtgen+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2+MINIAODSIM"
+#base_dir = "   GluGluHtoRhoG_Par-M-125_TuneCP5_13p6TeV_powheg-pythia8-evtgen+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2+MINIAODSIM"
 
 #HPhiGamma signal
 #base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/GluGluHtoPhiG_Par-M-125_TuneCP5_13p6TeV_powheg-pythia8-evtgen+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2+MINIAODSIM"
@@ -339,8 +339,11 @@ else:
 # ------------------------------------------------------------
 # Trigger
 # ------------------------------------------------------------
-df = df.Filter("HLT_Photon35_TwoProngs35", "Two-prong photon trigger")
+#df = df.Filter("HLT_Photon35_TwoProngs35", "Two-prong photon trigger")
 n_trigger = df.Filter("HLT_Photon35_TwoProngs35").Count().GetValue()
+
+df = df.Filter("HLT_Photon50EB_TightID_TightIso", "Single photon trigger")
+n_trigger = df.Filter("HLT_Photon50EB_TightID_TightIso").Count().GetValue() ##modify colums_to_save also
 
 # ------------------------------------------------------------
 # Muons
@@ -548,7 +551,7 @@ else:
 # ---------------------------------------------------------------------
 # TTree writing
 # ---------------------------------------------------------------------
-columns_to_save = ["nPU", "MC_Weight", "HLT_Photon35_TwoProngs35", "nMuons10", "nMuons20", "nElectrons10", "nElectrons20", 
+columns_to_save = ["nPU", "MC_Weight", "HLT_Photon50EB_TightID_TightIso", "nMuons10", "nMuons20", "nElectrons10", "nElectrons20", 
                    "nGoodPhotons", "bestPhoton_pt", "bestPhoton_eta", "bestPhoton_phi",
                    "bestMeson_pt", "bestMeson_eta", "bestMeson_phi", "bestMeson_mass", "isoMeson",
                    "firstTrk_pt", "firstTrk_eta", "firstTrk_phi", "secondTrk_pt", "secondTrk_eta", "secondTrk_phi",
