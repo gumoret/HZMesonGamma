@@ -2,7 +2,7 @@ import ROOT
 import argparse
 
 # multithreading
-ROOT.ROOT.EnableImplicitMT(4)
+ROOT.ROOT.EnableImplicitMT(8)
 
 # following bools are given as input
 verbose       = True
