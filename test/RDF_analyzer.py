@@ -340,7 +340,7 @@ else:
 # Trigger
 # ------------------------------------------------------------
 #df = df.Filter("HLT_Photon35_TwoProngs35", "Two-prong photon trigger")
-n_trigger = df.Filter("HLT_Photon35_TwoProngs35").Count().GetValue()
+#n_trigger = df.Filter("HLT_Photon35_TwoProngs35").Count().GetValue()
 
 df = df.Filter("HLT_Photon50EB_TightID_TightIso", "Single photon trigger")
 n_trigger = df.Filter("HLT_Photon50EB_TightID_TightIso").Count().GetValue() ##modify colums_to_save also
