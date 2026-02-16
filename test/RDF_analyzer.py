@@ -345,8 +345,11 @@ else:
 #df = df.Filter("HLT_Photon50EB_TightID_TightIso", "Single photon trigger")
 #n_trigger = df.Filter("HLT_Photon50EB_TightID_TightIso").Count().GetValue() ##modify colums_to_save also
 
-df = df.Filter("HLT_Photon35_TwoProngs35 || HLT_Photon50EB_TightID_TightIso", "OR trigger")
-n_trigger = df.Filter("HLT_Photon35_TwoProngs35 || HLT_Photon50EB_TightID_TightIso").Count().GetValue() ##modify colums_to_save also
+trigger_expr = "HLT_Photon35_TwoProngs35 || HLT_Photon50EB_TightID_TightIso"
+
+df = df.Define("passTrigger", trigger_expr)
+df = df.Filter("passTrigger", "OR trigger") ##modify colums_to_save also
+n_trigger = df.Filter("passTrigger").Count().GetValue()
 
 # ------------------------------------------------------------
 # Muons
@@ -554,7 +557,7 @@ else:
 # ---------------------------------------------------------------------
 # TTree writing
 # ---------------------------------------------------------------------
-columns_to_save = ["nPU", "MC_Weight", "HLT_Photon35_TwoProngs35 || HLT_Photon50EB_TightID_TightIso", "nMuons10", "nMuons20", "nElectrons10", "nElectrons20", 
+columns_to_save = ["nPU", "MC_Weight", "passTrigger", "nMuons10", "nMuons20", "nElectrons10", "nElectrons20", 
                    "nGoodPhotons", "bestPhoton_pt", "bestPhoton_eta", "bestPhoton_phi",
                    "bestMeson_pt", "bestMeson_eta", "bestMeson_phi", "bestMeson_mass", "isoMeson",
                    "firstTrk_pt", "firstTrk_eta", "firstTrk_phi", "secondTrk_pt", "secondTrk_eta", "secondTrk_phi",
