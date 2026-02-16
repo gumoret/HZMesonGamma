@@ -506,8 +506,8 @@ print("-------------------------------------------\n\n")
 
 #HISTOS WRITING ########################################################################################################
 fOut.cd()
-#for hist_name in list_histos:
-#    histo_map[hist_name].Write()
+for hist_name in list_histos:
+    histo_map[hist_name].Write()
 
 fOut.Write()
 fOut.Close()
