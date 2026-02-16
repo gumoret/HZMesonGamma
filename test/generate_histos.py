@@ -162,6 +162,10 @@ _eventWeight  = np.zeros(1, dtype=float)
 
 #output tree
 tree_output = ROOT.TTree('tree_output','tree_output')
+tree_output.SetDirectory(fOut)
+tree_output.SetAutoSave(0)
+tree_output.SetAutoFlush(0)
+
 tree_output.Branch('bosonMass',_bosonMass,'_bosonMass/D')
 tree_output.Branch('mesonMass',_mesonMass,'_MesonMass/D')
 tree_output.Branch('firstTrkPt',_firstTrkPt,'_firstTrkPt/D')
@@ -406,7 +410,7 @@ histo_map["h_nElectrons"].SetTitle("# of electrons")
 histo_map["h_efficiency"].GetXaxis().SetTitle("")
 histo_map["h_efficiency"].GetYaxis().SetTitle("#epsilon (%)")
 #Tree writing ##########################################################################################################
-tree_output.Write()
+#tree_output.Write()
 
 
 #Variables for cut overflow
@@ -505,4 +509,5 @@ fOut.cd()
 for hist_name in list_histos:
     histo_map[hist_name].Write()
 
+fOut.Write()
 fOut.Close()
