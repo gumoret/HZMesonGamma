@@ -228,7 +228,7 @@ for filename in list_inputfiles:
             if isRhoAnalysis and histo_name == "h_mesonMass":
                 blind_low_bin  = histo_container[-1].FindBin(0.62)
                 blind_high_bin = histo_container[-1].FindBin(0.92)
-                for b in range(blind_low_bin -1, blind_high_bin + 2):
+                for b in range(blind_low_bin, blind_high_bin + 1):
                     histo_container[-1].SetBinContent(b, 0.)
                     histo_container[-1].SetBinError(b, 0.)
  
