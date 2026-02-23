@@ -199,10 +199,10 @@ for filename in list_inputfiles:
                 high_bin = histo_container[-1].FindBin(0.99)
                 blind_low_bin  = histo_container[-1].FindBin(0.842)
                 blind_high_bin = histo_container[-1].FindBin(0.942)
-                for b in range(low_bin, blind_low_bin + 1):
+                for b in range(low_bin, blind_low_bin):
                     histo_container[-1].SetBinContent(b, 0.)
                     histo_container[-1].SetBinError(b, 0.)
-                for b in range(blind_high_bin, high_bin + 1):
+                for b in range(blind_high_bin +1, high_bin):
                     histo_container[-1].SetBinContent(b, 0.)
                     histo_container[-1].SetBinError(b, 0.)
             hdata[histo_name] = histo_container[-1]
