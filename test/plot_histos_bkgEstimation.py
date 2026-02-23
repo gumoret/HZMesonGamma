@@ -194,7 +194,8 @@ for filename in list_inputfiles:
                 edges.append(xmax)
 
                 edges_array = array.array("d", edges)
-                histo_container[-1].Rebin(len(edges)-1, histo_container[-1].GetName()+"_rebinned", edges_array)
+                h_new = histo_container[-1].Rebin(len(edges)-1, histo_container[-1].GetName()+"_rebinned", edges_array)
+                histo_container[-1] = h_new
             else: histo_container[-1].Rebin(5)
 
         if sample_name == "Signal":
