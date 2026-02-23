@@ -45,7 +45,7 @@ parser.add_argument("sidebandsfile", help="ROOT file with SIDEBANDS histograms")
 
 args = parser.parse_args()
 
-signal_magnify = float(args.signal_scale)
+
 CR_magnify = 1.
 
 #plotOnlyData = False
@@ -74,6 +74,11 @@ if args.meson_channel == "rho":
 if args.meson_channel == "K": 
     isKAnalysis = True
     print("Meson: K*0")
+
+if isHAnalysis and isPhiAnalysis: signal_magnify = float(args.signal_scale)*1.68*0.00001
+if isHAnalysis and isRhoAnalysis: signal_magnify = float(args.signal_scale)*2.31*0.000001
+if isHAnalysis and isKAnalysis: signal_magnify = float(args.signal_scale)*0.0000000000000000001
+
 
 
 list_inputfiles = [args.datafile, args.signalfile, args.sidebandsfile]
@@ -227,7 +232,7 @@ for filename in list_inputfiles:
         if histo_name == "h_bosonMass" : #Add the legend only once (InvMass_TwoTrk_Photon is just a random variable)            
             if not sample_name == "Data" and not sample_name == "Signal": leg1.AddEntry(histo_container[-1],"bkg estimation","f")                
             elif sample_name == "Data": leg1.AddEntry(histo_container[-1],sample_name,"ep")            
-            elif sample_name == "Signal": leg1.AddEntry(histo_container[-1],decayChannel + "BR: " + str(signal_magnify), "f")
+            elif sample_name == "Signal": leg1.AddEntry(histo_container[-1],decayChannel + "BR = BR_{theo}*" + str(float(args.signal_scale)), "f")
             #leg1.AddEntry(histo_container[-1],"signal_magnify","f")##################################
    
     fileIn.Close()
