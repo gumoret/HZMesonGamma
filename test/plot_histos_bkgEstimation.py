@@ -170,7 +170,7 @@ for filename in list_inputfiles:
             elif isTightSelection and histo_name == "h_bosonMass" and isPhiAnalysis: histo_container[-1].Rebin(6)
             elif isTightSelection and histo_name == "h_bosonMass" and isRhoAnalysis: histo_container[-1].Rebin(5)
             elif not isTightSelection and isHAnalysis and histo_name == "h_bosonMass":  histo_container[-1].Rebin(5)                            
-            else: histo_container[-1].Rebin(5)
+            #else: histo_container[-1].Rebin(5)
 
         if sample_name == "Signal":
             histo_container[-1].SetLineStyle(1)   
