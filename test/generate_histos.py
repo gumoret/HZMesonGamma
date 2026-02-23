@@ -127,7 +127,7 @@ else:
     histo_map[list_histos[8]]  = ROOT.TH1F(list_histos[8],"p_{T} of the meson", 100, 0.,140.)
     histo_map[list_histos[9]]  = ROOT.TH1F(list_histos[9],"#eta_{meson}", 100, -2.5,2.5)
     histo_map[list_histos[10]] = ROOT.TH1F(list_histos[10],"#Delta R_{meson}", 100, 0.,0.07)
-    histo_map[list_histos[11]] = ROOT.TH1F(list_histos[11],"Iso_ch of the meson", 100, 0., 1.)
+    histo_map[list_histos[11]] = ROOT.TH1F(list_histos[11],"Iso_ch of the meson", 100, 0.9, 1.)
     histo_map[list_histos[12]] = ROOT.TH1F(list_histos[12],"E_{T} of the #gamma", 100, 0., 250.)
     histo_map[list_histos[13]] = ROOT.TH1F(list_histos[13],"#eta_{#gamma}", 100, -2.5,2.5)
     histo_map[list_histos[14]] = ROOT.TH1F(list_histos[14],"n. of muons", 6, -0.5, 5.5)
@@ -186,7 +186,7 @@ tree_output.Branch('eventWeight',_eventWeight,'_eventWeight/D')
 nEventsOverLeptonVeto = 0
 nEventsOverDiPhotonVeto   = 0
 nEventsAfterRegionDefiner = 0
-nEventsInBosonMassRange       = 0
+nEventsInBosonMassRange   = 0
 nEventsOverCuts           = 0
 nEventsLeftSB             = 0
 nEventsRightSB            = 0
@@ -239,12 +239,22 @@ for jentry in range(nentries):
         if CRFlag == "CR" and (mesonMass > 1.008 and mesonMass < 1.032): continue
 
     if isRhoAnalysis:
-        if CRFlag == "SR" and not (mesonMass > 0.62 and mesonMass < 0.92): continue
-        if CRFlag == "CR" and (mesonMass > 0.62 and mesonMass < 0.92): continue
+        #if CRFlag == "SR" and not (mesonMass > 0.62 and mesonMass < 0.92): continue
+        #if CRFlag == "CR" and (mesonMass > 0.62 and mesonMass < 0.92): continue
+        cut_low_bin  = h_mesonMass.FindBin(0.62)
+        cut_high_bin = h_mesonMass.FindBin(0.92)
+        b = h_mesonMass.FindBin(mesonMass)
+        if CRFlag == "SR" and not ( b >= cut_low_bin and b <= cut_high_bin): continue
+        if CRFlag == "CR" and (b >= cut_low_bin and b <= cut_high_bin): continue
 
     if isKAnalysis:
-        if CRFlag == "SR" and not (mesonMass > 0.842 and mesonMass < 0.942): continue
-        if CRFlag == "CR" and (mesonMass > 0.842 and mesonMass < 0.942): continue
+        #if CRFlag == "SR" and not (mesonMass > 0.842 and mesonMass < 0.942): continue
+        #if CRFlag == "CR" and (mesonMass > 0.842 and mesonMass < 0.942): continue
+        cut_low_bin  = h_mesonMass.FindBin(0.842)
+        cut_high_bin = h_mesonMass.FindBin(0.942)
+        b = h_mesonMass.FindBin(mesonMass)
+        if CRFlag == "SR" and not ( b >= cut_low_bin and b <= cut_high_bin): continue
+        if CRFlag == "CR" and (b >= cut_low_bin and b <= cut_high_bin): continue
 
     nEventsAfterRegionDefiner+=1
 
