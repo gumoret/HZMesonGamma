@@ -186,16 +186,22 @@ for filename in list_inputfiles:
                 edges.append(130)
 
                 # Parte destra: 130 → 170 con step 2 GeV
-                x = 130
+                x = 130+2
                 while x < xmax:
                     edges.append(x)
                     x += 2
 
                 edges.append(xmax)
 
+                # check monotonicity
+                for i in range(len(edges)-1):
+                    if edges[i] >= edges[i+1]:
+                        print("Edge problem at", i, edges[i], edges[i+1])
+
                 edges_array = array.array("d", edges)
-                h_new = histo_container[-1].Rebin(len(edges)-1, histo_container[-1].GetName(), edges_array)
-                histo_container[-1] = h_new
+                h_new = histo_container[-1].Rebin(len(edges)-1, histo_container[-1].GetName()+"_rebinned", edges_array)
+                if h_new: histo_container[-1] = h_new
+                else: print("WARNING: Rebin returned None for", histo_name)
             else: histo_container[-1].Rebin(5)
 
         if sample_name == "Signal":
