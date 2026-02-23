@@ -194,6 +194,7 @@ for filename in list_inputfiles:
                 for b in range(blind_low_bin, blind_high_bin + 1):
                     histo_container[-1].SetBinContent(b, 0.)
                     histo_container[-1].SetBinError(b, 0.)
+            '''
             if not isTightSelection and isHAnalysis and isKAnalysis and histo_name == "h_mesonMass":
                 low_bin = histo_container[-1].FindBin(0.8)
                 high_bin = histo_container[-1].FindBin(0.99)
@@ -205,6 +206,7 @@ for filename in list_inputfiles:
                 for b in range(blind_high_bin +1, high_bin):
                     histo_container[-1].SetBinContent(b, 0.)
                     histo_container[-1].SetBinError(b, 0.)
+            '''
             hdata[histo_name] = histo_container[-1]
 
         else:
