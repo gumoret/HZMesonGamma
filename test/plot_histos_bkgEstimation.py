@@ -185,8 +185,24 @@ for filename in list_inputfiles:
             if not isTightSelection and isHAnalysis and histo_name == "h_bosonMass":
                 blind_low_bin  = histo_container[-1].FindBin(120.)
                 blind_high_bin = histo_container[-1].FindBin(130.)
-
                 for b in range(blind_low_bin, blind_high_bin + 1):
+                    histo_container[-1].SetBinContent(b, 0.)
+                    histo_container[-1].SetBinError(b, 0.)
+            if not isTightSelection and isZAnalysis and histo_name == "h_bosonMass":
+                blind_low_bin  = histo_container[-1].FindBin(80.)
+                blind_high_bin = histo_container[-1].FindBin(100.)
+                for b in range(blind_low_bin, blind_high_bin + 1):
+                    histo_container[-1].SetBinContent(b, 0.)
+                    histo_container[-1].SetBinError(b, 0.)
+            if not isTightSelection and isHAnalysis and isKAnalysis and histo_name == "h_mesonMass":
+                low_bin = histo_container[-1].FindBin(0.8)
+                high_bin = histo_container[-1].FindBin(0.99)
+                blind_low_bin  = histo_container[-1].FindBin(0.842)
+                blind_high_bin = histo_container[-1].FindBin(0.942)
+                for b in range(low_bin, blind_low_bin + 1):
+                    histo_container[-1].SetBinContent(b, 0.)
+                    histo_container[-1].SetBinError(b, 0.)
+                for b in range(blind_high_bin, high_bin + 1):
                     histo_container[-1].SetBinContent(b, 0.)
                     histo_container[-1].SetBinError(b, 0.)
             hdata[histo_name] = histo_container[-1]
@@ -195,6 +211,12 @@ for filename in list_inputfiles:
             histo_container[-1].SetFillColor(colors_mask[sample_name])
             histo_container[-1].SetLineColor(colors_mask[sample_name])
             histo_container[-1].SetBinErrorOption(ROOT.TH1.kPoisson)
+            if not isTightSelection and isHAnalysis and isKAnalysis and histo_name == "h_mesonMass":
+                blind_low_bin  = histo_container[-1].FindBin(0.842)
+                blind_high_bin = histo_container[-1].FindBin(0.942)
+                for b in range(blind_low_bin, blind_high_bin + 1):
+                    histo_container[-1].SetBinContent(b, 0.)
+                    histo_container[-1].SetBinError(b, 0.)
             hstack[histo_name].Add(histo_container[-1])
 
         #if plotOnlyData: hstack[histo_name].Add(histo_container[-1])
