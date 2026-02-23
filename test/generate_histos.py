@@ -235,8 +235,13 @@ for jentry in range(nentries):
 
     #Define Control and Signal regions: ------------------------------------------
     if isPhiAnalysis: 
-        if CRFlag == "SR" and not (mesonMass > 1.008 and mesonMass < 1.032): continue
-        if CRFlag == "CR" and (mesonMass > 1.008 and mesonMass < 1.032): continue
+        #if CRFlag == "SR" and not (mesonMass > 1.008 and mesonMass < 1.032): continue
+        #if CRFlag == "CR" and (mesonMass > 1.008 and mesonMass < 1.032): continue
+        cut_low_bin  = histo_map["h_mesonMass"].FindBin(1.008)
+        cut_high_bin = histo_map["h_mesonMass"].FindBin(1.032)
+        b = histo_map["h_mesonMass"].FindBin(mesonMass)
+        if CRFlag == "SR" and not ( b >= cut_low_bin and b <= cut_high_bin): continue
+        if CRFlag == "CR" and (b >= cut_low_bin and b <= cut_high_bin): continue
 
     if isRhoAnalysis:
         #if CRFlag == "SR" and not (mesonMass > 0.62 and mesonMass < 0.92): continue
