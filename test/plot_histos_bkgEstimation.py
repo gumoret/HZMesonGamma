@@ -169,39 +169,7 @@ for filename in list_inputfiles:
             if isTightSelection and not (histo_name == "h_mesonIso" or histo_name == "h_bosonMass"): histo_container[-1].Rebin(6)
             elif isTightSelection and histo_name == "h_bosonMass" and isPhiAnalysis: histo_container[-1].Rebin(6)
             elif isTightSelection and histo_name == "h_bosonMass" and isRhoAnalysis: histo_container[-1].Rebin(5)
-            elif not isTightSelection and isHAnalysis and histo_name == "h_bosonMass": #    histo_container[-1].Rebin(5)            
-                xmin = 100
-                xmax = 170
-                edges = []
-
-                # Left part: 100 → 120 with step 2 GeV
-                x = xmin
-                while x < 120:
-                    edges.append(x)
-                    x += 2
-
-                edges.append(120)
-
-                # Blind region
-                edges.append(130)
-
-                # Parte destra: 130 → 170 con step 2 GeV
-                x = 130+2
-                while x < xmax:
-                    edges.append(x)
-                    x += 2
-
-                edges.append(xmax)
-
-                # check monotonicity
-                for i in range(len(edges)-1):
-                    if edges[i] >= edges[i+1]:
-                        print("Edge problem at", i, edges[i], edges[i+1])
-
-                edges_array = array.array("d", edges)
-                h_new = histo_container[-1].Rebin(len(edges)-1, histo_container[-1].GetName()+"_rebinned", edges_array)
-                if h_new: histo_container[-1] = h_new
-                else: print("WARNING: Rebin returned None for", histo_name)
+            elif not isTightSelection and isHAnalysis and histo_name == "h_bosonMass":  histo_container[-1].Rebin(5)                            
             else: histo_container[-1].Rebin(5)
 
         if sample_name == "Signal":
@@ -214,6 +182,13 @@ for filename in list_inputfiles:
         elif "Data" in sample_name :
             histo_container[-1].SetMarkerStyle(20)   #point
             histo_container[-1].SetBinErrorOption(ROOT.TH1.kPoisson)
+            if not isTightSelection and isHAnalysis and histo_name == "h_bosonMass":
+                blind_low_bin  = histo_container[-1].FindBin(120.)
+                blind_high_bin = histo_container[-1].FindBin(130.)
+
+                for b in range(blind_low_bin, blind_high_bin + 1):
+                    histo_container[-1].SetBinContent(b, 0.)
+                    histo_container[-1].SetBinError(b, 0.)
             hdata[histo_name] = histo_container[-1]
 
         else:
