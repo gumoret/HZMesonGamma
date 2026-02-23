@@ -241,18 +241,18 @@ for jentry in range(nentries):
     if isRhoAnalysis:
         #if CRFlag == "SR" and not (mesonMass > 0.62 and mesonMass < 0.92): continue
         #if CRFlag == "CR" and (mesonMass > 0.62 and mesonMass < 0.92): continue
-        cut_low_bin  = histo_map["h_bosonMass"].FindBin(0.62)
-        cut_high_bin = histo_map["h_bosonMass"].FindBin(0.92)
-        b = histo_map["h_bosonMass"].FindBin(mesonMass)
+        cut_low_bin  = histo_map["h_mesonMass"].FindBin(0.62)
+        cut_high_bin = histo_map["h_mesonMass"].FindBin(0.92)
+        b = histo_map["h_mesonMass"].FindBin(mesonMass)
         if CRFlag == "SR" and not ( b >= cut_low_bin and b <= cut_high_bin): continue
         if CRFlag == "CR" and (b >= cut_low_bin and b <= cut_high_bin): continue
 
     if isKAnalysis:
         #if CRFlag == "SR" and not (mesonMass > 0.842 and mesonMass < 0.942): continue
         #if CRFlag == "CR" and (mesonMass > 0.842 and mesonMass < 0.942): continue
-        cut_low_bin  = histo_map["h_bosonMass"].FindBin(0.842)
-        cut_high_bin = histo_map["h_bosonMass"].FindBin(0.942)
-        b = histo_map["h_bosonMass"].FindBin(mesonMass)
+        cut_low_bin  = histo_map["h_mesonMass"].FindBin(0.842)
+        cut_high_bin = histo_map["h_mesonMass"].FindBin(0.942)
+        b = histo_map["h_mesonMass"].FindBin(mesonMass)
         if CRFlag == "SR" and not ( b >= cut_low_bin and b <= cut_high_bin): continue
         if CRFlag == "CR" and (b >= cut_low_bin and b <= cut_high_bin): continue
 
