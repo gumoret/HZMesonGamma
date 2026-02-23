@@ -187,13 +187,13 @@ for filename in list_inputfiles:
         elif "Data" in sample_name :
             histo_container[-1].SetMarkerStyle(20)   #point
             histo_container[-1].SetBinErrorOption(ROOT.TH1.kPoisson)
-            if not isTightSelection and isHAnalysis and histo_name == "h_bosonMass":
+            if isHAnalysis and histo_name == "h_bosonMass":
                 blind_low_bin  = histo_container[-1].FindBin(120.)
                 blind_high_bin = histo_container[-1].FindBin(130.)
                 for b in range(blind_low_bin, blind_high_bin + 1):
                     histo_container[-1].SetBinContent(b, 0.)
                     histo_container[-1].SetBinError(b, 0.)
-            if not isTightSelection and isZAnalysis and histo_name == "h_bosonMass":
+            if isZAnalysis and histo_name == "h_bosonMass":
                 blind_low_bin  = histo_container[-1].FindBin(80.)
                 blind_high_bin = histo_container[-1].FindBin(100.)
                 for b in range(blind_low_bin, blind_high_bin + 1):
@@ -218,7 +218,22 @@ for filename in list_inputfiles:
             histo_container[-1].SetFillColor(colors_mask[sample_name])
             histo_container[-1].SetLineColor(colors_mask[sample_name])
             histo_container[-1].SetBinErrorOption(ROOT.TH1.kPoisson)
-            if not isTightSelection and isHAnalysis and isKAnalysis and histo_name == "h_mesonMass":
+            if isPhiAnalysis and histo_name == "h_mesonMass":
+                blind_low_bin  = histo_container[-1].FindBin(1.008)
+                blind_high_bin = histo_container[-1].FindBin(1.032)
+                for b in range(blind_low_bin, blind_high_bin + 1):
+                    histo_container[-1].SetBinContent(b, 0.)
+                    histo_container[-1].SetBinError(b, 0.)
+
+           if isRhoAnalysis and histo_name == "h_mesonMass":
+                blind_low_bin  = histo_container[-1].FindBin(0.62)
+                blind_high_bin = histo_container[-1].FindBin(0.92)
+                for b in range(blind_low_bin, blind_high_bin + 1):
+                    histo_container[-1].SetBinContent(b, 0.)
+                    histo_container[-1].SetBinError(b, 0.)
+ 
+                
+            if isHAnalysis and isKAnalysis and histo_name == "h_mesonMass":
                 blind_low_bin  = histo_container[-1].FindBin(0.842)
                 blind_high_bin = histo_container[-1].FindBin(0.942)
                 for b in range(blind_low_bin, blind_high_bin + 1):
