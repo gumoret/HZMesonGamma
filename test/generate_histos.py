@@ -318,9 +318,17 @@ for jentry in range(nentries):
     if runningOnData == True:
         if isDataBlind:
             if isZAnalysis:
-                if bosonMass < 80. or bosonMass > 100: histo_map["h_bosonMass"].Fill(bosonMass, eventWeight)
+                #if bosonMass < 80. or bosonMass > 100: histo_map["h_bosonMass"].Fill(bosonMass, eventWeight)
+                blind_low_bin  = histo_map["h_bosonMass"].FindBin(80.)
+                blind_high_bin = histo_map["h_bosonMass"].FindBin(100.)
+                bin = histo_map["h_bosonMass"].FindBin(bosonMass)
+                if bin < blind_low_bin or bin > blind_high_bin: histo_map["h_bosonMass"].Fill(bosonMass, eventWeight)
             if isHAnalysis:
-                if bosonMass < 120. or bosonMass > 130: histo_map["h_bosonMass"].Fill(bosonMass, eventWeight)
+                #if bosonMass < 120. or bosonMass > 130: histo_map["h_bosonMass"].Fill(bosonMass, eventWeight)
+                blind_low_bin  = histo_map["h_bosonMass"].FindBin(120.)
+                blind_high_bin = histo_map["h_bosonMass"].FindBin(130.)
+                bin = histo_map["h_bosonMass"].FindBin(bosonMass)
+                if bin < blind_low_bin or bin > blind_high_bin: histo_map["h_bosonMass"].Fill(bosonMass, eventWeight)
         else:
             histo_map["h_bosonMass"].Fill(bosonMass, eventWeight)
     else:
