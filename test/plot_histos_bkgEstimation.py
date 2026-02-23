@@ -1,6 +1,7 @@
 import ROOT
 import math
 import copy
+import array
 import argparse
 import os
 import tdrstyle, CMS_lumi
@@ -168,8 +169,33 @@ for filename in list_inputfiles:
             if isTightSelection and not (histo_name == "h_mesonIso" or histo_name == "h_bosonMass"): histo_container[-1].Rebin(6)
             elif isTightSelection and histo_name == "h_bosonMass" and isPhiAnalysis: histo_container[-1].Rebin(6)
             elif isTightSelection and histo_name == "h_bosonMass" and isRhoAnalysis: histo_container[-1].Rebin(5)
-            #elif not isTightSelection and histo_name == "h_bosonMass": histo_container[-1].Rebin(5)
-            #else: histo_container[-1].Rebin(5)
+            elif not isTightSelection and isHAnalysis and histo_name == "h_bosonMass": #    histo_container[-1].Rebin(5)            
+                xmin = 100
+                xmax = 170
+                edges = []
+
+                # Left part: 100 → 120 with step 2 GeV
+                x = xmin
+                while x < 120:
+                    edges.append(x)
+                    x += 2
+
+                edges.append(120)
+
+                # Blind region
+                edges.append(130)
+
+                # Parte destra: 130 → 170 con step 2 GeV
+                x = 130
+                while x < xmax:
+                    edges.append(x)
+                    x += 2
+
+                edges.append(xmax)
+
+                edges_array = array.array("d", edges)
+                histo_container[-1].Rebin(len(edges)-1, histo_container[-1].GetName()+"_rebinned", edges_array)
+            else: histo_container[-1].Rebin(5)
 
         if sample_name == "Signal":
             histo_container[-1].SetLineStyle(1)   
