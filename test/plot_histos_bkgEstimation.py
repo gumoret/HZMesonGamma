@@ -77,7 +77,9 @@ if args.meson_channel == "K":
 
 if isHAnalysis and isPhiAnalysis: signal_magnify = float(args.signal_scale)*1.68*0.00001
 if isHAnalysis and isRhoAnalysis: signal_magnify = float(args.signal_scale)*2.31*0.000001
-if isHAnalysis and isKAnalysis: signal_magnify = float(args.signal_scale)*0.0000000000000000001
+if isHAnalysis and isKAnalysis: signal_magnify   = float(args.signal_scale)*0.0000000000000000001
+if isZAnalysis and isPhiAnalysis: signal_magnify = float(args.signal_scale)*4.19*0.00000001
+if isZAnalysis and isRhoAnalysis: signal_magnify = float(args.signal_scale)*1.04*0.00000001
 
 
 
@@ -247,7 +249,7 @@ for filename in list_inputfiles:
         if histo_name == "h_bosonMass" : #Add the legend only once (InvMass_TwoTrk_Photon is just a random variable)            
             if not sample_name == "Data" and not sample_name == "Signal": leg1.AddEntry(histo_container[-1],"bkg estimation","f")                
             elif sample_name == "Data": leg1.AddEntry(histo_container[-1],sample_name,"ep")            
-            elif sample_name == "Signal": leg1.AddEntry(histo_container[-1],decayChannel + "BR = BR_{theo}*" + str(float(args.signal_scale)), "f")
+            elif sample_name == "Signal": leg1.AddEntry(histo_container[-1],decayChannel + "BR = BR_{theo}*" + str(int(args.signal_scale)), "f")
             #leg1.AddEntry(histo_container[-1],"signal_magnify","f")##################################
    
     fileIn.Close()
