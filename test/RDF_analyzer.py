@@ -62,7 +62,11 @@ files = sorted(files)
 '''
 
 #HRhogamma signal
+<<<<<<< HEAD
 base_dir = "   GluGluHtoRhoG_Par-M-125_TuneCP5_13p6TeV_powheg-pythia8-evtgen+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2+MINIAODSIM"
+=======
+base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/GluGluHtoRhoG_Par-M-125_TuneCP5_13p6TeV_powheg-pythia8-evtgen+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2+MINIAODSIM"
+>>>>>>> 4654a4e (modify for gen mass)
 
 #HPhiGamma signal
 #base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/GluGluHtoPhiG_Par-M-125_TuneCP5_13p6TeV_powheg-pythia8-evtgen+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2+MINIAODSIM"
@@ -74,7 +78,7 @@ base_dir = "   GluGluHtoRhoG_Par-M-125_TuneCP5_13p6TeV_powheg-pythia8-evtgen+Run
 #base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/ZtoPhiG_TuneCP5_13p6TeV_madgraphMLM-pythia8+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v3+MINIAODSIM"
 
 #ZRhoGamma signal
-base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/ZtoRhoG_TuneCP5_13p6TeV_madgraphMLM-pythia8+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v3+MINIAODSIM"
+#base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/ZtoRhoG_TuneCP5_13p6TeV_madgraphMLM-pythia8+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v3+MINIAODSIM"
 
 
 files = sorted(glob.glob(f"{base_dir}/*.root"))
@@ -548,25 +552,29 @@ if not runningOnData:
     #print(f"n_matched_boson = {n_matched_boson}")
 
     #for m_meson_reco - m_meson_gen
-    df = df.define("meson_mass_gen", f"{meson_prefix}_gen_mass")
+    df = df.Define("delta_meson_mass", f"bestMeson_mass-{meson_prefix}_gen_mass")
 
 else:
     df = df.Define("isPhotonMatched", "false") \
            .Define("isMesonMatched",  "false") \
            .Define("isBosonMatched",  "false") \
-           .Define("meson_mass_gen", "0.")
+           .Define("delta_meson_mass", "0.")
 
 
 # ---------------------------------------------------------------------
 # TTree writing
 # ---------------------------------------------------------------------
+<<<<<<< HEAD
 columns_to_save = ["nPU", "MC_Weight", "passTrigger", 
+=======
+columns_to_save = ["nPU", "MC_Weight", "HLT_Photon50EB_TightID_TightIso", 
+>>>>>>> 4654a4e (modify for gen mass)
                    "nMuons10", "nMuons20", "nElectrons10", "nElectrons20", 
                    "nGoodPhotons", "bestPhoton_pt", "bestPhoton_eta", "bestPhoton_phi",
                    "bestMeson_pt", "bestMeson_eta", "bestMeson_phi", "bestMeson_mass", "isoMeson",
                    "firstTrk_pt", "firstTrk_eta", "firstTrk_phi", "secondTrk_pt", "secondTrk_eta", "secondTrk_phi",
                    "H_mass", "H_pt", "H_eta", "H_phi",
-                   "isPhotonMatched", "isMesonMatched", "isBosonMatched", "meson_mass_gen"]
+                   "isPhotonMatched", "isMesonMatched", "isBosonMatched", "delta_meson_mass"]
 
 df.Snapshot("tree_output", output_file, columns_to_save)
 
