@@ -282,7 +282,7 @@ struct MCMatching {
 };
 
 MCMatching match_mc(const RVec<int>& pdgId, const RVec<int>& motherIdx, const RVec<int>& motherPdgId,
-                    const RVec<float>& pt, const RVec<float>& eta, const RVec<float>& phi, const RVec<float>& mass
+                    const RVec<float>& pt, const RVec<float>& eta, const RVec<float>& phi, const RVec<float>& mass,
                     float recoPhoton_eta, float recoPhoton_phi, float recoMeson_eta,  float recoMeson_phi, float recoMesonMass){
 
     MCMatching out{false,false,false,-1.};
