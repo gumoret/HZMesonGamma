@@ -62,11 +62,7 @@ files = sorted(files)
 '''
 
 #HRhogamma signal
-<<<<<<< HEAD
-base_dir = "   GluGluHtoRhoG_Par-M-125_TuneCP5_13p6TeV_powheg-pythia8-evtgen+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2+MINIAODSIM"
-=======
 base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/GluGluHtoRhoG_Par-M-125_TuneCP5_13p6TeV_powheg-pythia8-evtgen+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2+MINIAODSIM"
->>>>>>> 4654a4e (modify for gen mass)
 
 #HPhiGamma signal
 #base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/GluGluHtoPhiG_Par-M-125_TuneCP5_13p6TeV_powheg-pythia8-evtgen+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2+MINIAODSIM"
@@ -342,11 +338,11 @@ else: df = df.Define("MC_Weight", "1.0")
 # ------------------------------------------------------------
 # Trigger
 # ------------------------------------------------------------
-#df = df.Filter("HLT_Photon35_TwoProngs35", "Two-prong photon trigger")
-#n_trigger = df.Filter("HLT_Photon35_TwoProngs35").Count().GetValue()
+df = df.Filter("HLT_Photon35_TwoProngs35", "Two-prong photon trigger")
+n_trigger = df.Filter("HLT_Photon35_TwoProngs35").Count().GetValue()
 
-df = df.Filter("HLT_Photon50EB_TightID_TightIso", "Single photon trigger")
-n_trigger = df.Filter("HLT_Photon50EB_TightID_TightIso").Count().GetValue() ##modify colums_to_save also
+#df = df.Filter("HLT_Photon50EB_TightID_TightIso", "Single photon trigger")
+#n_trigger = df.Filter("HLT_Photon50EB_TightID_TightIso").Count().GetValue() ##modify colums_to_save also
 
 #trigger_expr = "HLT_Photon35_TwoProngs35 || HLT_Photon50EB_TightID_TightIso"
 
@@ -564,11 +560,7 @@ else:
 # ---------------------------------------------------------------------
 # TTree writing
 # ---------------------------------------------------------------------
-<<<<<<< HEAD
-columns_to_save = ["nPU", "MC_Weight", "passTrigger", 
-=======
-columns_to_save = ["nPU", "MC_Weight", "HLT_Photon50EB_TightID_TightIso", 
->>>>>>> 4654a4e (modify for gen mass)
+columns_to_save = ["nPU", "MC_Weight", "HLT_Photon35_TwoProngs35", 
                    "nMuons10", "nMuons20", "nElectrons10", "nElectrons20", 
                    "nGoodPhotons", "bestPhoton_pt", "bestPhoton_eta", "bestPhoton_phi",
                    "bestMeson_pt", "bestMeson_eta", "bestMeson_phi", "bestMeson_mass", "isoMeson",
