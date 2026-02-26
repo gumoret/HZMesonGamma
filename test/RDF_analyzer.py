@@ -74,10 +74,10 @@ base_dir = "   GluGluHtoRhoG_Par-M-125_TuneCP5_13p6TeV_powheg-pythia8-evtgen+Run
 #base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/ZtoPhiG_TuneCP5_13p6TeV_madgraphMLM-pythia8+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v3+MINIAODSIM"
 
 #ZRhoGamma signal
-#base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/ZtoRhoG_TuneCP5_13p6TeV_madgraphMLM-pythia8+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v3+MINIAODSIM"
+base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/ZtoRhoG_TuneCP5_13p6TeV_madgraphMLM-pythia8+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v3+MINIAODSIM"
 
 
-#files = sorted(glob.glob(f"{base_dir}/*.root"))
+files = sorted(glob.glob(f"{base_dir}/*.root"))
 
 
 
@@ -341,14 +341,14 @@ else: df = df.Define("MC_Weight", "1.0")
 #df = df.Filter("HLT_Photon35_TwoProngs35", "Two-prong photon trigger")
 #n_trigger = df.Filter("HLT_Photon35_TwoProngs35").Count().GetValue()
 
-#df = df.Filter("HLT_Photon50EB_TightID_TightIso", "Single photon trigger")
-#n_trigger = df.Filter("HLT_Photon50EB_TightID_TightIso").Count().GetValue() ##modify colums_to_save also
+df = df.Filter("HLT_Photon50EB_TightID_TightIso", "Single photon trigger")
+n_trigger = df.Filter("HLT_Photon50EB_TightID_TightIso").Count().GetValue() ##modify colums_to_save also
 
-trigger_expr = "HLT_Photon35_TwoProngs35 || HLT_Photon50EB_TightID_TightIso"
+#trigger_expr = "HLT_Photon35_TwoProngs35 || HLT_Photon50EB_TightID_TightIso"
 
-df = df.Define("passTrigger", trigger_expr)
-df = df.Filter("passTrigger", "OR trigger") ##modify colums_to_save also
-n_trigger = df.Filter("passTrigger").Count().GetValue()
+#df = df.Define("passTrigger", trigger_expr)
+#df = df.Filter("passTrigger", "OR trigger") ##modify colums_to_save also
+#n_trigger = df.Filter("passTrigger").Count().GetValue()
 
 # ------------------------------------------------------------
 # Muons
