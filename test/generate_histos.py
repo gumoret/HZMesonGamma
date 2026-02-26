@@ -88,7 +88,7 @@ elif isRhoAnalysis:
 histo_map = dict()
 list_histos = ["h_bosonMass", "h_mesonMass", "h_firstTrkPt", "h_secondTrkPt", "h_firstTrkEta", "h_secondTrkEta", 
                "h_firstTrkPhi", "h_secondTrkPhi", "h_mesonPt", "h_mesonEta", "h_trksDeltaR","h_mesonIso", 
-               "h_photonEnergy", "h_photonEta","h_nMuons","h_nElectrons", "h_efficiency"]  
+               "h_photonEnergy", "h_photonEta","h_nMuons","h_nElectrons", "h_efficiency", "h_deltaMesonMass"]  
 
 if isWideRange:
     if isZAnalysis: histo_map[list_histos[0]]   = ROOT.TH1F(list_histos[0],"M_{Z}", 300, 50., 150.) 
@@ -110,6 +110,7 @@ if isWideRange:
     histo_map[list_histos[13]] = ROOT.TH1F(list_histos[13],"#eta_{#gamma}", 100, -2.5,2.5)
     histo_map[list_histos[14]] = ROOT.TH1F(list_histos[14],"n. of muons", 6, -0.5, 5.5)
     histo_map[list_histos[15]] = ROOT.TH1F(list_histos[15],"n. of electrons", 5, -0.5, 5.5)
+    histo_map[list_histos[16]] = ROOT.TH1F(list_histos[16],"Meson mass reco - Meson mass gen", 100, -5., 5.)
 
 else:
     if isZAnalysis and not runningOnData: histo_map[list_histos[0]]   = ROOT.TH1F(list_histos[0],"M_{Z}", 300, 60., 120.)
@@ -133,11 +134,13 @@ else:
     histo_map[list_histos[13]] = ROOT.TH1F(list_histos[13],"#eta_{#gamma}", 100, -2.5,2.5)
     histo_map[list_histos[14]] = ROOT.TH1F(list_histos[14],"n. of muons", 6, -0.5, 5.5)
     histo_map[list_histos[15]] = ROOT.TH1F(list_histos[15],"n. of electrons", 5, -0.5, 5.5)
+    histo_map[list_histos[16]] = ROOT.TH1F(list_histos[16],"Meson mass reco - Meson mass gen", 100, -5., 5.)
+
 
 if not isBDT:
-    histo_map[list_histos[16]] = ROOT.TH1F(list_histos[16],"Efficiency steps", 5, 0., 5.)
+    histo_map[list_histos[17]] = ROOT.TH1F(list_histos[17],"Efficiency steps", 5, 0., 5.)
 else :
-    histo_map[list_histos[16]] = ROOT.TH1F(list_histos[16],"Efficiency steps", 6, 0., 6.)
+    histo_map[list_histos[17]] = ROOT.TH1F(list_histos[17],"Efficiency steps", 6, 0., 6.)
 
 #CREATE OUTPUT ROOTFILE ############################################################################################
 fOut = ROOT.TFile(output_filename,"RECREATE")
@@ -231,6 +234,7 @@ for jentry in range(nentries):
     trksDeltaPhi = abs(firstTrkPhi -secondTrkPhi)
     if trksDeltaPhi > math.pi: trksDeltaPhi = 6.28 - trksDeltaPhi  
     deltaR       = math.sqrt((firstTrkEta - secondTrkEta)**2 + trksDeltaPhi*trksDeltaPhi)
+    deltaMesonMass = mytree.delta_meson_mass
     #eventWeight  = 1 ###placeholder 
 
 
@@ -355,6 +359,7 @@ for jentry in range(nentries):
     histo_map["h_trksDeltaR"].Fill(deltaR, eventWeight)#/mesonMass
     histo_map["h_nMuons"].Fill(nMuons, eventWeight)
     histo_map["h_nElectrons"].Fill(nElectrons, eventWeight)
+    histo_map["h_deltaMesonMass"].Fill(deltaMesonMass, eventWeight)
 
 
     #FILL TREE ########################################################################################################
@@ -433,6 +438,9 @@ histo_map["h_nElectrons"].SetTitle("# of electrons")
 
 histo_map["h_efficiency"].GetXaxis().SetTitle("")
 histo_map["h_efficiency"].GetYaxis().SetTitle("#epsilon (%)")
+
+histo_map["h_deltaMesonMass"].GetXaxis().SetTitle("#DeltaM_{meson} [GeV/c^2]")
+histo_map["h_deltaMesonMass"].SetTitle("Meson mass reco - meson mass gen")
 #Tree writing ##########################################################################################################
 #tree_output.Write()
 

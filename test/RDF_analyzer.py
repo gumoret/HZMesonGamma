@@ -278,13 +278,14 @@ struct MCMatching {
     bool isPhotonMatched;
     bool isMesonMatched;
     bool isBosonMatched;
+    float deltaMesonMass;
 };
 
 MCMatching match_mc(const RVec<int>& pdgId, const RVec<int>& motherIdx, const RVec<int>& motherPdgId,
-                    const RVec<float>& pt, const RVec<float>& eta, const RVec<float>& phi,
-                    float recoPhoton_eta, float recoPhoton_phi, float recoMeson_eta,  float recoMeson_phi){
+                    const RVec<float>& pt, const RVec<float>& eta, const RVec<float>& phi, const RVec<float>& mass
+                    float recoPhoton_eta, float recoPhoton_phi, float recoMeson_eta,  float recoMeson_phi, float recoMesonMass){
 
-    MCMatching out{false,false,false};
+    MCMatching out{false,false,false,-1.};
 
    // boolean vector for photon and meson candidates
     auto isPhoton = (pdgId == 22) && (Take(motherPdgId, motherIdx) == 25 || Take(motherPdgId, motherIdx) == 23); // take(v, indices) returns a vector with the elements of v corresponding to the position of indices
@@ -294,7 +295,7 @@ MCMatching match_mc(const RVec<int>& pdgId, const RVec<int>& motherIdx, const RV
     // gen eta/phi vectors of the candidates
     auto genPhoton_eta = eta[isPhoton]; // vector with the elements fulfilling the condition isPhoton==true
     auto genPhoton_phi = phi[isPhoton];
-    auto genMeson_eta  = eta[isMeson];
+    auto genMeson_eta  = eta[isMeson];  // vector with the elements fulfilling the condition isMeson==true
     auto genMeson_phi  = phi[isMeson];
 
     // if they exist, match in ΔR
@@ -308,7 +309,14 @@ MCMatching match_mc(const RVec<int>& pdgId, const RVec<int>& motherIdx, const RV
         auto dphi = abs(recoMeson_phi - genMeson_phi);
         dphi = Map(dphi, [](float x){ return x > M_PI ? 2*M_PI - x : x; });
         auto dR = sqrt((recoMeson_eta - genMeson_eta)*(recoMeson_eta - genMeson_eta) + dphi*dphi);
-        out.isMesonMatched = Any(dR < 0.3);
+        
+        auto idx_min = ArgMin(dR); //take the index of the minimum dR, to select the best matched meson
+        if (dR[idx_min] < 0.3) {
+            out.isMesonMatched = true;
+            auto genMeson_mass = mass[isMeson];
+            float matchedGenMass = genMeson_mass[idx_min];
+            out.deltaMesonMass = recoMeson_mass - matchedGenMass;
+        }
     }
 
     out.isBosonMatched = out.isPhotonMatched && out.isMesonMatched;
