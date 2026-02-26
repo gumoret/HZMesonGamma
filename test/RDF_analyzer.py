@@ -52,16 +52,17 @@ for era in ["12022", "22022"]:
     files.extend(glob.glob(f"{base_dir}/{era}/Tau+Run*/*.root"))
 '''
 #EGamma 2024
+'''
 base_dir = "/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024"
 files = []
 
 files.extend(glob.glob(f"{base_dir}/EGamma*/*.root"))
 
 files = sorted(files)
-
+'''
 
 #HRhogamma signal
-#base_dir = "   GluGluHtoRhoG_Par-M-125_TuneCP5_13p6TeV_powheg-pythia8-evtgen+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2+MINIAODSIM"
+base_dir = "   GluGluHtoRhoG_Par-M-125_TuneCP5_13p6TeV_powheg-pythia8-evtgen+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2+MINIAODSIM"
 
 #HPhiGamma signal
 #base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/GluGluHtoPhiG_Par-M-125_TuneCP5_13p6TeV_powheg-pythia8-evtgen+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2+MINIAODSIM"
@@ -454,7 +455,6 @@ if not ismesonFromTracks:
     df = df.Define("bestMeson_mass", f"bestMesonIdx  >= 0 ? {meson_prefix}_kin_mass[bestMesonIdx] : -1.f")
     df = df.Define("isoMeson",       f"bestMesonIdx  >= 0 ? {meson_prefix}_iso[bestMesonIdx] : -1.f")
 
-
     # final tracks pT selection
     df = df.Define("trk1_pt_best", f"bestMesonIdx  >= 0 ? {trk1_pt}[bestMesonIdx] : -1.f")
     df = df.Define("trk2_pt_best", f"bestMesonIdx  >= 0 ? {trk2_pt}[bestMesonIdx] : -1.f")
@@ -560,7 +560,8 @@ else:
 # ---------------------------------------------------------------------
 # TTree writing
 # ---------------------------------------------------------------------
-columns_to_save = ["nPU", "MC_Weight", "passTrigger", "nMuons10", "nMuons20", "nElectrons10", "nElectrons20", 
+columns_to_save = ["nPU", "MC_Weight", "passTrigger", 
+                   "nMuons10", "nMuons20", "nElectrons10", "nElectrons20", 
                    "nGoodPhotons", "bestPhoton_pt", "bestPhoton_eta", "bestPhoton_phi",
                    "bestMeson_pt", "bestMeson_eta", "bestMeson_phi", "bestMeson_mass", "isoMeson",
                    "firstTrk_pt", "firstTrk_eta", "firstTrk_phi", "secondTrk_pt", "secondTrk_eta", "secondTrk_phi",
