@@ -330,10 +330,8 @@ h_pu = df.Histo1D(("pileup", "Pileup distribution", 130, 0, 130), "nPU")
 # ------------------------------------------------------------
 # MC weight
 # ------------------------------------------------------------
-if not runningOnData:
-    df = df.Define("MC_Weight", "Generator_weight")
-else:
-    df = df.Define("MC_Weight", "1.0")
+if not runningOnData: df = df.Define("MC_Weight", "Generator_weight")
+else: df = df.Define("MC_Weight", "1.0")
 
 
 # ------------------------------------------------------------
@@ -549,10 +547,15 @@ if not runningOnData:
     n_matched_boson = df.Filter("isBosonMatched").Count().GetValue()
     #print(f"n_matched_boson = {n_matched_boson}")
 
+    #for m_meson_reco - m_meson_gen
+    df = df.define("meson_mass_gen", f"{meson_prefix}_gen_mass")
+
 else:
     df = df.Define("isPhotonMatched", "false") \
            .Define("isMesonMatched",  "false") \
-           .Define("isBosonMatched",  "false")
+           .Define("isBosonMatched",  "false") \
+           .Define("meson_mass_gen", "0.")
+
 
 # ---------------------------------------------------------------------
 # TTree writing
@@ -562,7 +565,7 @@ columns_to_save = ["nPU", "MC_Weight", "passTrigger", "nMuons10", "nMuons20", "n
                    "bestMeson_pt", "bestMeson_eta", "bestMeson_phi", "bestMeson_mass", "isoMeson",
                    "firstTrk_pt", "firstTrk_eta", "firstTrk_phi", "secondTrk_pt", "secondTrk_eta", "secondTrk_phi",
                    "H_mass", "H_pt", "H_eta", "H_phi",
-                   "isPhotonMatched", "isMesonMatched", "isBosonMatched"]
+                   "isPhotonMatched", "isMesonMatched", "isBosonMatched", "meson_mass_gen"]
 
 df.Snapshot("tree_output", output_file, columns_to_save)
 
