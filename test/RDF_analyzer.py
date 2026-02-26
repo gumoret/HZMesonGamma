@@ -546,17 +546,18 @@ df = df.Define("H_phi", "H_p4.Phi()")
 # ------------------------------------------------------------
 if not runningOnData:
     df = df.Define("mc_match", "match_mc(GenPart_pdgId, GenPart_genPartIdxMother, GenPart_pdgId, "
-                                         "GenPart_pt, GenPart_eta, GenPart_phi, "
-                                         "bestPhoton_eta, bestPhoton_phi, bestMeson_eta, bestMeson_phi)")
+                                         "GenPart_pt, GenPart_eta, GenPart_phi, GenPart_mass, "
+                                         "bestPhoton_eta, bestPhoton_phi, bestMeson_eta, bestMeson_phi, bestMeson_mass)")
 
     df = df.Define("isPhotonMatched", "mc_match.isPhotonMatched")
     df = df.Define("isMesonMatched",  "mc_match.isMesonMatched")
     df = df.Define("isBosonMatched",  "mc_match.isBosonMatched")
+    df = df.Define("delta_meson_mass","mc_match.deltaMesonMass")
     n_matched_boson = df.Filter("isBosonMatched").Count().GetValue()
     #print(f"n_matched_boson = {n_matched_boson}")
 
     #for m_meson_reco - m_meson_gen
-    df = df.Define("delta_meson_mass", f"bestMeson_mass-{meson_prefix}_gen_mass")
+    #df = df.Define("delta_meson_mass", f"bestMeson_mass-{meson_prefix}_gen_mass")
 
 else:
     df = df.Define("isPhotonMatched", "false") \
