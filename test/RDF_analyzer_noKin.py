@@ -165,7 +165,7 @@ struct MesonSelection {
     int bestIdx;
 };
 
-MesonSelection select_mesons_kin(const RVec<float>& pt, const RVec<float>& eta, const RVec<float>& phi,
+MesonSelection select_mesons(const RVec<float>& pt, const RVec<float>& eta, const RVec<float>& phi,
                              const RVec<float>& mass, const RVec<float>& iso, float mass_low, float mass_high,
                              const RVec<float>& trk1_pt, const RVec<float>& trk1_eta, const RVec<float>& trk1_phi,
                              const RVec<float>& trk2_pt, const RVec<float>& trk2_eta, const RVec<float>& trk2_phi) {
@@ -339,8 +339,10 @@ h_pu = df.Histo1D(("pileup", "Pileup distribution", 130, 0, 130), "nPU")
 # ------------------------------------------------------------
 # MC weight
 # ------------------------------------------------------------
-if not runningOnData: df = df.Define("MC_Weight", "Generator_weight")
-else: df = df.Define("MC_Weight", "1.0")
+if not runningOnData:
+    df = df.Define("MC_Weight", "Generator_weight")
+else:
+    df = df.Define("MC_Weight", "1.0")
 
 
 # ------------------------------------------------------------
@@ -444,8 +446,8 @@ if not ismesonFromTracks:
         print("### Mode: meson from NanoAOD ###")
 
     df = df.Define("meson_sel", 
-                f"select_mesons_kin({meson_prefix}_kin_pt, {meson_prefix}_kin_eta, {meson_prefix}_kin_phi, "
-                f"{meson_prefix}_kin_mass, {meson_prefix}_iso, {mass_low}, {mass_high}, "
+                f"select_mesons({meson_prefix}_kin_pt, {meson_prefix}_kin_eta, {meson_prefix}_kin_phi, "
+                f"{meson_prefix}_mass, {meson_prefix}_iso, {mass_low}, {mass_high}, "
                 f"{trk1_pt}, {trk1_eta}, {trk1_phi}, "
                 f"{trk2_pt}, {trk2_eta}, {trk2_phi})")
     df = df.Define("nGoodMesons", "meson_sel.nGood")
@@ -456,12 +458,13 @@ if not ismesonFromTracks:
     n_meson = df.Filter("nGoodMesons").Count().GetValue()
 
     # pT, eta, phi, p4, iso of the selected meson (if it exists)
-    df = df.Define("meson_p4",       f"make_meson_p4({meson_prefix}_kin_pt, {meson_prefix}_kin_eta, {meson_prefix}_kin_phi, {meson_prefix}_kin_mass, bestMesonIdx)")
+    df = df.Define("meson_p4",       f"make_meson_p4({meson_prefix}_kin_pt, {meson_prefix}_kin_eta, {meson_prefix}_kin_phi, {meson_prefix}_mass, bestMesonIdx)")
     df = df.Define("bestMeson_pt",   f"bestMesonIdx  >= 0 ? {meson_prefix}_kin_pt[bestMesonIdx] : -1.f")
     df = df.Define("bestMeson_eta",  f"bestMesonIdx  >= 0 ? {meson_prefix}_kin_eta[bestMesonIdx] : -999.f")
     df = df.Define("bestMeson_phi",  f"bestMesonIdx  >= 0 ? {meson_prefix}_kin_phi[bestMesonIdx] : -999.f")
-    df = df.Define("bestMeson_mass", f"bestMesonIdx  >= 0 ? {meson_prefix}_kin_mass[bestMesonIdx] : -1.f")
+    df = df.Define("bestMeson_mass", f"bestMesonIdx  >= 0 ? {meson_prefix}_mass[bestMesonIdx] : -1.f")
     df = df.Define("isoMeson",       f"bestMesonIdx  >= 0 ? {meson_prefix}_iso[bestMesonIdx] : -1.f")
+
 
     # final tracks pT selection
     df = df.Define("trk1_pt_best", f"bestMesonIdx  >= 0 ? {trk1_pt}[bestMesonIdx] : -1.f")
@@ -565,12 +568,10 @@ else:
            .Define("isBosonMatched",  "false") \
            .Define("delta_meson_mass", "0.")
 
-
 # ---------------------------------------------------------------------
 # TTree writing
 # ---------------------------------------------------------------------
-columns_to_save = ["nPU", "MC_Weight", "HLT_Photon35_TwoProngs35", 
-                   "nMuons10", "nMuons20", "nElectrons10", "nElectrons20", 
+columns_to_save = ["nPU", "MC_Weight", "HLT_Photon35_TwoProngs35", "nMuons10", "nMuons20", "nElectrons10", "nElectrons20", 
                    "nGoodPhotons", "bestPhoton_pt", "bestPhoton_eta", "bestPhoton_phi",
                    "bestMeson_pt", "bestMeson_eta", "bestMeson_phi", "bestMeson_mass", "isoMeson",
                    "firstTrk_pt", "firstTrk_eta", "firstTrk_phi", "secondTrk_pt", "secondTrk_eta", "secondTrk_phi",
@@ -653,7 +654,7 @@ if debug:
         print(f"Reco Photon:")
         print(f"  pT  = {best_photon_pt[i]:.2f}")
 
-        print(f"\nReco Meson (NanoAOD kin):")
+        print(f"\nReco Meson (NanoAOD no kin):")
         print(f"  pT  = {best_meson_pt[i]:.2f}")
         print(f"  mass     = {best_meson_mass[i]:.2f}")
 
