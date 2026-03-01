@@ -88,7 +88,7 @@ elif isRhoAnalysis:
 histo_map = dict()
 list_histos = ["h_bosonMass", "h_mesonMass", "h_firstTrkPt", "h_secondTrkPt", "h_firstTrkEta", "h_secondTrkEta", 
                "h_firstTrkPhi", "h_secondTrkPhi", "h_mesonPt", "h_mesonEta", "h_trksDeltaR","h_mesonIso", 
-               "h_photonEnergy", "h_photonEta","h_nMuons","h_nElectrons", "h_efficiency", "h_deltaMesonMass"]  
+               "h_photonEnergy", "h_photonEta","h_nMuons","h_nElectrons", "h_deltaMesonMass", "h_efficiency"]  
 
 if isWideRange:
     if isZAnalysis: histo_map[list_histos[0]]   = ROOT.TH1F(list_histos[0],"M_{Z}", 300, 50., 150.) 
@@ -110,7 +110,7 @@ if isWideRange:
     histo_map[list_histos[13]] = ROOT.TH1F(list_histos[13],"#eta_{#gamma}", 100, -2.5,2.5)
     histo_map[list_histos[14]] = ROOT.TH1F(list_histos[14],"n. of muons", 6, -0.5, 5.5)
     histo_map[list_histos[15]] = ROOT.TH1F(list_histos[15],"n. of electrons", 5, -0.5, 5.5)
-    histo_map[list_histos[16]] = ROOT.TH1F(list_histos[16],"Meson mass reco - Meson mass gen", 100, -5., 5.)
+    histo_map[list_histos[16]] = ROOT.TH1F(list_histos[16],"Meson mass reco - Meson mass gen", 100, -0.055, 0.055)
 
 else:
     if isZAnalysis and not runningOnData: histo_map[list_histos[0]]   = ROOT.TH1F(list_histos[0],"M_{Z}", 300, 60., 120.)
@@ -134,7 +134,7 @@ else:
     histo_map[list_histos[13]] = ROOT.TH1F(list_histos[13],"#eta_{#gamma}", 100, -2.5,2.5)
     histo_map[list_histos[14]] = ROOT.TH1F(list_histos[14],"n. of muons", 6, -0.5, 5.5)
     histo_map[list_histos[15]] = ROOT.TH1F(list_histos[15],"n. of electrons", 5, -0.5, 5.5)
-    histo_map[list_histos[16]] = ROOT.TH1F(list_histos[16],"Meson mass reco - Meson mass gen", 100, -5., 5.)
+    histo_map[list_histos[16]] = ROOT.TH1F(list_histos[16],"Meson mass reco - Meson mass gen", 100, -0.02, 0.02)
 
 
 if not isBDT:
