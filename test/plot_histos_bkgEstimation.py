@@ -45,7 +45,7 @@ parser.add_argument("sidebandsfile", help="ROOT file with SIDEBANDS histograms")
 
 args = parser.parse_args()
 
-
+scale_str = f"{float(args.signal_scale):.0e}" #signal amplification in scientific notation
 CR_magnify = 1.
 
 #plotOnlyData = False
@@ -93,7 +93,7 @@ iPeriod = 4
 iPos = 10
 CMS_lumi.lumiTextSize = 0.9
 CMS_lumi.cmsTextSize = 1.
-CMS_lumi.lumi_13TeV = "39.54 fb^{-1}"
+CMS_lumi.lumi_13TeV = "108.95 fb^{-1}"
 CMS_lumi.relPosX = 0.045 #0.045                                                                                                                                                                                                                                           
 CMS_lumi.relPosY = 0.035 
 CMS_lumi.relExtraDY = 1.1
@@ -249,7 +249,7 @@ for filename in list_inputfiles:
         if histo_name == "h_bosonMass" : #Add the legend only once (InvMass_TwoTrk_Photon is just a random variable)            
             if not sample_name == "Data" and not sample_name == "Signal": leg1.AddEntry(histo_container[-1],"bkg estimation","f")                
             elif sample_name == "Data": leg1.AddEntry(histo_container[-1],sample_name,"ep")            
-            elif sample_name == "Signal": leg1.AddEntry(histo_container[-1],decayChannel + "BR = BR_{theo}*" + str(int(args.signal_scale)), "f")
+            elif sample_name == "Signal": leg1.AddEntry(histo_container[-1],decayChannel + f"BR = BR_{{theo}}#times {scale_str}", "l")
             #leg1.AddEntry(histo_container[-1],"signal_magnify","f")##################################
    
     fileIn.Close()
@@ -290,17 +290,21 @@ for histo_name in list_histos:
     hstack[histo_name].GetYaxis().SetTitleSize(0.07)
     hstack[histo_name].GetYaxis().SetTitleOffset(0.7)
     hstack[histo_name].GetYaxis().SetTitle("Events")
-    hstack[histo_name].SetTitle("#sqrt{s} = 13.6 TeV       lumi = 39.54/fb")
+    hstack[histo_name].SetTitle("#sqrt{s} = 13.6 TeV       lumi =  108.95/fb")
     hstack[histo_name].GetXaxis().SetLabelOffset(999)
     hstack[histo_name].GetYaxis().SetMaxDigits(3)
 
     if histo_name == "h_nMuons" or histo_name == "h_nElectrons":
         hstack[histo_name].SetMaximum(10 * hdata[histo_name].GetMaximum())
         hstack[histo_name].SetMinimum(1.)  #cannot use values < 1 otherwise log is negative
-    elif histo_name == "h_bosonMass" and isTightSelection and isPhi :
+    elif histo_name == "h_bosonMass" and isTightSelection:
         hstack[histo_name].SetMaximum(2.* hdata[histo_name].GetMaximum()) 
-    elif histo_name == "h_bosonMass" and isTightSelection and not isPhi :
-        hstack[histo_name].SetMaximum(2.* hdata[histo_name].GetMaximum())                  
+    #elif histo_name == "h_bosonMass" and isTightSelection and not isPhi : hstack[histo_name].SetMaximum(2.* hdata[histo_name].GetMaximum())      
+    elif histo_name == "h_mesonMass" : 
+        max_data = hdata[histo_name].GetMaximum()
+        max_bkg  = hstack[histo_name].GetMaximum()
+        max_all  = max(max_data, max_bkg)
+        hstack[histo_name].SetMaximum(1.5 * max_all)               
     else:
         hstack[histo_name].SetMaximum(1.5 * hdata[histo_name].GetMaximum())
 
@@ -308,11 +312,12 @@ for histo_name in list_histos:
     if histo_name == "h_bosonMass":
         #hstack[histo_name].Rebin(2)            
         hstack[histo_name].GetXaxis().SetTitle("m_{ditrk#gamma} [GeV]")
-        hstack[histo_name].GetXaxis().SetRangeUser(0.,200.)
+        if isHAnalysis: hstack[histo_name].GetXaxis().SetRangeUser(100., 169.)
+        if isZAnalysis: hstack[histo_name].GetXaxis().SetRangeUser(60., 200.)
         
     if histo_name == "h_mesonMass" :
         hstack[histo_name].GetXaxis().SetTitle("m_{ditrk} [GeV]")
-        if isPhiAnalysis: hstack[histo_name].GetXaxis().SetRangeUser(1.00, 1.05)
+        if isPhiAnalysis: hstack[histo_name].GetXaxis().SetRangeUser(1.00, 1.04)
         elif isRhoAnalysis: hstack[histo_name].GetXaxis().SetRangeUser(0.5, 1.)
         elif isKAnalysis: hstack[histo_name].GetXaxis().SetRangeUser(0.8, 0.99)
 

@@ -450,8 +450,6 @@ if not ismesonFromTracks:
                 f"{trk2_pt}, {trk2_eta}, {trk2_phi})")
     df = df.Define("nGoodMesons", "meson_sel.nGood")
     df = df.Define("bestMesonIdx", "meson_sel.bestIdx")
-
-
     df = df.Filter("nGoodMesons > 0", "At least one good meson")
     n_meson = df.Filter("nGoodMesons").Count().GetValue()
 
@@ -486,11 +484,10 @@ else:
         print("### Mode: meson reconstructed from tracks ###")
 
     # meson selection 
-    df = (df         
-            .Define("meson_sel",  f"select_mesons_tracks({meson_prefix}_iso, "
-                                                       f"{trk1_pt}, {trk1_eta}, {trk1_phi}, "
-                                                       f"{trk2_pt}, {trk2_eta}, {trk2_phi}, "
-                                                       f"{mass_trk1}f, {mass_trk2}f, {mass_low}f, {mass_high}f, 0.07f, 38.f)")
+    df = (df.Define("meson_sel",  f"select_mesons_tracks({meson_prefix}_iso, "
+                    f"{trk1_pt}, {trk1_eta}, {trk1_phi}, "
+                    f"{trk2_pt}, {trk2_eta}, {trk2_phi}, "
+                    f"{mass_trk1}f, {mass_trk2}f, {mass_low}f, {mass_high}f, 0.07f, 38.f)")
             .Define("nGoodMesons", "meson_sel.nGood")
             .Define("bestMesonIdx", "meson_sel.bestIdx")
             .Filter("nGoodMesons > 0", "At least one good meson (tracks-based)")
@@ -498,8 +495,7 @@ else:
     n_meson = df.Filter("nGoodMesons").Count().GetValue()
     
     # tracks of the selected meson
-    df = (df
-            .Define("trk1_pt_best",  f"{trk1_pt}[bestMesonIdx]")
+    df = (df.Define("trk1_pt_best",  f"{trk1_pt}[bestMesonIdx]")
             .Define("trk1_eta_best", f"{trk1_eta}[bestMesonIdx]")
             .Define("trk1_phi_best", f"{trk1_phi}[bestMesonIdx]")
             .Define("trk2_pt_best",  f"{trk2_pt}[bestMesonIdx]")

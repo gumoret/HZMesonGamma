@@ -75,20 +75,26 @@ if (args.isBDT_option == "BDT"):
 
 isWideRange = False  #bool for wide range or zoomed range
 
-'''
+
 #Combine luminosity
-luminosity = 39.54 #total lumi delivered during the trigger activity: 39.54 #fb^-1
+luminosity = 108.95 #total lumi delivered during 2024
 if isPhiAnalysis:
-    normalization_weight = (1./1.) * (1928000./0.0336) * 0.49 
-elif isRhoAnalysis:
-    normalization_weight = (1./1.) * (1928000./0.0336) 
-'''
+    if isZAnalysis: normalization_weight = (1./h_Events.GetBinContent(1)) * (1928000./0.0336) * 0.49        
+    if isHAnalysis: normalization_weight = (1./h_Events.GetBinContent(1)) * (54700) * 0.49
+if isRhoAnalysis:
+    if isZAnalysis: normalization_weight = (1./h_Events.GetBinContent(1)) * (1928000./0.0336)
+    if isHAnalysis: normalization_weight = (1./h_Events.GetBinContent(1)) * (54700)
+if isKAnalysis:    
+    normalization_weight = (1./h_Events.GetBinContent(1)) * (54700) 
+
+    
+ 
 
 #HISTOS ###########################################################################################################
 histo_map = dict()
 list_histos = ["h_bosonMass", "h_mesonMass", "h_firstTrkPt", "h_secondTrkPt", "h_firstTrkEta", "h_secondTrkEta", 
                "h_firstTrkPhi", "h_secondTrkPhi", "h_mesonPt", "h_mesonEta", "h_trksDeltaR","h_mesonIso", 
-               "h_photonEnergy", "h_photonEta","h_nMuons","h_nElectrons", "h_deltaMesonMass", "h_efficiency"]  
+               "h_photonEnergy", "h_photonEta","h_nMuons","h_nElectrons", "h_efficiency"]#"h_deltaMesonMass", "h_efficiency"]  
 
 if isWideRange:
     if isZAnalysis: histo_map[list_histos[0]]   = ROOT.TH1F(list_histos[0],"M_{Z}", 300, 50., 150.) 
@@ -110,7 +116,7 @@ if isWideRange:
     histo_map[list_histos[13]] = ROOT.TH1F(list_histos[13],"#eta_{#gamma}", 100, -2.5,2.5)
     histo_map[list_histos[14]] = ROOT.TH1F(list_histos[14],"n. of muons", 6, -0.5, 5.5)
     histo_map[list_histos[15]] = ROOT.TH1F(list_histos[15],"n. of electrons", 5, -0.5, 5.5)
-    histo_map[list_histos[16]] = ROOT.TH1F(list_histos[16],"Meson mass reco - Meson mass gen", 100, -0.055, 0.055)
+    #histo_map[list_histos[16]] = ROOT.TH1F(list_histos[16],"Meson mass reco - Meson mass gen", 100, -0.055, 0.055)
 
 else:
     if isZAnalysis and not runningOnData: histo_map[list_histos[0]]   = ROOT.TH1F(list_histos[0],"M_{Z}", 300, 60., 120.)
@@ -134,13 +140,13 @@ else:
     histo_map[list_histos[13]] = ROOT.TH1F(list_histos[13],"#eta_{#gamma}", 100, -2.5,2.5)
     histo_map[list_histos[14]] = ROOT.TH1F(list_histos[14],"n. of muons", 6, -0.5, 5.5)
     histo_map[list_histos[15]] = ROOT.TH1F(list_histos[15],"n. of electrons", 5, -0.5, 5.5)
-    histo_map[list_histos[16]] = ROOT.TH1F(list_histos[16],"Meson mass reco - Meson mass gen", 100, -0.02, 0.02)
+    #histo_map[list_histos[16]] = ROOT.TH1F(list_histos[16],"Meson mass reco - Meson mass gen", 100, -0.02, 0.02)
 
 
 if not isBDT:
-    histo_map[list_histos[17]] = ROOT.TH1F(list_histos[17],"Efficiency steps", 5, 0., 5.)
+    histo_map[list_histos[16]] = ROOT.TH1F(list_histos[16],"Efficiency steps", 5, 0., 5.)
 else :
-    histo_map[list_histos[17]] = ROOT.TH1F(list_histos[17],"Efficiency steps", 6, 0., 6.)
+    histo_map[list_histos[16]] = ROOT.TH1F(list_histos[16],"Efficiency steps", 6, 0., 6.)
 
 #CREATE OUTPUT ROOTFILE ############################################################################################
 fOut = ROOT.TFile(output_filename,"RECREATE")
@@ -234,7 +240,7 @@ for jentry in range(nentries):
     trksDeltaPhi = abs(firstTrkPhi -secondTrkPhi)
     if trksDeltaPhi > math.pi: trksDeltaPhi = 6.28 - trksDeltaPhi  
     deltaR       = math.sqrt((firstTrkEta - secondTrkEta)**2 + trksDeltaPhi*trksDeltaPhi)
-    deltaMesonMass = mytree.delta_meson_mass
+    #deltaMesonMass = mytree.delta_meson_mass
     #eventWeight  = 1 ###placeholder 
 
 
@@ -268,17 +274,15 @@ for jentry in range(nentries):
 
     nEventsAfterRegionDefiner+=1
 
-    '''
+    
     #NORMALIZATION for MC-------------------------------------------------------------------
 
     if not runningOnData:
         #PUWeight    = mytree.PU_Weight
         weight_sign = mytree.MC_Weight/abs(mytree.MC_Weight) #just take the sign of the MC gen weight
-
         eventWeight =  luminosity * normalization_weight * weight_sign # * PUWeight  
-    '''
-    #else:
-    eventWeight = 1.
+    
+    else: eventWeight = 1.
 
 
     #Lepton veto
@@ -312,15 +316,6 @@ for jentry in range(nentries):
         if isZAnalysis:
             if (CRFlag == 'SR' and bosonMass > 50. and bosonMass < 80.) : nEventsLeftSB  += 1
             if (CRFlag == 'SR' and bosonMass > 101. and bosonMass < 200.) : nEventsRightSB += 1
-
-    '''
-    if not runningOnData == True:
-        weightSum += eventWeight
-        #polWeightSum += polarizationWeight
-    
-        if isPhiAnalysis: eventWeight = eventWeight/(weightSum_eff)*(1928000/0.0336)*0.49*luminosity
-        else: eventWeight = eventWeight/(weightSum_eff)*(1928000/0.0336)*luminosity
-    '''
 
     #FILL HISTOS #####################################################################################################
     #if DATA -> Blind Analysis on boson inv mass plot  
@@ -359,7 +354,7 @@ for jentry in range(nentries):
     histo_map["h_trksDeltaR"].Fill(deltaR, eventWeight)#/mesonMass
     histo_map["h_nMuons"].Fill(nMuons, eventWeight)
     histo_map["h_nElectrons"].Fill(nElectrons, eventWeight)
-    histo_map["h_deltaMesonMass"].Fill(deltaMesonMass, eventWeight)
+    #histo_map["h_deltaMesonMass"].Fill(deltaMesonMass, eventWeight)
 
 
     #FILL TREE ########################################################################################################
@@ -439,8 +434,8 @@ histo_map["h_nElectrons"].SetTitle("# of electrons")
 histo_map["h_efficiency"].GetXaxis().SetTitle("")
 histo_map["h_efficiency"].GetYaxis().SetTitle("#epsilon (%)")
 
-histo_map["h_deltaMesonMass"].GetXaxis().SetTitle("#DeltaM_{meson} [GeV/c^2]")
-histo_map["h_deltaMesonMass"].SetTitle("Meson mass reco - meson mass gen")
+#histo_map["h_deltaMesonMass"].GetXaxis().SetTitle("#DeltaM_{meson} [GeV/c^2]")
+#histo_map["h_deltaMesonMass"].SetTitle("Meson mass reco - meson mass gen")
 #Tree writing ##########################################################################################################
 #tree_output.Write()
 
