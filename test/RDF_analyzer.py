@@ -15,7 +15,7 @@ ismesonFromTracks = False # debug for reconstructing meson from tracks
 
 # PARSER and INPUT 
 p = argparse.ArgumentParser(description="RDataFrame analyzer for H→meson+γ")
-p.add_argument("meson_option", help="Type <<rho>> for rho, <<phi>> for phi, <<K>> for K*")
+p.add_argument("meson_option", help="Type <<rho>> for rho, <<phi>> for phi, <<K>> for K*, <<D>> for D*")
 p.add_argument("runningOnData_option", help="Type <<signal>> for signal, <<data>> for data")
 p.add_argument("rootfile_name", help="Input nanoAOD ROOT file")
 p.add_argument("outputfile_option", help="Output ROOT file")
@@ -25,7 +25,7 @@ if args.meson_option == "phi": isPhiAnalysis = True
 elif args.meson_option == "rho": isRhoAnalysis = True
 elif args.meson_option == "K": isKAnalysis = True
 elif args.meson_option == "D": isDAnalysis = True
-else: print("meson_option must be <<phi>> or <<rho>> or <<K*>> or <<DO*>>")
+else: print("meson_option must be <<phi>> or <<rho>> or <<K>> or <<D>>")
 
 
 if args.runningOnData_option == "signal": runningOnData = False
@@ -43,23 +43,22 @@ import glob
 
 
 #Tau2022
-'''
 base_dir = "/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D05" 
 
 files = []
 
 for era in ["12022", "22022"]:
     files.extend(glob.glob(f"{base_dir}/{era}/Tau+Run*/*.root"))
-'''
+
 #EGamma 2024
 '''
 base_dir = "/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024"
 files = []
 
 files.extend(glob.glob(f"{base_dir}/EGamma*/*.root"))
+'''
 
 files = sorted(files)
-'''
 
 #HRhogamma signal
 #base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/GluGluHtoRhoG_Par-M-125_TuneCP5_13p6TeV_powheg-pythia8-evtgen+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2+MINIAODSIM"
@@ -71,13 +70,13 @@ files = sorted(files)
 #base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/GluGluHtoKStar0G_Par-M-125_TuneCP5_13p6TeV_powheg-pythia8-evtgen+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2+MINIAODSIM"
 
 #ZPhiGamma signal
-base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/ZtoPhiG_TuneCP5_13p6TeV_madgraphMLM-pythia8+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v3+MINIAODSIM"
+#base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/ZtoPhiG_TuneCP5_13p6TeV_madgraphMLM-pythia8+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v3+MINIAODSIM"
 
 #ZRhoGamma signal
 #base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/ZtoRhoG_TuneCP5_13p6TeV_madgraphMLM-pythia8+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v3+MINIAODSIM"
 
 
-files = sorted(glob.glob(f"{base_dir}/*.root"))
+#files = sorted(glob.glob(f"{base_dir}/*.root"))
 
 
 
@@ -166,7 +165,7 @@ struct MesonSelection {
 };
 
 MesonSelection select_mesons_kin(const RVec<float>& pt, const RVec<float>& eta, const RVec<float>& phi,
-                             const RVec<float>& mass, const RVec<float>& iso, float mass_low, float mass_high,
+                             const RVec<float>& mass, const RVec<float>& iso, const RVec<float>& isoNeuHad,  float mass_low, float mass_high,
                              const RVec<float>& trk1_pt, const RVec<float>& trk1_eta, const RVec<float>& trk1_phi,
                              const RVec<float>& trk2_pt, const RVec<float>& trk2_eta, const RVec<float>& trk2_phi) {
 
@@ -182,7 +181,7 @@ MesonSelection select_mesons_kin(const RVec<float>& pt, const RVec<float>& eta, 
     auto trk_mask = !((trk1_pt < 1.0f) || (trk2_pt < 1.0f)) && !((trk1_pt < 10.0f) && (trk2_pt < 10.0f)) && (deltaR < 0.07f);
         
     // Meson cuts: mass window, iso > 0.9, pt > 38, |eta| < 2.5
-    auto meson_mask = (pt > 38) && (abs(eta) < 2.5) && (mass > mass_low) && (mass < mass_high) && (iso > 0.9);
+    auto meson_mask = (pt > 38) && (abs(eta) < 2.5) && (mass > mass_low) && (mass < mass_high) && (iso > 0.9) && (isoNeuHad > 0.8);
 
     auto mask = trk_mask && meson_mask;
 
@@ -424,9 +423,9 @@ elif isKAnalysis:
     trk2_eta = f"{meson_prefix}_pion_eta"
     trk2_phi = f"{meson_prefix}_pion_phi"  
 elif isDAnalysis:
-    mass_low, mass_high = 2.00, 2.05
+    mass_low, mass_high = 1.78, 1.94
     mass_trk1, mass_trk2 = 0.4937, 0.13957  # Kaon, Pion
-    meson_prefix = "d0pi0"
+    meson_prefix = "d0"
     #dictionary for tracks names
     trk1_pt  = f"{meson_prefix}_kaon_pt"
     trk1_eta = f"{meson_prefix}_kaon_eta"
@@ -445,7 +444,7 @@ if not ismesonFromTracks:
 
     df = df.Define("meson_sel", 
                 f"select_mesons_kin({meson_prefix}_kin_pt, {meson_prefix}_kin_eta, {meson_prefix}_kin_phi, "
-                f"{meson_prefix}_kin_mass, {meson_prefix}_iso, {mass_low}, {mass_high}, "
+                f"{meson_prefix}_kin_mass, {meson_prefix}_iso, {meson_prefix}_isoNeuHad , {mass_low}, {mass_high}, "
                 f"{trk1_pt}, {trk1_eta}, {trk1_phi}, "
                 f"{trk2_pt}, {trk2_eta}, {trk2_phi})")
     df = df.Define("nGoodMesons", "meson_sel.nGood")
@@ -460,6 +459,7 @@ if not ismesonFromTracks:
     df = df.Define("bestMeson_phi",  f"bestMesonIdx  >= 0 ? {meson_prefix}_kin_phi[bestMesonIdx] : -999.f")
     df = df.Define("bestMeson_mass", f"bestMesonIdx  >= 0 ? {meson_prefix}_kin_mass[bestMesonIdx] : -1.f")
     df = df.Define("isoMeson",       f"bestMesonIdx  >= 0 ? {meson_prefix}_iso[bestMesonIdx] : -1.f")
+    df = df.Define("isoMesonNeu",    f"bestMesonIdx  >= 0 ? {meson_prefix}_isoNeuHad[bestMesonIdx] : -1.f")
 
     # final tracks pT selection
     df = df.Define("trk1_pt_best", f"bestMesonIdx  >= 0 ? {trk1_pt}[bestMesonIdx] : -1.f")
@@ -568,7 +568,7 @@ else:
 columns_to_save = ["nPU", "MC_Weight", "HLT_Photon35_TwoProngs35", 
                    "nMuons10", "nMuons20", "nElectrons10", "nElectrons20", 
                    "nGoodPhotons", "bestPhoton_pt", "bestPhoton_eta", "bestPhoton_phi",
-                   "bestMeson_pt", "bestMeson_eta", "bestMeson_phi", "bestMeson_mass", "isoMeson",
+                   "bestMeson_pt", "bestMeson_eta", "bestMeson_phi", "bestMeson_mass", "isoMeson", "isoMesonNeu",
                    "firstTrk_pt", "firstTrk_eta", "firstTrk_phi", "secondTrk_pt", "secondTrk_eta", "secondTrk_phi",
                    "H_mass", "H_pt", "H_eta", "H_phi",
                    "isPhotonMatched", "isMesonMatched", "isBosonMatched", "delta_meson_mass"]
