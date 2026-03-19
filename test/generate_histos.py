@@ -15,8 +15,8 @@ isDataBlind   = False #Bool for blind analysis
 
 isPhiAnalysis = False # for Z -> Phi Gamma
 isRhoAnalysis = False # for Z -> Rho Gamma
-isKAnalysis   = False # for Z -> K* Gamma
-isDAnalysis   = False # for Z -> D0* Gamma
+isKAnalysis   = False # for Z -> K*0 Gamma
+isDAnalysis   = False # for Z -> D*0 Gamma
 
 isHAnalysis   = False
 isZAnalysis   = False
@@ -99,14 +99,14 @@ if isPhiAnalysis:
 if isRhoAnalysis:
     if isZAnalysis: normalization_weight = (1./h_Events.GetBinContent(1)) * (1928000./0.0336)
     if isHAnalysis: normalization_weight = (1./h_Events.GetBinContent(1)) * (54700)
-if isKAnalysis:    
-    normalization_weight = (1./h_Events.GetBinContent(1)) * (54700) * 0.667   
+if isKAnalysis: normalization_weight = (1./h_Events.GetBinContent(1)) * (54700) * 0.667
+if isDAnalysis: normalization_weight = (1./h_Events.GetBinContent(1)) * (54700) * 0.04
  
 
 #HISTOS ###########################################################################################################
 histo_map = dict()
 list_histos = ["h_bosonMass", "h_mesonMass", "h_firstTrkPt", "h_secondTrkPt", "h_firstTrkEta", "h_secondTrkEta", 
-               "h_firstTrkPhi", "h_secondTrkPhi", "h_mesonPt", "h_mesonEta", "h_trksDeltaR","h_mesonIso", 
+               "h_firstTrkPhi", "h_secondTrkPhi", "h_mesonPt", "h_mesonEta", "h_trksDeltaR","h_mesonIsoCh", "h_mesonIsoNeu",
                "h_photonEnergy", "h_photonEta","h_nMuons","h_nElectrons", "h_efficiency"]#"h_deltaMesonMass", "h_efficiency"]  
 
 if isWideRange:
@@ -114,7 +114,8 @@ if isWideRange:
     elif isHAnalysis: histo_map[list_histos[0]] = ROOT.TH1F(list_histos[0],"M_{H}", 300, 90, 155) 
     if   isPhiAnalysis: histo_map[list_histos[1]] = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 0.95, 1.1) 
     elif isRhoAnalysis: histo_map[list_histos[1]] = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 0.5, 1.)
-    elif isKAnalysis: histo_map[list_histos[1]]   = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 0.6, 1.3) 
+    elif isKAnalysis: histo_map[list_histos[1]]   = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 0.6, 1.3)
+    elif isDAnalysis: histo_map[list_histos[1]]   = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 1.78, 1.94) 
     histo_map[list_histos[2]]  = ROOT.TH1F(list_histos[2],"p_{T} of the 1st track", 200, 0.,200.)
     histo_map[list_histos[3]]  = ROOT.TH1F(list_histos[3],"p_{T} of the 2nd track", 250, 0.,250.)
     histo_map[list_histos[4]]  = ROOT.TH1F(list_histos[4],"#eta of the 1st track", 100, -2.5,2.5)
@@ -125,20 +126,24 @@ if isWideRange:
     histo_map[list_histos[9]]  = ROOT.TH1F(list_histos[9],"#eta_{meson}", 100, -2.5,2.5)
     histo_map[list_histos[10]] = ROOT.TH1F(list_histos[10],"#Delta R_{meson}", 100, 0.,0.07)
     histo_map[list_histos[11]] = ROOT.TH1F(list_histos[11],"Iso_ch of the meson", 100, 0., 1.5)
-    histo_map[list_histos[12]] = ROOT.TH1F(list_histos[12],"E_{T} of the #gamma", 500, 0., 500.)
-    histo_map[list_histos[13]] = ROOT.TH1F(list_histos[13],"#eta_{#gamma}", 100, -2.5,2.5)
-    histo_map[list_histos[14]] = ROOT.TH1F(list_histos[14],"n. of muons", 6, -0.5, 5.5)
-    histo_map[list_histos[15]] = ROOT.TH1F(list_histos[15],"n. of electrons", 5, -0.5, 5.5)
+    histo_map[list_histos[12]] = ROOT.TH1F(list_histos[12],"Iso_neu of the meson", 100, 0., 1.5)
+    histo_map[list_histos[13]] = ROOT.TH1F(list_histos[13],"E_{T} of the #gamma", 500, 0., 500.)
+    histo_map[list_histos[14]] = ROOT.TH1F(list_histos[14],"#eta_{#gamma}", 100, -2.5,2.5)
+    histo_map[list_histos[15]] = ROOT.TH1F(list_histos[15],"n. of muons", 6, -0.5, 5.5)
+    histo_map[list_histos[16]] = ROOT.TH1F(list_histos[16],"n. of electrons", 5, -0.5, 5.5)
     #histo_map[list_histos[16]] = ROOT.TH1F(list_histos[16],"Meson mass reco - Meson mass gen", 100, -0.055, 0.055)
 
 else:
     if isZAnalysis and not runningOnData: histo_map[list_histos[0]]   = ROOT.TH1F(list_histos[0],"M_{Z}", 300, 60., 120.)
     if isZAnalysis and runningOnData: histo_map[list_histos[0]]   = ROOT.TH1F(list_histos[0],"M_{Z}", 300, 60., 200.)
-    if isHAnalysis and not runningOnData: histo_map[list_histos[0]] = ROOT.TH1F(list_histos[0],"M_{H}", 150, 120, 130)
+    if isHAnalysis and not runningOnData:
+        if isDAnalysis: histo_map[list_histos[0]] = ROOT.TH1F(list_histos[0],"M_{H}", 150, 114, 126)
+        else: histo_map[list_histos[0]] = ROOT.TH1F(list_histos[0],"M_{H}", 150, 120, 130)
     if isHAnalysis and runningOnData: histo_map[list_histos[0]] = ROOT.TH1F(list_histos[0],"M_{H}", 150, 100, 170) 
     if isPhiAnalysis: histo_map[list_histos[1]] = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 1., 1.04) 
     if isRhoAnalysis: histo_map[list_histos[1]] = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 0.55, 1.)
-    if isKAnalysis: histo_map[list_histos[1]]   = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 0.8, 0.99) 
+    if isKAnalysis: histo_map[list_histos[1]]   = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 0.8, 0.99)
+    elif isDAnalysis: histo_map[list_histos[1]]   = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 1.79, 1.93) 
     histo_map[list_histos[2]]  = ROOT.TH1F(list_histos[2],"p_{T} of the 1st track", 100, 0.,70.)
     histo_map[list_histos[3]]  = ROOT.TH1F(list_histos[3],"p_{T} of the 2nd track", 100, 0.,70.)
     histo_map[list_histos[4]]  = ROOT.TH1F(list_histos[4],"#eta of the 1st track", 100, -2.5,2.5)
@@ -149,15 +154,16 @@ else:
     histo_map[list_histos[9]]  = ROOT.TH1F(list_histos[9],"#eta_{meson}", 100, -2.5,2.5)
     histo_map[list_histos[10]] = ROOT.TH1F(list_histos[10],"#Delta R_{meson}", 100, 0.,0.07)
     histo_map[list_histos[11]] = ROOT.TH1F(list_histos[11],"Iso_ch of the meson", 100, 0.9, 1.)
-    histo_map[list_histos[12]] = ROOT.TH1F(list_histos[12],"E_{T} of the #gamma", 100, 0., 250.)
-    histo_map[list_histos[13]] = ROOT.TH1F(list_histos[13],"#eta_{#gamma}", 100, -2.5,2.5)
-    histo_map[list_histos[14]] = ROOT.TH1F(list_histos[14],"n. of muons", 6, -0.5, 5.5)
-    histo_map[list_histos[15]] = ROOT.TH1F(list_histos[15],"n. of electrons", 5, -0.5, 5.5)
+    histo_map[list_histos[12]] = ROOT.TH1F(list_histos[12],"Iso_neu of the meson", 100, 0.8, 1.)
+    histo_map[list_histos[13]] = ROOT.TH1F(list_histos[13],"E_{T} of the #gamma", 100, 0., 250.)
+    histo_map[list_histos[14]] = ROOT.TH1F(list_histos[14],"#eta_{#gamma}", 100, -2.5,2.5)
+    histo_map[list_histos[15]] = ROOT.TH1F(list_histos[15],"n. of muons", 6, -0.5, 5.5)
+    histo_map[list_histos[16]] = ROOT.TH1F(list_histos[16],"n. of electrons", 5, -0.5, 5.5)
     #histo_map[list_histos[16]] = ROOT.TH1F(list_histos[16],"Meson mass reco - Meson mass gen", 100, -0.02, 0.02)
 
 
-if not isBDT: histo_map[list_histos[16]] = ROOT.TH1F(list_histos[16],"Efficiency steps", 5, 0., 5.)
-else: histo_map[list_histos[16]] = ROOT.TH1F(list_histos[16],"Efficiency steps", 6, 0., 6.)
+if not isBDT: histo_map[list_histos[17]] = ROOT.TH1F(list_histos[17],"Efficiency steps", 5, 0., 5.)
+else: histo_map[list_histos[17]] = ROOT.TH1F(list_histos[17],"Efficiency steps", 6, 0., 6.)
 
 #CREATE OUTPUT ROOTFILE ############################################################################################
 fOut = ROOT.TFile(output_filename,"RECREATE")
@@ -172,8 +178,8 @@ _firstTrkEta  = np.zeros(1, dtype=float)
 _secondTrkEta = np.zeros(1, dtype=float)
 _mesonPt      = np.zeros(1, dtype=float)
 _mesonEta     = np.zeros(1, dtype=float)  
-#_mesonIsoCh   = np.zeros(1, dtype=float)
-_mesonIso     = np.zeros(1, dtype=float)
+_mesonIsoCh   = np.zeros(1, dtype=float)
+_mesonIsoNeu  = np.zeros(1, dtype=float)
 _photonEt     = np.zeros(1, dtype=float)
 _photonEta    = np.zeros(1, dtype=float)  
 _photonEt     = np.zeros(1, dtype=float)
@@ -195,8 +201,8 @@ tree_output.Branch('firstTrkEta',_firstTrkEta,'_firstTrkEta/D')
 tree_output.Branch('secondTrkEta',_secondTrkEta,'_secondTrkEta/D')
 tree_output.Branch('mesonPt',_mesonPt,'_mesonPt/D')
 tree_output.Branch('mesonEta',_mesonEta,'_mesonEta/D')
-#tree_output.Branch('mesonIsoCh',_mesonIsoCh,'_mesonIsoCh/D')
-tree_output.Branch('mesonIso',_mesonIso,'_mesonIso/D')
+tree_output.Branch('mesonIsoCh',_mesonIsoCh,'_mesonIsoCh/D')
+tree_output.Branch('mesonIsoNeu',_mesonIsoNeu,'_mesonIsoNeu/D')
 tree_output.Branch('photonEt',_photonEt,'_photonEt/D')
 tree_output.Branch('photonEta',_photonEta,'_photonEta/D')
 tree_output.Branch('trksDeltaR',_trksDeltaR,'_trksDeltaR/D')
@@ -242,8 +248,8 @@ for jentry in range(nentries):
     mesonEta     = mytree.bestMeson_eta
     photonEt     = mytree.bestPhoton_pt
     photonEta    = mytree.bestPhoton_eta
-    mesonIso     = mytree.isoMeson
-    #mesonIsoCh   = mytree.mesonIsoCh
+    mesonIsoCh   = mytree.isoMeson
+    mesonIsoNeu  = mytree.isoMesonNeu
     nElectrons   = mytree.nElectrons20
     nMuons       = mytree.nMuons20
     #isMeson      = mytree.isMeson 
@@ -279,6 +285,13 @@ for jentry in range(nentries):
         #if CRFlag == "CR" and (mesonMass > 0.842 and mesonMass < 0.942): continue
         cut_low_bin  = histo_map["h_mesonMass"].FindBin(0.842)
         cut_high_bin = histo_map["h_mesonMass"].FindBin(0.942)
+        b = histo_map["h_mesonMass"].FindBin(mesonMass)
+        if CRFlag == "SR" and not ( b >= cut_low_bin and b <= cut_high_bin): continue
+        if CRFlag == "CR" and (b >= cut_low_bin and b <= cut_high_bin): continue
+
+    if isDAnalysis:
+        cut_low_bin  = histo_map["h_mesonMass"].FindBin(1.82)
+        cut_high_bin = histo_map["h_mesonMass"].FindBin(1.90)
         b = histo_map["h_mesonMass"].FindBin(mesonMass)
         if CRFlag == "SR" and not ( b >= cut_low_bin and b <= cut_high_bin): continue
         if CRFlag == "CR" and (b >= cut_low_bin and b <= cut_high_bin): continue
@@ -340,10 +353,15 @@ for jentry in range(nentries):
                 bin = histo_map["h_bosonMass"].FindBin(bosonMass)
                 if bin < blind_low_bin or bin > blind_high_bin: histo_map["h_bosonMass"].Fill(bosonMass, eventWeight)
             if isHAnalysis:
-                #if bosonMass < 120. or bosonMass > 130: histo_map["h_bosonMass"].Fill(bosonMass, eventWeight)
-                blind_low_bin  = histo_map["h_bosonMass"].FindBin(120.)
-                blind_high_bin = histo_map["h_bosonMass"].FindBin(130.)
-                bin = histo_map["h_bosonMass"].FindBin(bosonMass)
+                if isDAnalysis:
+                    #if bosonMass < 120. or bosonMass > 130: histo_map["h_bosonMass"].Fill(bosonMass, eventWeight)
+                    blind_low_bin  = histo_map["h_bosonMass"].FindBin(114.)
+                    blind_high_bin = histo_map["h_bosonMass"].FindBin(126.)
+                    bin = histo_map["h_bosonMass"].FindBin(bosonMass)
+                else:
+                    blind_low_bin  = histo_map["h_bosonMass"].FindBin(120.)
+                    blind_high_bin = histo_map["h_bosonMass"].FindBin(130.)
+                    bin = histo_map["h_bosonMass"].FindBin(bosonMass)
                 if bin < blind_low_bin or bin > blind_high_bin: histo_map["h_bosonMass"].Fill(bosonMass, eventWeight)
         else:
             histo_map["h_bosonMass"].Fill(bosonMass, eventWeight)
@@ -359,7 +377,8 @@ for jentry in range(nentries):
     histo_map["h_secondTrkPhi"].Fill(secondTrkPhi, eventWeight)  
     histo_map["h_mesonPt"].Fill(mesonPt, eventWeight)
     histo_map["h_mesonEta"].Fill(mesonEta, eventWeight)
-    histo_map["h_mesonIso"].Fill(mesonIso, eventWeight)
+    histo_map["h_mesonIsoCh"].Fill(mesonIsoCh, eventWeight)
+    histo_map["h_mesonIsoNeu"].Fill(mesonIsoNeu, eventWeight)
     histo_map["h_photonEnergy"].Fill(photonEt, eventWeight)
     histo_map["h_photonEta"].Fill(photonEta, eventWeight)
     histo_map["h_trksDeltaR"].Fill(trksDeltaR, eventWeight)#/mesonMass
@@ -377,7 +396,8 @@ for jentry in range(nentries):
     _secondTrkEta[0] = secondTrkEta
     _mesonPt[0]      = mesonPt
     _mesonEta[0]     = mesonEta
-    _mesonIso[0]     = mesonIso
+    _mesonIsoCh[0]   = mesonIsoCh
+    _mesonIsoNeu[0]  = mesonIsoNeu
     _photonEt[0]     = photonEt
     _photonEta[0]    = photonEta 
     _trksDeltaR[0]   = trksDeltaR
@@ -424,8 +444,11 @@ histo_map["h_mesonPt"].SetTitle("Transverse kin momentum of the meson")
 histo_map["h_mesonEta"].GetXaxis().SetTitle("#eta")
 histo_map["h_mesonEta"].SetTitle("Kin pseudorapidity of the meson")
 
-histo_map["h_mesonIso"].GetXaxis().SetTitle("sum pT_{trks}/pT_{meson}")
-histo_map["h_mesonIso"].SetTitle("Isolation of the meson")
+histo_map["h_mesonIsoCh"].GetXaxis().SetTitle("sum pT_{trks}/pT_{meson}")
+histo_map["h_mesonIsoCh"].SetTitle("Charged isolation of the meson")
+
+histo_map["h_mesonIsoNeu"].GetXaxis().SetTitle("sum pT_{neu}/pT_{meson}")
+histo_map["h_mesonIsoNeu"].SetTitle("Neutral isolation of the meson")
 
 histo_map["h_trksDeltaR"].GetXaxis().SetTitle("#DeltaR_{trk^{+}trk^{-} }")
 histo_map["h_trksDeltaR"].SetTitle("Delta R of the couple")

@@ -28,7 +28,8 @@ cmsstyle.SetExtraText('')
 isTightSelection = False
 isPhiAnalysis    = False # for H/Z -> Phi Gamma
 isRhoAnalysis    = False # for H/Z -> Rho Gamma
-isKAnalysis      = False # for H/Z -> K* Gamma
+isKAnalysis      = False # for H -> K*0 Gamma
+isDAnalysis      = False # for H -> D0* Gamma
 
 isHAnalysis   = False
 isZAnalysis   = False
@@ -38,7 +39,7 @@ parser = argparse.ArgumentParser(description="Overlay Data vs CR-background vs S
 parser.add_argument("signal_scale", help="Scale factor for signal histogram")
 parser.add_argument("tightSelection", help="Use tight selection, type tight or loose")
 parser.add_argument("boson_channel", help="Define boson, type H or Z")
-parser.add_argument("meson_channel", help="Define channel, type phi or rho or K")
+parser.add_argument("meson_channel", help="Define channel, type phi or rho or K or D")
 parser.add_argument("datafile",  help="ROOT file with DATA histograms")
 parser.add_argument("signalfile", help="ROOT file with SIGNAL histograms")
 parser.add_argument("sidebandsfile", help="ROOT file with SIDEBANDS histograms")
@@ -72,10 +73,14 @@ elif args.meson_channel == "rho":
 elif args.meson_channel == "K": 
     isKAnalysis = True
     print("Meson: K*0")
+elif args.meson_channel == "D": 
+    isDAnalysis = True
+    print("Meson: D*0")
 
 if isHAnalysis and isPhiAnalysis: signal_magnify = float(args.signal_scale)*1.68*0.00001
 if isHAnalysis and isRhoAnalysis: signal_magnify = float(args.signal_scale)*2.31*0.000001
 if isHAnalysis and isKAnalysis: signal_magnify   = float(args.signal_scale)*0.0000000000000000001
+if isHAnalysis and isDAnalysis: signal_magnify   = float(args.signal_scale)*0.000000000000000000000000001
 if isZAnalysis and isPhiAnalysis: signal_magnify = float(args.signal_scale)*4.19*0.00000001
 if isZAnalysis and isRhoAnalysis: signal_magnify = float(args.signal_scale)*1.04*0.00000001
 
@@ -130,7 +135,10 @@ elif isRhoAnalysis:
     colors_mask["SidebandsNorm"] = ROOT.kRed-4
     decayChannel = "#rho#gamma "
 elif isKAnalysis:
-    colors_mask["SidebandsNorm"] = ROOT.kGreen+1
+    colors_mask["SidebandsNorm"] = ROOT.Green-7
+    decayChannel = "K*#gamma "
+elif isDAnalysis:
+    colors_mask["SidebandsNorm"] = ROOT.kViolet-4
     decayChannel = "K*#gamma "
 
 
@@ -218,8 +226,12 @@ for filename in list_inputfiles: # data, signal, sidebands
             histo_container[-1].SetMarkerStyle(20)   #point
             histo_container[-1].SetBinErrorOption(ROOT.TH1.kPoisson)
             if isHAnalysis and histo_name == "h_bosonMass":
-                blind_low_bin  = histo_container[-1].FindBin(120.)
-                blind_high_bin = histo_container[-1].FindBin(130.)
+                if isDAnalysis:
+                    blind_low_bin  = histo_container[-1].FindBin(114.)
+                    blind_high_bin = histo_container[-1].FindBin(126.)
+                else: 
+                    blind_low_bin  = histo_container[-1].FindBin(120.)
+                    blind_high_bin = histo_container[-1].FindBin(130.)
                 for b in range(blind_low_bin, blind_high_bin + 1):
                     histo_container[-1].SetBinContent(b, 0.)
                     histo_container[-1].SetBinError(b, 0.)
@@ -375,7 +387,7 @@ for histo_name in list_histos:
 
     if histo_name == "h_secondTrkPhi" :
         hstack[histo_name].GetXaxis().SetTitle("#phi_{Trk_{2}} [rad]")
-
+    '''
     if histo_name == "h_firstTrkIso" :
         hstack[histo_name].GetXaxis().SetTitle("p_{T}^{Trk_{1}}/(#Sigmap_{T} + p_{T}^{Trk_{1}})")
         #if isTightSelection: hstack[histo_name].GetXaxis().SetRangeUser(0.6,1.)
@@ -391,16 +403,13 @@ for histo_name in list_histos:
     if histo_name == "h_secondTrkIsoCh" :
         hstack[histo_name].GetXaxis().SetTitle("p_{T}^{Trk_{2}}/(#Sigmap_{T}^{ch} + p_{T}^{Trk_{2}})")
         #if isTightSelection: hstack[histo_name].GetXaxis().SetRangeUser(0.92,1.)
-
-    if histo_name == "h_mesonIso" :
+    '''
+    if histo_name == "h_mesonIsoCh" :
         hstack[histo_name].GetXaxis().SetTitle("p_{T}^{ditrk}/(#Sigmap_{T} + p_{T}^{ditrk})")
         #if isTightSelection: hstack[histo_name].GetXaxis().SetRangeUser(0.7,1.)
 
-    if histo_name == "h_pairIsoCh" :
-        hstack[histo_name].GetXaxis().SetTitle("p_{T}^{ditrk}/(#Sigmap_{T}^{ch} + p_{T}^{ditrk})")
-        #if isTightSelection: hstack[histo_name].GetXaxis().SetRangeUser(0.97,1.)
 
-    if histo_name == "h_pairIsoNeutral" :
+    if histo_name == "h_mesonIsoNeu" :
         hstack[histo_name].GetXaxis().SetTitle("p_{T}^{ditrk}/(#Sigmap_{T}^{0} + p_{T}^{ditrk})")
         #if isTightSelection: hstack[histo_name].GetXaxis().SetRangeUser(0.7,1.)
 
@@ -562,6 +571,8 @@ for histo_name in list_histos:
             if isZAnalysis: output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/Z/Rho/Bkg_estimation_preselection/"
         if isKAnalysis:
             output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/H/Kst/Bkg_estimation_preselection/"
+        if isDAnalysis:
+            output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/H/Dst/Bkg_estimation_preselection/"
 
     if isTightSelection:
         if isPhiAnalysis:
@@ -572,6 +583,8 @@ for histo_name in list_histos:
             if isZAnalysis: output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/Z/Rho/Bkg_estimation_BDT/"
         if isKAnalysis:
             output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/H/Kst/Bkg_estimation_BDT/"
+        if isDAnalysis:
+            output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/H/Dst/Bkg_estimation_BDT/"
 
 
     canvas[histo_name].SaveAs(output_dir + histo_name + ".pdf")
