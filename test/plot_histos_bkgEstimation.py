@@ -50,13 +50,11 @@ CR_magnify = 1.
 
 #plotOnlyData = False
 
-if args.tightSelection == "tight": 
-    isTightSelection = True
-    inputnames = ["Data","Signal"]
+if args.tightSelection == "tight": isTightSelection = True
+    #inputnames = ["Data","Signal"]
 
-if args.tightSelection == "loose": 
-    isTightSelection = False
-    inputnames = ["Data","Signal","SidebandsNorm"]
+elif args.tightSelection == "loose": isTightSelection = False
+    #inputnames = ["Data","Signal","SidebandsNorm"]
 
 if args.boson_channel == "H": 
     isHAnalysis = True
@@ -68,10 +66,10 @@ elif args.boson_channel == "Z":
 if args.meson_channel == "phi":
     isPhiAnalysis = True
     print("Meson: phi") 
-if args.meson_channel == "rho": 
+elif args.meson_channel == "rho": 
     isRhoAnalysis = True
     print("Meson: rho") 
-if args.meson_channel == "K": 
+elif args.meson_channel == "K": 
     isKAnalysis = True
     print("Meson: K*0")
 
@@ -86,6 +84,7 @@ if isZAnalysis and isRhoAnalysis: signal_magnify = float(args.signal_scale)*1.04
 list_inputfiles = [args.datafile, args.signalfile, args.sidebandsfile]
 fileIn = ROOT.TFile(list_inputfiles[0])
 
+inputnames = ["Data","Signal","SidebandsNorm"]
 
 #CMS-style plotting 
 tdrstyle.setTDRStyle()
@@ -94,7 +93,7 @@ iPos = 10
 CMS_lumi.lumiTextSize = 0.9
 CMS_lumi.cmsTextSize = 1.
 CMS_lumi.lumi_13TeV = "108.95 fb^{-1}"
-CMS_lumi.relPosX = 0.045 #0.045                                                                                                                                                                                                                                           
+CMS_lumi.relPosX = 0.045                                                                                                                                                                                                                                            
 CMS_lumi.relPosY = 0.035 
 CMS_lumi.relExtraDY = 1.1
 
@@ -156,7 +155,10 @@ leg1.SetNColumns(1)
 #create a list of histos you don't want to plot with bkg estimation
 #histo_blacklist = {"h_genPhotonEt","h_genMesonPt","h_RecoVsGenPhotonPtRel","h_RecoVsGenMesonPtRel","h_MrecoMinusMgen"} 
 
-for filename in list_inputfiles:
+rebin_map = {}
+
+#LOOP OVER DATA, SIGNAL AND SIDEBANDS FILES
+for filename in list_inputfiles: # data, signal, sidebands
     fileIn = ROOT.TFile(filename)
     sample_name = os.path.basename(filename).split("_")[-1].replace(".root","") 
     print("=============== ", sample_name)
@@ -172,12 +174,38 @@ for filename in list_inputfiles:
 
         histo_container.append(copy.copy(histo))
         
+        '''
         if not histo_name == "h_nMuons" and not histo_name == "h_nElectrons":
             if isTightSelection and not (histo_name == "h_mesonIso" or histo_name == "h_bosonMass"): histo_container[-1].Rebin(6)
             elif isTightSelection and histo_name == "h_bosonMass" and isPhiAnalysis: histo_container[-1].Rebin(6)
             elif isTightSelection and histo_name == "h_bosonMass" and isRhoAnalysis: histo_container[-1].Rebin(5)
             elif not isTightSelection and isHAnalysis and histo_name == "h_bosonMass":  histo_container[-1].Rebin(4)                            
             else: histo_container[-1].Rebin(4)
+        '''
+        if histo_name not in rebin_map:
+            if histo_name in ["h_nMuons", "h_nElectrons"]: rebin_map[histo_name] = 1  # no rebin
+            else:
+                entries = histo.GetEntries()
+
+                # Default
+                rebin_factor = 4
+                # MVA → small statistic
+                if entries < 200: rebin_factor = 10
+                elif entries < 1000: rebin_factor = 6
+                else: rebin_factor = 4
+
+                # exceptions
+                if histo_name == "h_bosonMass":
+                    if isPhiAnalysis: rebin_factor = max(rebin_factor, 6)
+                    elif isRhoAnalysis: rebin_factor = max(rebin_factor, 5)
+                #if histo_name == "h_mesonMass": rebin_factor = max(rebin_factor, 2)  # not too strong
+                #if histo_name == "h_mesonIso": rebin_factor = max(rebin_factor, 4)
+
+                #save
+                rebin_map[histo_name] = rebin_factor
+
+        #apply the same rebinning to all the 3 sets of histograms
+        histo_container[-1].Rebin(rebin_map[histo_name])
 
         if sample_name == "Signal":
             histo_container[-1].SetLineStyle(1)   
@@ -297,8 +325,7 @@ for histo_name in list_histos:
     if histo_name == "h_nMuons" or histo_name == "h_nElectrons":
         hstack[histo_name].SetMaximum(10 * hdata[histo_name].GetMaximum())
         hstack[histo_name].SetMinimum(1.)  #cannot use values < 1 otherwise log is negative
-    elif histo_name == "h_bosonMass" and isTightSelection:
-        hstack[histo_name].SetMaximum(2.* hdata[histo_name].GetMaximum()) 
+    #elif histo_name == "h_bosonMass" and isTightSelection: hstack[histo_name].SetMaximum(2.* hdata[histo_name].GetMaximum()) 
     #elif histo_name == "h_bosonMass" and isTightSelection and not isPhi : hstack[histo_name].SetMaximum(2.* hdata[histo_name].GetMaximum())      
     elif histo_name == "h_mesonMass" : 
         max_data = hdata[histo_name].GetMaximum()
@@ -310,7 +337,6 @@ for histo_name in list_histos:
 
 
     if histo_name == "h_bosonMass":
-        #hstack[histo_name].Rebin(2)            
         hstack[histo_name].GetXaxis().SetTitle("m_{ditrk#gamma} [GeV]")
         if isHAnalysis: hstack[histo_name].GetXaxis().SetRangeUser(100., 169.)
         if isZAnalysis: hstack[histo_name].GetXaxis().SetRangeUser(60., 200.)
@@ -527,15 +553,25 @@ for histo_name in list_histos:
         output_dir = "/eos/user/e/eferrand/ZMesonGamma/CMSSW_10_6_27/src/ZMesonGammaAnalysis/ZTOMesonGamma/plots/Rho/bkg_BDT/"
     '''
     #output_dir = "/eos/user/g/gumoret/www/HZMesonGamma/latest_production/preselection_latest_production/"
-    if isPhiAnalysis:
-        if isHAnalysis: output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/H/Phi/Bkg_estimation_preselection/"
-        if isZAnalysis: output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/Z/Phi/Bkg_estimation_preselection/"    
-    if isRhoAnalysis:
-        if isHAnalysis: output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/H/Rho/Bkg_estimation_preselection/"
-        if isZAnalysis: output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/Z/Rho/Bkg_estimation_preselection/"
-    if isKAnalysis:
-        output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/H/Kst/Bkg_estimation_preselection/"
+    if not isTightSelection:
+        if isPhiAnalysis:
+            if isHAnalysis: output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/H/Phi/Bkg_estimation_preselection/"
+            if isZAnalysis: output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/Z/Phi/Bkg_estimation_preselection/"    
+        if isRhoAnalysis:
+            if isHAnalysis: output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/H/Rho/Bkg_estimation_preselection/"
+            if isZAnalysis: output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/Z/Rho/Bkg_estimation_preselection/"
+        if isKAnalysis:
+            output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/H/Kst/Bkg_estimation_preselection/"
 
+    if isTightSelection:
+        if isPhiAnalysis:
+            if isHAnalysis: output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/H/Phi/Bkg_estimation_BDT/"
+            if isZAnalysis: output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/Z/Phi/Bkg_estimation_BDT/"    
+        if isRhoAnalysis:
+            if isHAnalysis: output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/H/Rho/Bkg_estimation_BDT/"
+            if isZAnalysis: output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/Z/Rho/Bkg_estimation_BDT/"
+        if isKAnalysis:
+            output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/H/Kst/Bkg_estimation_BDT/"
 
 
     canvas[histo_name].SaveAs(output_dir + histo_name + ".pdf")

@@ -5,6 +5,7 @@ import numpy as np
 import sys
 from array import array
 import os
+from functions_smuggler import Simplified_Workflow_Handler
 
 #Following bools are given as input
 debug         = False
@@ -19,6 +20,8 @@ isDAnalysis   = False # for Z -> D0* Gamma
 
 isHAnalysis   = False
 isZAnalysis   = False
+
+isWideRange = False  #bool for wide range or zoomed range
 
 #Supress the opening of many Canvas's
 ROOT.gROOT.SetBatch(True)
@@ -70,11 +73,23 @@ if CRFlag == "CR": print("Processing the control region")
 if args.blind_option == "blind": isDataBlind = True
 if args.blind_option == "unblind": isDataBlind = False
 
-if (args.isBDT_option == "BDT"):
+if args.isBDT_option == "BDT":
     isBDT = True
+    fInputBDT = ROOT.TFile("MVA/BDToutput.root","READ")
+    BDTtree = fInputBDT.Get("BDTtree")
+    BDTtree.GetEntry(0)
+    BDT_OUT = BDTtree._BDT_output
+    print("BDT_OUT = ",BDT_OUT)
+    fInputBDT.Close()
 
-isWideRange = False  #bool for wide range or zoomed range
+print("Category = ", args.isBDT_option)
+print("-----------------------------------------------")
 
+################################################################################################################
+myWF = Simplified_Workflow_Handler("Signal","Data",isBDT)
+
+
+#Normalization for MC dataset ################################################################################
 
 #Combine luminosity
 luminosity = 108.95 #total lumi delivered during 2024
@@ -85,9 +100,7 @@ if isRhoAnalysis:
     if isZAnalysis: normalization_weight = (1./h_Events.GetBinContent(1)) * (1928000./0.0336)
     if isHAnalysis: normalization_weight = (1./h_Events.GetBinContent(1)) * (54700)
 if isKAnalysis:    
-    normalization_weight = (1./h_Events.GetBinContent(1)) * (54700) 
-
-    
+    normalization_weight = (1./h_Events.GetBinContent(1)) * (54700) * 0.667   
  
 
 #HISTOS ###########################################################################################################
@@ -143,10 +156,8 @@ else:
     #histo_map[list_histos[16]] = ROOT.TH1F(list_histos[16],"Meson mass reco - Meson mass gen", 100, -0.02, 0.02)
 
 
-if not isBDT:
-    histo_map[list_histos[16]] = ROOT.TH1F(list_histos[16],"Efficiency steps", 5, 0., 5.)
-else :
-    histo_map[list_histos[16]] = ROOT.TH1F(list_histos[16],"Efficiency steps", 6, 0., 6.)
+if not isBDT: histo_map[list_histos[16]] = ROOT.TH1F(list_histos[16],"Efficiency steps", 5, 0., 5.)
+else: histo_map[list_histos[16]] = ROOT.TH1F(list_histos[16],"Efficiency steps", 6, 0., 6.)
 
 #CREATE OUTPUT ROOTFILE ############################################################################################
 fOut = ROOT.TFile(output_filename,"RECREATE")
@@ -239,7 +250,7 @@ for jentry in range(nentries):
     #phi angle folding
     trksDeltaPhi = abs(firstTrkPhi -secondTrkPhi)
     if trksDeltaPhi > math.pi: trksDeltaPhi = 6.28 - trksDeltaPhi  
-    deltaR       = math.sqrt((firstTrkEta - secondTrkEta)**2 + trksDeltaPhi*trksDeltaPhi)
+    trksDeltaR       = math.sqrt((firstTrkEta - secondTrkEta)**2 + trksDeltaPhi*trksDeltaPhi)
     #deltaMesonMass = mytree.delta_meson_mass
     #eventWeight  = 1 ###placeholder 
 
@@ -295,20 +306,20 @@ for jentry in range(nentries):
     if (bosonMass < 50. or bosonMass > 200.): continue
     nEventsInBosonMassRange+=1
 
-    '''
+    
     #TIGHT SELECTION from BDT output -------------------------------------------------  
     if isBDT: 
-        BDT_out = myWF.get_BDT_output(firstTrkisoCh,MesonIso0,ZMass,mesonEta,MesonGammaDeltaPhi)#,mesonPt,photonEt,photonEta,nJets)#,JetNeutralEmEn,JetChargedHadEn,JetNeutralHadEn) 
+        BDT_out = myWF.get_BDT_output(mesonIso,mesonPt,bosonMass,mesonEta,photonEt)
         #histo_map["h_BDT_out"].Fill(BDT_out)
 
-        if debug: print "BDT value before selection = ", BDT_out
+        if debug: print("BDT value before selection = ", BDT_out)
         if args.isBDT_option == "BDT":
             if BDT_out < BDT_OUT: #Cut on BDT output
-                if debug: print "BDT cut NOT passed"
+                if debug: print("BDT cut NOT passed")
                 continue
 
         nTightSelection+=1
-    '''
+    
     if runningOnData == True:
         if isHAnalysis: #change limits 
             if (CRFlag == 'SR' and bosonMass > 50. and bosonMass < 120.) : nEventsLeftSB  += 1
@@ -351,7 +362,7 @@ for jentry in range(nentries):
     histo_map["h_mesonIso"].Fill(mesonIso, eventWeight)
     histo_map["h_photonEnergy"].Fill(photonEt, eventWeight)
     histo_map["h_photonEta"].Fill(photonEta, eventWeight)
-    histo_map["h_trksDeltaR"].Fill(deltaR, eventWeight)#/mesonMass
+    histo_map["h_trksDeltaR"].Fill(trksDeltaR, eventWeight)#/mesonMass
     histo_map["h_nMuons"].Fill(nMuons, eventWeight)
     histo_map["h_nElectrons"].Fill(nElectrons, eventWeight)
     #histo_map["h_deltaMesonMass"].Fill(deltaMesonMass, eventWeight)
@@ -369,7 +380,7 @@ for jentry in range(nentries):
     _mesonIso[0]     = mesonIso
     _photonEt[0]     = photonEt
     _photonEta[0]    = photonEta 
-    _trksDeltaR[0]   = deltaR
+    _trksDeltaR[0]   = trksDeltaR
     _eventWeight[0]  = eventWeight
 
     tree_output.Fill()
@@ -468,7 +479,6 @@ if isBDT: histo_map["h_efficiency"].Fill(5.5,bin6content*scale_factor)
 histo_map["h_efficiency"].GetXaxis().SetBinLabel(1,"Events processed")
 histo_map["h_efficiency"].GetXaxis().SetBinLabel(2,"Events triggered")
 histo_map["h_efficiency"].GetXaxis().SetBinLabel(3,"Photon requested")
-#histo_map["h_efficiency"].GetXaxis().SetBinLabel(4,"Iso selection")
 histo_map["h_efficiency"].GetXaxis().SetBinLabel(4,"Best couple found")
 histo_map["h_efficiency"].GetXaxis().SetBinLabel(5,"trk-cand pT selection")
 if isBDT:  histo_map["h_efficiency"].GetXaxis().SetBinLabel(6,"Tight selection")
@@ -480,7 +490,8 @@ histo_map["h_efficiency"].SetFillStyle(3003)
 ROOT.gStyle.SetPaintTextFormat("4.2f %")
 ROOT.gStyle.SetOptStat(0)
 histo_map["h_efficiency"].SetMarkerSize(1.4)
-histo_map["h_efficiency"].GetXaxis().SetRangeUser(0.,4.1)##modify
+if isBDT: histo_map["h_efficiency"].GetXaxis().SetRangeUser(0.,5.1)
+else: histo_map["h_efficiency"].GetXaxis().SetRangeUser(0.,4.1)
 #histo_map["h_efficiency"].GetYaxis().SetRangeUser(0.,30.)
 #histo_map["h_efficiency"].SetMaximum(max(histo_map["h_efficiency"].GetHistogram().GetMaximum(),30.))
 histo_map["h_efficiency"].Draw("HIST TEXT0")
