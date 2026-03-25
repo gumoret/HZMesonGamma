@@ -170,7 +170,8 @@ struct MesonSelection {
 MesonSelection select_mesons_kin(const RVec<float>& pt, const RVec<float>& eta, const RVec<float>& phi,
                              const RVec<float>& mass, const RVec<float>& iso, const RVec<float>& isoNeuHad,  float mass_low, float mass_high,
                              const RVec<float>& trk1_pt, const RVec<float>& trk1_eta, const RVec<float>& trk1_phi,
-                             const RVec<float>& trk2_pt, const RVec<float>& trk2_eta, const RVec<float>& trk2_phi) {
+                             const RVec<float>& trk2_pt, const RVec<float>& trk2_eta, const RVec<float>& trk2_phi, 
+                             float deltaR_cut) {
 
     // ΔR(trk1, trk2)
     auto dEta = trk1_eta - trk2_eta;
@@ -181,7 +182,7 @@ MesonSelection select_mesons_kin(const RVec<float>& pt, const RVec<float>& eta, 
     auto deltaR = sqrt(dEta * dEta + dPhi * dPhi);
     
     // Track-level cuts
-    auto trk_mask = !((trk1_pt < 1.0f) || (trk2_pt < 1.0f)) && !((trk1_pt < 10.0f) && (trk2_pt < 10.0f)) && (deltaR < 0.07f);
+    auto trk_mask = !((trk1_pt < 1.0f) || (trk2_pt < 1.0f)) && !((trk1_pt < 10.0f) && (trk2_pt < 10.0f)) && (deltaR < deltaR_cut);
         
     // Meson cuts: mass window, iso > 0.9, pt > 38, |eta| < 2.5
     auto meson_mask = (pt > 38) && (abs(eta) < 2.5) && (mass > mass_low) && (mass < mass_high) && (iso > 0.9) && (isoNeuHad > 0.8);
@@ -396,6 +397,7 @@ if isPhiAnalysis:
     mass_low, mass_high = 1.00, 1.05
     mass_trk1, mass_trk2 = 0.4937, 0.4937  # Kaon mass
     meson_prefix = "phi"
+    deltaR_cut = 0.07
     #dictionary for tracks names
     trk1_pt   = f"{meson_prefix}_trk1_pt"
     trk1_eta  = f"{meson_prefix}_trk1_eta"
@@ -407,6 +409,7 @@ elif isRhoAnalysis:
     mass_low, mass_high = 0.50, 1.00
     mass_trk1, mass_trk2 = 0.13957, 0.13957  #Pion mass
     meson_prefix = "rho"
+    deltaR_cut = 0.07
     #dictionary for tracks names
     trk1_pt   = f"{meson_prefix}_trk1_pt"
     trk1_eta  = f"{meson_prefix}_trk1_eta"
@@ -418,6 +421,7 @@ elif isKAnalysis:
     mass_low, mass_high = 0.60, 1.00
     mass_trk1, mass_trk2 = 0.4937, 0.13957  #Kaon mass, Pion mass
     meson_prefix = "K0Star" 
+    deltaR_cut = 0.07
     #dictionary for tracks names
     trk1_pt  = f"{meson_prefix}_kaon_pt"
     trk1_eta = f"{meson_prefix}_kaon_eta"
@@ -429,6 +433,7 @@ elif isDAnalysis:
     mass_low, mass_high = 1.78, 1.94
     mass_trk1, mass_trk2 = 0.4937, 0.13957  # Kaon, Pion
     meson_prefix = "d0"
+    deltaR_cut = 0.15
     #dictionary for tracks names
     trk1_pt  = f"{meson_prefix}_kaon_pt"
     trk1_eta = f"{meson_prefix}_kaon_eta"
@@ -449,7 +454,8 @@ if not ismesonFromTracks:
                 f"select_mesons_kin({meson_prefix}_kin_pt, {meson_prefix}_kin_eta, {meson_prefix}_kin_phi, "
                 f"{meson_prefix}_kin_mass, {meson_prefix}_iso, {meson_prefix}_isoNeuHad , {mass_low}, {mass_high}, "
                 f"{trk1_pt}, {trk1_eta}, {trk1_phi}, "
-                f"{trk2_pt}, {trk2_eta}, {trk2_phi})")
+                f"{trk2_pt}, {trk2_eta}, {trk2_phi}, "
+                f"{deltaR_cut})")
     df = df.Define("nGoodMesons", "meson_sel.nGood")
     df = df.Define("bestMesonIdx", "meson_sel.bestIdx")
     df = df.Filter("nGoodMesons > 0", "At least one good meson")
@@ -481,6 +487,21 @@ if not ismesonFromTracks:
     df = df.Define("firstTrk_phi",  "trk1_pt_best  > trk2_pt_best ? trk1_phi_best : trk2_phi_best")
     df = df.Define("secondTrk_eta", "trk1_pt_best  > trk2_pt_best ? trk2_eta_best : trk1_eta_best")
     df = df.Define("secondTrk_phi", "trk1_pt_best  > trk2_pt_best ? trk2_phi_best : trk1_phi_best")
+
+    #lifetime-related variables for D0 channel
+    if isDAnalysis:
+        df = df.Define("d0_lxy",   "bestMesonIdx >= 0 ? d0_kin_lxy[bestMesonIdx] : -999.f")
+        df = df.Define("d0_slxy",  "bestMesonIdx >= 0 ? d0_kin_slxy[bestMesonIdx] : -999.f")
+        df = df.Define("d0_sipPV", "bestMesonIdx >= 0 ? d0_kin_sipPV[bestMesonIdx] : -999.f")
+        df = df.Define("d0_sipBS", "bestMesonIdx >= 0 ? d0_kin_sipBS[bestMesonIdx] : -999.f")
+    else:
+        df = df.Define("d0_lxy",   "0.f")
+        df = df.Define("d0_slxy",  "0.f")
+        df = df.Define("d0_sipPV", "0.f")
+        df = df.Define("d0_sipBS", "0.f")
+
+
+
 
 else:
     if verbose:
@@ -574,7 +595,8 @@ columns_to_save = ["nPU", "MC_Weight", "HLT_Photon35_TwoProngs35",
                    "bestMeson_pt", "bestMeson_eta", "bestMeson_phi", "bestMeson_mass", "isoMeson", "isoMesonNeu",
                    "firstTrk_pt", "firstTrk_eta", "firstTrk_phi", "secondTrk_pt", "secondTrk_eta", "secondTrk_phi",
                    "H_mass", "H_pt", "H_eta", "H_phi",
-                   "isPhotonMatched", "isMesonMatched", "isBosonMatched", "delta_meson_mass"]
+                   "isPhotonMatched", "isMesonMatched", "isBosonMatched", "delta_meson_mass",
+                   "d0_lxy", "d0_slxy", "d0_sipPV", "d0_sipBS"]
 
 df.Snapshot("tree_output", output_file, columns_to_save)
 
