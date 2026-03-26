@@ -435,6 +435,23 @@ for histo_name in list_histos:
     if histo_name == "h_MesonGammaDeltaPhi" :
         hstack[histo_name].GetXaxis().SetTitle("#Delta#phi_{meson, #gamma} [rad] ")
 
+    if histo_name == "h_lxy" :
+        hstack[histo_name].GetXaxis().SetTitle("Transverse decay length")
+
+    if histo_name == "h_slxy" :
+        hstack[histo_name].GetXaxis().SetTitle("Transverse decay length significance")
+
+    if histo_name == "h_sipPV" :
+        hstack[histo_name].GetXaxis().SetTitle("Impact parameter significance (PV)")
+
+    if histo_name == "h_sipBS" :
+        hstack[histo_name].GetXaxis().SetTitle("Impact parameter significance (BS)")
+        
+    
+
+    
+    
+
     hstack[histo_name].Draw("SAME,histo")
 
     '''

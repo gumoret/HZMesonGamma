@@ -273,7 +273,11 @@ for jentry in range(nentries):
     #phi angle folding
     trksDeltaPhi = abs(firstTrkPhi -secondTrkPhi)
     if trksDeltaPhi > math.pi: trksDeltaPhi = 6.28 - trksDeltaPhi  
-    trksDeltaR       = math.sqrt((firstTrkEta - secondTrkEta)**2 + trksDeltaPhi*trksDeltaPhi)
+    trksDeltaR   = math.sqrt((firstTrkEta - secondTrkEta)**2 + trksDeltaPhi*trksDeltaPhi)
+    lxy          = mytree.d0_lxy
+    slxy         = mytree.d0_slxy
+    sipPV        = mytree.d0_sipPV
+    sipBS        = mytree.d0_sipBS
     #deltaMesonMass = mytree.delta_meson_mass
     #eventWeight  = 1 ###placeholder 
 
@@ -493,17 +497,17 @@ histo_map["h_nMuons"].SetTitle("# of muons")
 histo_map["h_nElectrons"].GetXaxis().SetTitle("nElectrons over selection")
 histo_map["h_nElectrons"].SetTitle("# of electrons") 
 
-histo_map["h_lxy"].GetXaxis().SetTitle("Transverse decay length")
-histo_map["h_nElectrons"].SetTitle("L_{xy} [cm]")
+histo_map["h_lxy"].GetXaxis().SetTitle("L_{xy} [cm]")
+histo_map["h_nElectrons"].SetTitle("Transverse decay length")
 
-histo_map["h_slxy"].GetXaxis().SetTitle("Transverse decay length significance")
-histo_map["h_nElectrons"].SetTitle("L_{xy}/#sigma(L_{xy})")
+histo_map["h_slxy"].GetXaxis().SetTitle("L_{xy}/#sigma(L_{xy})")
+histo_map["h_nElectrons"].SetTitle("Transverse decay length significance")
 
-histo_map["h_sipPV"].GetXaxis().SetTitle("Impact parameter significance (PV)")
-histo_map["h_nElectrons"].SetTitle("IP/#sigma(IP) (PV)")
+histo_map["h_sipPV"].GetXaxis().SetTitle("IP/#sigma(IP) (PV)")
+histo_map["h_nElectrons"].SetTitle("Impact parameter significance (PV)") 
 
-histo_map["h_sipBS"].GetXaxis().SetTitle("Impact parameter significance (BS)")
-histo_map["h_nElectrons"].SetTitle("IP/#sigma(IP) (BS)")
+histo_map["h_sipBS"].GetXaxis().SetTitle("IP/#sigma(IP) (BS)")
+histo_map["h_nElectrons"].SetTitle("Impact parameter significance (BS)")
 
 histo_map["h_efficiency"].GetXaxis().SetTitle("")
 histo_map["h_efficiency"].GetYaxis().SetTitle("#epsilon (%)")
