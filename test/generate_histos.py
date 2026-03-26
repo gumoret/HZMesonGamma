@@ -107,7 +107,7 @@ if isDAnalysis: normalization_weight = (1./h_Events.GetBinContent(1)) * (54700) 
 histo_map = dict()
 list_histos = ["h_bosonMass", "h_mesonMass", "h_firstTrkPt", "h_secondTrkPt", "h_firstTrkEta", "h_secondTrkEta", 
                "h_firstTrkPhi", "h_secondTrkPhi", "h_mesonPt", "h_mesonEta", "h_trksDeltaR","h_mesonIsoCh", "h_mesonIsoNeu",
-               "h_photonEnergy", "h_photonEta","h_nMuons","h_nElectrons", "h_efficiency"]#"h_deltaMesonMass", "h_efficiency"]  
+               "h_photonEnergy", "h_photonEta","h_nMuons","h_nElectrons", "h_lxy", "h_slxy", "h_sipPV", "h_sipBS", "h_efficiency"]#"h_deltaMesonMass", "h_efficiency"]  
 
 if isWideRange:
     if isZAnalysis: histo_map[list_histos[0]]   = ROOT.TH1F(list_histos[0],"M_{Z}", 300, 50., 150.) 
@@ -131,6 +131,10 @@ if isWideRange:
     histo_map[list_histos[14]] = ROOT.TH1F(list_histos[14],"#eta_{#gamma}", 100, -2.5,2.5)
     histo_map[list_histos[15]] = ROOT.TH1F(list_histos[15],"n. of muons", 6, -0.5, 5.5)
     histo_map[list_histos[16]] = ROOT.TH1F(list_histos[16],"n. of electrons", 5, -0.5, 5.5)
+    histo_map[list_histos[17]] = ROOT.TH1F(list_histos[17],"l_{xy}", 100, -0.5, 5.5)
+    histo_map[list_histos[18]] = ROOT.TH1F(list_histos[18],"sl_{xy}", 100, -0.5, 110)
+    histo_map[list_histos[19]] = ROOT.TH1F(list_histos[19],"sipPV", 100, -0.5, 8.5)
+    histo_map[list_histos[20]] = ROOT.TH1F(list_histos[20],"sipBS", 100, -0.5, 61.5)
     #histo_map[list_histos[16]] = ROOT.TH1F(list_histos[16],"Meson mass reco - Meson mass gen", 100, -0.055, 0.055)
 
 else:
@@ -159,11 +163,15 @@ else:
     histo_map[list_histos[14]] = ROOT.TH1F(list_histos[14],"#eta_{#gamma}", 100, -2.5,2.5)
     histo_map[list_histos[15]] = ROOT.TH1F(list_histos[15],"n. of muons", 6, -0.5, 5.5)
     histo_map[list_histos[16]] = ROOT.TH1F(list_histos[16],"n. of electrons", 5, -0.5, 5.5)
+    histo_map[list_histos[17]] = ROOT.TH1F(list_histos[17],"l_{xy}", 100, -0.5, 5.5)
+    histo_map[list_histos[18]] = ROOT.TH1F(list_histos[18],"sl_{xy}", 100, -0.5, 110)
+    histo_map[list_histos[19]] = ROOT.TH1F(list_histos[19],"sipPV", 100, -0.5, 8.5)
+    histo_map[list_histos[20]] = ROOT.TH1F(list_histos[20],"sipBS", 100, -0.5, 61.5)
     #histo_map[list_histos[16]] = ROOT.TH1F(list_histos[16],"Meson mass reco - Meson mass gen", 100, -0.02, 0.02)
 
 
-if not isBDT: histo_map[list_histos[17]] = ROOT.TH1F(list_histos[17],"Efficiency steps", 5, 0., 5.)
-else: histo_map[list_histos[17]] = ROOT.TH1F(list_histos[17],"Efficiency steps", 6, 0., 6.)
+if not isBDT: histo_map[list_histos[21]] = ROOT.TH1F(list_histos[21],"Efficiency steps", 5, 0., 5.)
+else: histo_map[list_histos[21]] = ROOT.TH1F(list_histos[21],"Efficiency steps", 6, 0., 6.)
 
 #CREATE OUTPUT ROOTFILE ############################################################################################
 fOut = ROOT.TFile(output_filename,"RECREATE")
@@ -186,6 +194,10 @@ _photonEt     = np.zeros(1, dtype=float)
 _photonEta    = np.zeros(1, dtype=float) 
 _trksDeltaR   = np.zeros(1, dtype=float)
 _eventWeight  = np.zeros(1, dtype=float)
+_lxy          = np.zeros(1, dtype=float)
+_slxy         = np.zeros(1, dtype=float)
+_sipPV        = np.zeros(1, dtype=float)
+_sipBS        = np.zeros(1, dtype=float)
 
 #output tree
 tree_output = ROOT.TTree('tree_output','tree_output')
@@ -207,6 +219,11 @@ tree_output.Branch('photonEt',_photonEt,'_photonEt/D')
 tree_output.Branch('photonEta',_photonEta,'_photonEta/D')
 tree_output.Branch('trksDeltaR',_trksDeltaR,'_trksDeltaR/D')
 tree_output.Branch('eventWeight',_eventWeight,'_eventWeight/D')
+tree_output.Branch('lxy',_lxy,'_lxy/D')
+tree_output.Branch('slxy',_slxy,'_slxy/D')
+tree_output.Branch('sipPV',_sipPV,'_sipPV/D')
+tree_output.Branch('sipBS',_sipBS,'_sipBS/D')
+
 
 #------------- counters -----------------
 #nEventsMesonAnalysis  = 0
@@ -384,6 +401,13 @@ for jentry in range(nentries):
     histo_map["h_trksDeltaR"].Fill(trksDeltaR, eventWeight)#/mesonMass
     histo_map["h_nMuons"].Fill(nMuons, eventWeight)
     histo_map["h_nElectrons"].Fill(nElectrons, eventWeight)
+    histo_map["h_lxy"].Fill(lxy, eventWeight)
+    histo_map["h_slxy"].Fill(slxy, eventWeight)
+    histo_map["h_sipPV"].Fill(sipPV, eventWeight)
+    histo_map["h_sipBS"].Fill(sipBS, eventWeight)
+    
+
+
     #histo_map["h_deltaMesonMass"].Fill(deltaMesonMass, eventWeight)
 
 
@@ -402,6 +426,10 @@ for jentry in range(nentries):
     _photonEta[0]    = photonEta 
     _trksDeltaR[0]   = trksDeltaR
     _eventWeight[0]  = eventWeight
+    _lxy[0]          = lxy
+    _slxy[0]         = slxy
+    _sipPV[0]        = sipPV
+    _sipBS[0]        = sipBS
 
     tree_output.Fill()
 
@@ -463,7 +491,19 @@ histo_map["h_nMuons"].GetXaxis().SetTitle("nMuons over selection")
 histo_map["h_nMuons"].SetTitle("# of muons")
 
 histo_map["h_nElectrons"].GetXaxis().SetTitle("nElectrons over selection")
-histo_map["h_nElectrons"].SetTitle("# of electrons")
+histo_map["h_nElectrons"].SetTitle("# of electrons") 
+
+histo_map["h_lxy"].GetXaxis().SetTitle("Transverse decay length")
+histo_map["h_nElectrons"].SetTitle("L_{xy} [cm]")
+
+histo_map["h_slxy"].GetXaxis().SetTitle("Transverse decay length significance")
+histo_map["h_nElectrons"].SetTitle("L_{xy}/#sigma(L_{xy})")
+
+histo_map["h_sipPV"].GetXaxis().SetTitle("Impact parameter significance (PV)")
+histo_map["h_nElectrons"].SetTitle("IP/#sigma(IP) (PV)")
+
+histo_map["h_sipBS"].GetXaxis().SetTitle("Impact parameter significance (BS)")
+histo_map["h_nElectrons"].SetTitle("IP/#sigma(IP) (BS)")
 
 histo_map["h_efficiency"].GetXaxis().SetTitle("")
 histo_map["h_efficiency"].GetYaxis().SetTitle("#epsilon (%)")
