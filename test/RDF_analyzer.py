@@ -41,7 +41,7 @@ import glob
 #base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/GJ-4Jets_Bin-HT-1000-PTG-100to200_Par-dRGJ-0p25_TuneCP5_13p6TeV_madgraphMLM-pythia8+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2+MINIAODSIM/"
 #files = sorted(glob.glob(f"{base_dir}/*.root")) 
 
-'''
+
 #Tau2022
 base_dir = "/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D05" 
 
@@ -49,7 +49,7 @@ files = []
 
 for era in ["12022", "22022"]:
     files.extend(glob.glob(f"{base_dir}/{era}/Tau+Run*/*.root"))
-'''
+
 #EGamma 2024
 '''
 base_dir = "/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024"
@@ -70,7 +70,7 @@ files.extend(glob.glob(f"{base_dir}/EGamma*/*.root"))
 #base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/GluGluHtoKStar0G_Par-M-125_TuneCP5_13p6TeV_powheg-pythia8-evtgen+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2+MINIAODSIM"
 
 #HDstGamma signal
-base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/GluGluHtoDStar0G_Par-M-125_TuneCP5_13p6TeV_powheg-pythia8-evtgen+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2+MINIAODSIM"
+#base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/GluGluHtoDStar0G_Par-M-125_TuneCP5_13p6TeV_powheg-pythia8-evtgen+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2+MINIAODSIM"
 
 #ZPhiGamma signal
 #base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/ZtoPhiG_TuneCP5_13p6TeV_madgraphMLM-pythia8+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v3+MINIAODSIM"
@@ -79,7 +79,7 @@ base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/GluGluHtoDStar0G
 #base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/ZtoRhoG_TuneCP5_13p6TeV_madgraphMLM-pythia8+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v3+MINIAODSIM"
 
 
-files = sorted(glob.glob(f"{base_dir}/*.root"))
+#files = sorted(glob.glob(f"{base_dir}/*.root"))
 
 
 
@@ -446,63 +446,60 @@ else:
     mass_low, mass_high = 0.0, 99.0
     meson_prefix = "phi"
 
-if not ismesonFromTracks:
-    if verbose:
-        print("### Mode: meson from NanoAOD ###")
+#if not ismesonFromTracks:
+if verbose: print("### Mode: meson from NanoAOD ###")
 
-    df = df.Define("meson_sel", 
-                f"select_mesons_kin({meson_prefix}_kin_pt, {meson_prefix}_kin_eta, {meson_prefix}_kin_phi, "
-                f"{meson_prefix}_kin_mass, {meson_prefix}_iso, {meson_prefix}_isoNeuHad , {mass_low}, {mass_high}, "
-                f"{trk1_pt}, {trk1_eta}, {trk1_phi}, "
-                f"{trk2_pt}, {trk2_eta}, {trk2_phi}, "
-                f"{deltaR_cut})")
-    df = df.Define("nGoodMesons", "meson_sel.nGood")
-    df = df.Define("bestMesonIdx", "meson_sel.bestIdx")
-    df = df.Filter("nGoodMesons > 0", "At least one good meson")
-    n_meson = df.Filter("nGoodMesons").Count().GetValue()
+df = df.Define("meson_sel", 
+            f"select_mesons_kin({meson_prefix}_kin_pt, {meson_prefix}_kin_eta, {meson_prefix}_kin_phi, "
+            f"{meson_prefix}_kin_mass, {meson_prefix}_iso, {meson_prefix}_isoNeuHad , {mass_low}, {mass_high}, "
+            f"{trk1_pt}, {trk1_eta}, {trk1_phi}, "
+            f"{trk2_pt}, {trk2_eta}, {trk2_phi}, "
+            f"{deltaR_cut})")
+df = df.Define("nGoodMesons", "meson_sel.nGood")
+df = df.Define("bestMesonIdx", "meson_sel.bestIdx")
+df = df.Filter("nGoodMesons > 0", "At least one good meson")
+n_meson = df.Filter("nGoodMesons").Count().GetValue()
 
-    # pT, eta, phi, p4, iso of the selected meson (if it exists)
-    df = df.Define("meson_p4",       f"make_meson_p4({meson_prefix}_kin_pt, {meson_prefix}_kin_eta, {meson_prefix}_kin_phi, {meson_prefix}_kin_mass, bestMesonIdx)")
-    df = df.Define("bestMeson_pt",   f"bestMesonIdx  >= 0 ? {meson_prefix}_kin_pt[bestMesonIdx] : -1.f")
-    df = df.Define("bestMeson_eta",  f"bestMesonIdx  >= 0 ? {meson_prefix}_kin_eta[bestMesonIdx] : -999.f")
-    df = df.Define("bestMeson_phi",  f"bestMesonIdx  >= 0 ? {meson_prefix}_kin_phi[bestMesonIdx] : -999.f")
-    df = df.Define("bestMeson_mass", f"bestMesonIdx  >= 0 ? {meson_prefix}_kin_mass[bestMesonIdx] : -1.f")
-    df = df.Define("isoMeson",       f"bestMesonIdx  >= 0 ? {meson_prefix}_iso[bestMesonIdx] : -1.f")
-    df = df.Define("isoMesonNeu",    f"bestMesonIdx  >= 0 ? {meson_prefix}_isoNeuHad[bestMesonIdx] : -1.f")
+# pT, eta, phi, p4, iso of the selected meson (if it exists)
+df = df.Define("meson_p4",       f"make_meson_p4({meson_prefix}_kin_pt, {meson_prefix}_kin_eta, {meson_prefix}_kin_phi, {meson_prefix}_kin_mass, bestMesonIdx)")
+df = df.Define("bestMeson_pt",   f"bestMesonIdx  >= 0 ? {meson_prefix}_kin_pt[bestMesonIdx] : -1.f")
+df = df.Define("bestMeson_eta",  f"bestMesonIdx  >= 0 ? {meson_prefix}_kin_eta[bestMesonIdx] : -999.f")
+df = df.Define("bestMeson_phi",  f"bestMesonIdx  >= 0 ? {meson_prefix}_kin_phi[bestMesonIdx] : -999.f")
+df = df.Define("bestMeson_mass", f"bestMesonIdx  >= 0 ? {meson_prefix}_kin_mass[bestMesonIdx] : -1.f")
+df = df.Define("isoMeson",       f"bestMesonIdx  >= 0 ? {meson_prefix}_iso[bestMesonIdx] : -1.f")
+df = df.Define("isoMesonNeu",    f"bestMesonIdx  >= 0 ? {meson_prefix}_isoNeuHad[bestMesonIdx] : -1.f")
 
-    # final tracks pT selection
-    df = df.Define("trk1_pt_best", f"bestMesonIdx  >= 0 ? {trk1_pt}[bestMesonIdx] : -1.f")
-    df = df.Define("trk2_pt_best", f"bestMesonIdx  >= 0 ? {trk2_pt}[bestMesonIdx] : -1.f")
-    df = df.Define("firstTrk_pt",  "trk1_pt_best > trk2_pt_best ? trk1_pt_best : trk2_pt_best")
-    df = df.Define("secondTrk_pt", "trk1_pt_best > trk2_pt_best ? trk2_pt_best : trk1_pt_best")
-    df = df.Filter("firstTrk_pt >= 20 && secondTrk_pt >= 5", "Final track pT selection")
-    n_meson_trks = df.Filter("firstTrk_pt").Count().GetValue()
+# final tracks pT selection
+df = df.Define("trk1_pt_best", f"bestMesonIdx  >= 0 ? {trk1_pt}[bestMesonIdx] : -1.f")
+df = df.Define("trk2_pt_best", f"bestMesonIdx  >= 0 ? {trk2_pt}[bestMesonIdx] : -1.f")
+df = df.Define("firstTrk_pt",  "trk1_pt_best > trk2_pt_best ? trk1_pt_best : trk2_pt_best")
+df = df.Define("secondTrk_pt", "trk1_pt_best > trk2_pt_best ? trk2_pt_best : trk1_pt_best")
+df = df.Filter("firstTrk_pt >= 20 && secondTrk_pt >= 5", "Final track pT selection")
+n_meson_trks = df.Filter("firstTrk_pt").Count().GetValue()
 
-    # eta, phi of the best meson tracks
-    df = df.Define("trk1_eta_best", f"bestMesonIdx  >= 0 ? {trk1_eta}[bestMesonIdx] : -999.f")
-    df = df.Define("trk1_phi_best", f"bestMesonIdx  >= 0 ? {trk1_phi}[bestMesonIdx] : -999.f")
-    df = df.Define("trk2_eta_best", f"bestMesonIdx  >= 0 ? {trk2_eta}[bestMesonIdx] : -999.f")
-    df = df.Define("trk2_phi_best", f"bestMesonIdx  >= 0 ? {trk2_phi}[bestMesonIdx] : -999.f")
-    df = df.Define("firstTrk_eta",  "trk1_pt_best  > trk2_pt_best ? trk1_eta_best : trk2_eta_best")
-    df = df.Define("firstTrk_phi",  "trk1_pt_best  > trk2_pt_best ? trk1_phi_best : trk2_phi_best")
-    df = df.Define("secondTrk_eta", "trk1_pt_best  > trk2_pt_best ? trk2_eta_best : trk1_eta_best")
-    df = df.Define("secondTrk_phi", "trk1_pt_best  > trk2_pt_best ? trk2_phi_best : trk1_phi_best")
+# eta, phi of the best meson tracks
+df = df.Define("trk1_eta_best", f"bestMesonIdx  >= 0 ? {trk1_eta}[bestMesonIdx] : -999.f")
+df = df.Define("trk1_phi_best", f"bestMesonIdx  >= 0 ? {trk1_phi}[bestMesonIdx] : -999.f")
+df = df.Define("trk2_eta_best", f"bestMesonIdx  >= 0 ? {trk2_eta}[bestMesonIdx] : -999.f")
+df = df.Define("trk2_phi_best", f"bestMesonIdx  >= 0 ? {trk2_phi}[bestMesonIdx] : -999.f")
+df = df.Define("firstTrk_eta",  "trk1_pt_best  > trk2_pt_best ? trk1_eta_best : trk2_eta_best")
+df = df.Define("firstTrk_phi",  "trk1_pt_best  > trk2_pt_best ? trk1_phi_best : trk2_phi_best")
+df = df.Define("secondTrk_eta", "trk1_pt_best  > trk2_pt_best ? trk2_eta_best : trk1_eta_best")
+df = df.Define("secondTrk_phi", "trk1_pt_best  > trk2_pt_best ? trk2_phi_best : trk1_phi_best")
 
-    #lifetime-related variables for D0 channel
-    if isDAnalysis:
-        df = df.Define("d0_lxy",   "bestMesonIdx >= 0 ? d0_kin_lxy[bestMesonIdx] : -999.f")
-        df = df.Define("d0_slxy",  "bestMesonIdx >= 0 ? d0_kin_slxy[bestMesonIdx] : -999.f")
-        df = df.Define("d0_sipPV", "bestMesonIdx >= 0 ? d0_kin_sipPV[bestMesonIdx] : -999.f")
-        df = df.Define("d0_sipBS", "bestMesonIdx >= 0 ? d0_kin_sipBS[bestMesonIdx] : -999.f")
-    else:
-        df = df.Define("d0_lxy",   "0.f")
-        df = df.Define("d0_slxy",  "0.f")
-        df = df.Define("d0_sipPV", "0.f")
-        df = df.Define("d0_sipBS", "0.f")
+#lifetime-related variables for D0 channel
+if isDAnalysis:
+    df = df.Define("d0_lxy",   "bestMesonIdx >= 0 ? d0_kin_lxy[bestMesonIdx] : -999.f")
+    df = df.Define("d0_slxy",  "bestMesonIdx >= 0 ? d0_kin_slxy[bestMesonIdx] : -999.f")
+    df = df.Define("d0_sipPV", "bestMesonIdx >= 0 ? d0_kin_sipPV[bestMesonIdx] : -999.f")
+    df = df.Define("d0_sipBS", "bestMesonIdx >= 0 ? d0_kin_sipBS[bestMesonIdx] : -999.f")
+else:
+    df = df.Define("d0_lxy",   "0.f")
+    df = df.Define("d0_slxy",  "0.f")
+    df = df.Define("d0_sipPV", "0.f")
+    df = df.Define("d0_sipBS", "0.f")
 
-
-
-
+'''
 else:
     if verbose:
         print("### Mode: meson reconstructed from tracks ###")
@@ -549,7 +546,7 @@ else:
             .Filter("firstTrk_pt >= 20 && secondTrk_pt >= 5", "Final track pT selection") 
         )       
     n_meson_trks = df.Filter("firstTrk_pt").Count().GetValue()
-
+'''
 
 # ------------------------------------------------------------
 # Boson
