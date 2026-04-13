@@ -139,7 +139,7 @@ elif isKAnalysis:
     decayChannel = "K*#gamma "
 elif isDAnalysis:
     colors_mask["SidebandsNorm"] = ROOT.kViolet-4
-    decayChannel = "K*#gamma "
+    decayChannel = "D*#gamma "
 
 
 colors_mask["GammaJets"]           = ROOT.kOrange
@@ -191,7 +191,7 @@ for filename in list_inputfiles: # data, signal, sidebands
             else: histo_container[-1].Rebin(4)
         '''
         if histo_name not in rebin_map:
-            if histo_name in ["h_nMuons", "h_nElectrons"]: rebin_map[histo_name] = 1  # no rebin
+            if histo_name in ["h_nMuons", "h_nElectrons", "h_lxy", "h_slxy", "h_sipPV", "h_sipBS"]: rebin_map[histo_name] = 1  # no rebin
             else:
                 entries = histo.GetEntries()
 
