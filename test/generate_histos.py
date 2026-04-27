@@ -86,7 +86,10 @@ print("Category = ", args.isBDT_option)
 print("-----------------------------------------------")
 
 ################################################################################################################
-myWF = Simplified_Workflow_Handler("Signal","Data",isBDT)
+if isDAnalysis:
+    myWF = Simplified_Workflow_Handler("Signal","Data",isBDT,isD0=True)
+else: myWF = Simplified_Workflow_Handler("Signal","Data",isBDT,isD0=False)
+
 
 
 #Normalization for MC dataset ################################################################################
@@ -131,6 +134,7 @@ if isWideRange:
     histo_map[list_histos[14]] = ROOT.TH1F(list_histos[14],"#eta_{#gamma}", 100, -2.5,2.5)
     histo_map[list_histos[15]] = ROOT.TH1F(list_histos[15],"n. of muons", 6, -0.5, 5.5)
     histo_map[list_histos[16]] = ROOT.TH1F(list_histos[16],"n. of electrons", 5, -0.5, 5.5)
+    #if isDAnalysis:
     histo_map[list_histos[17]] = ROOT.TH1F(list_histos[17],"l_{xy}", 100, -0.5, 5.5)
     histo_map[list_histos[18]] = ROOT.TH1F(list_histos[18],"sl_{xy}", 100, -0.5, 110)
     histo_map[list_histos[19]] = ROOT.TH1F(list_histos[19],"sipPV", 100, -0.5, 8.5)
@@ -164,15 +168,19 @@ else:
     histo_map[list_histos[14]] = ROOT.TH1F(list_histos[14],"#eta_{#gamma}", 100, -2.5,2.5)
     histo_map[list_histos[15]] = ROOT.TH1F(list_histos[15],"n. of muons", 6, -0.5, 5.5)
     histo_map[list_histos[16]] = ROOT.TH1F(list_histos[16],"n. of electrons", 5, -0.5, 5.5)
+    #if isDAnalysis:
     histo_map[list_histos[17]] = ROOT.TH1F(list_histos[17],"l_{xy}", 100, 0., 1.5)
     histo_map[list_histos[18]] = ROOT.TH1F(list_histos[18],"sl_{xy}", 100, 0., 10)
     histo_map[list_histos[19]] = ROOT.TH1F(list_histos[19],"sipPV", 100, 0., 5.)
     histo_map[list_histos[20]] = ROOT.TH1F(list_histos[20],"sipBS", 100, 0., 70.)
     #histo_map[list_histos[16]] = ROOT.TH1F(list_histos[16],"Meson mass reco - Meson mass gen", 100, -0.02, 0.02)
 
-
+#if isDAnalysis:
 if not isBDT: histo_map[list_histos[21]] = ROOT.TH1F(list_histos[21],"Efficiency steps", 5, 0., 5.)
 else: histo_map[list_histos[21]] = ROOT.TH1F(list_histos[21],"Efficiency steps", 6, 0., 6.)
+#else:
+    #if not isBDT: histo_map[list_histos[21]] = ROOT.TH1F(list_histos[17],"Efficiency steps", 5, 0., 5.)
+    #else: histo_map[list_histos[21]] = ROOT.TH1F(list_histos[17],"Efficiency steps", 6, 0., 6.)
 
 #CREATE OUTPUT ROOTFILE ############################################################################################
 fOut = ROOT.TFile(output_filename,"RECREATE")
@@ -343,8 +351,10 @@ for jentry in range(nentries):
 
     
     #TIGHT SELECTION from BDT output -------------------------------------------------  
-    if isBDT: 
-        BDT_out = myWF.get_BDT_output(mesonIsoCh,mesonPt,bosonMass,mesonEta,photonEt,lxy)
+    if isBDT:
+        if isDAnalysis: BDT_out = myWF.get_BDT_output(mesonIsoCh,mesonPt,bosonMass,mesonEta,photonEt,lxy)
+        else: BDT_out = myWF.get_BDT_output(mesonIsoCh,mesonPt,bosonMass,mesonEta,photonEt)
+        
         #histo_map["h_BDT_out"].Fill(BDT_out)
 
         if debug: print("BDT value before selection = ", BDT_out)
