@@ -344,7 +344,7 @@ for jentry in range(nentries):
     
     #TIGHT SELECTION from BDT output -------------------------------------------------  
     if isBDT: 
-        BDT_out = myWF.get_BDT_output(mesonIso,mesonPt,bosonMass,mesonEta,photonEt)
+        BDT_out = myWF.get_BDT_output(mesonIsoCh,mesonPt,bosonMass,mesonEta,photonEt)#,lxy)
         #histo_map["h_BDT_out"].Fill(BDT_out)
 
         if debug: print("BDT value before selection = ", BDT_out)
@@ -498,7 +498,7 @@ histo_map["h_nMuons"].SetTitle("# of muons")
 histo_map["h_nElectrons"].GetXaxis().SetTitle("nElectrons over selection")
 histo_map["h_nElectrons"].SetTitle("# of electrons") 
 
-histo_map["h_lxy"].GetXaxis().SetTitle("L_{xy} [cm]")
+histo_map["h_lxy"].GetXaxis().SetTitle("L_{xy} [mm]")
 histo_map["h_nElectrons"].SetTitle("Transverse decay length")
 
 histo_map["h_slxy"].GetXaxis().SetTitle("L_{xy}/#sigma(L_{xy})")

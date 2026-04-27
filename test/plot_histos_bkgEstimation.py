@@ -436,7 +436,7 @@ for histo_name in list_histos:
         hstack[histo_name].GetXaxis().SetTitle("#Delta#phi_{meson, #gamma} [rad] ")
 
     if histo_name == "h_lxy" :
-        hstack[histo_name].GetXaxis().SetTitle("Transverse decay length")
+        hstack[histo_name].GetXaxis().SetTitle("Transverse decay length [mm]")
 
     if histo_name == "h_slxy" :
         hstack[histo_name].GetXaxis().SetTitle("Transverse decay length significance")
