@@ -135,7 +135,7 @@ elif isRhoAnalysis:
     colors_mask["SidebandsNorm"] = ROOT.kRed-4
     decayChannel = "#rho#gamma "
 elif isKAnalysis:
-    colors_mask["SidebandsNorm"] = ROOT.Green-7
+    colors_mask["SidebandsNorm"] = ROOT.kGreen-7
     decayChannel = "K*#gamma "
 elif isDAnalysis:
     colors_mask["SidebandsNorm"] = ROOT.kViolet-4
