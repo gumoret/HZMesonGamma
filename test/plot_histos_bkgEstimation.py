@@ -190,6 +190,7 @@ for filename in list_inputfiles: # data, signal, sidebands
             elif not isTightSelection and isHAnalysis and histo_name == "h_bosonMass":  histo_container[-1].Rebin(4)                            
             else: histo_container[-1].Rebin(4)
         '''
+        '''
         if histo_name not in rebin_map:
             if histo_name in ["h_nMuons", "h_nElectrons", "h_lxy", "h_slxy", "h_sipPV", "h_sipBS"]: rebin_map[histo_name] = 1  # no rebin
             else:
@@ -211,6 +212,7 @@ for filename in list_inputfiles: # data, signal, sidebands
 
                 #save
                 rebin_map[histo_name] = rebin_factor
+        '''
 
         #apply the same rebinning to all the 3 sets of histograms
         histo_container[-1].Rebin(rebin_map[histo_name])

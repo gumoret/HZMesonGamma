@@ -41,7 +41,7 @@ import glob
 #base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/GJ-4Jets_Bin-HT-1000-PTG-100to200_Par-dRGJ-0p25_TuneCP5_13p6TeV_madgraphMLM-pythia8+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2+MINIAODSIM/"
 #files = sorted(glob.glob(f"{base_dir}/*.root")) 
 
-
+'''
 #Tau2022
 base_dir = "/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D05" 
 
@@ -49,7 +49,7 @@ files = []
 
 for era in ["12022", "22022"]:
     files.extend(glob.glob(f"{base_dir}/{era}/Tau+Run*/*.root"))
-
+'''
 #EGamma 2024
 '''
 base_dir = "/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024"
@@ -64,7 +64,7 @@ files.extend(glob.glob(f"{base_dir}/EGamma*/*.root"))
 #base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/GluGluHtoRhoG_Par-M-125_TuneCP5_13p6TeV_powheg-pythia8-evtgen+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2+MINIAODSIM"
 
 #HPhiGamma signal
-#base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/GluGluHtoPhiG_Par-M-125_TuneCP5_13p6TeV_powheg-pythia8-evtgen+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2+MINIAODSIM"
+base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/GluGluHtoPhiG_Par-M-125_TuneCP5_13p6TeV_powheg-pythia8-evtgen+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2+MINIAODSIM"
 
 #HKstGamma signal
 #base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/GluGluHtoKStar0G_Par-M-125_TuneCP5_13p6TeV_powheg-pythia8-evtgen+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2+MINIAODSIM"
@@ -79,7 +79,7 @@ files.extend(glob.glob(f"{base_dir}/EGamma*/*.root"))
 #base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/ZtoRhoG_TuneCP5_13p6TeV_madgraphMLM-pythia8+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v3+MINIAODSIM"
 
 
-#files = sorted(glob.glob(f"{base_dir}/*.root"))
+files = sorted(glob.glob(f"{base_dir}/*.root"))
 
 
 
@@ -185,7 +185,7 @@ MesonSelection select_mesons_kin(const RVec<float>& pt, const RVec<float>& eta, 
     auto trk_mask = !((trk1_pt < 1.0f) || (trk2_pt < 1.0f)) && !((trk1_pt < 10.0f) && (trk2_pt < 10.0f)) && (deltaR < deltaR_cut);
         
     // Meson cuts: mass window, iso > 0.9, pt > 38, |eta| < 2.5
-    auto meson_mask = (pt > 38) && (abs(eta) < 2.5) && (mass > mass_low) && (mass < mass_high) && (iso > 0.9) && (isoNeuHad > 0.8);
+    auto meson_mask = (pt > 38) && (abs(eta) < 2.5) && (mass > mass_low) && (mass < mass_high) && (iso > 0.9); //&& (isoNeuHad > 0.8);
 
     auto mask = trk_mask && meson_mask;
 
