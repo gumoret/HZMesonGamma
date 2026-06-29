@@ -215,7 +215,7 @@ for filename in list_inputfiles: # data, signal, sidebands
         '''
 
         #apply the same rebinning to all the 3 sets of histograms
-        histo_container[-1].Rebin(rebin_map[histo_name])
+        #histo_container[-1].Rebin(rebin_map[histo_name])
 
         if sample_name == "Signal":
             histo_container[-1].SetLineStyle(1)   

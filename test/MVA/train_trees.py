@@ -10,12 +10,12 @@ args = p.parse_args()
 
 #INPUT FILES
 if args.meson_option == "HRho" :
-    fIn_bkg  = ROOT.TFile("../histos/H/CR_HRho2022Tau_preselection_Sidebands.root")####modified for 2022Tau
-    fIn_sig  = ROOT.TFile("../histos/H/SR_HRho_OldTrigger_preselection_Signal.root")
+    fIn_bkg  = ROOT.TFile("../histos/H/CR_HRho2022TauNoIsoNeu_preselection_Sidebands.root")####modified for 2022Tau
+    fIn_sig  = ROOT.TFile("../histos/H/SR_HRho_OldTriggerNoIsoNeu_preselection_Signal.root")
 
 elif args.meson_option == "HPhi" :
-    fIn_bkg  = ROOT.TFile("../histos/H/CR_HPhi2022Tau_preselection_Sidebands.root") #CR_HPhi2024_ORTrigger_preselection_Sidebands.root
-    fIn_sig  = ROOT.TFile("../histos/H/SR_HPhi_OldTrigger_preselection_Signal.root") #SR_HPhi_ORTrigger_preselection_Signal.root
+    fIn_bkg  = ROOT.TFile("../histos/H/CR_HPhi2022TauNoIsoNeu_preselection_Sidebands.root") #CR_HPhi2022Tau_preselection_Sidebands.root  #CR_HPhi2024_ORTrigger_preselection_Sidebands.root
+    fIn_sig  = ROOT.TFile("../histos/H/SR_HPhi_OldTriggerNoIsoNeu_preselection_Signal.root") # SR_HPhi_OldTrigger_preselection_Signal.root #SR_HPhi_ORTrigger_preselection_Signal.root
 
 elif args.meson_option == "HKst" :
     fIn_bkg  = ROOT.TFile("../histos/H/CR_HKst2022Tau_preselection_Sidebands.root") #CR_HKst2024_ORTrigger_preselection_Sidebands.root
@@ -50,14 +50,14 @@ dataloader = ROOT.TMVA.DataLoader()
 
 #dataloader.AddVariable("firstTrkIsoCh","F")###old variable
 dataloader.AddVariable("mesonIsoCh","F")
-dataloader.AddVariable("mesonIsoNeu","F")###old variable
+#dataloader.AddVariable("mesonIsoNeu","F")###old variable
 dataloader.AddVariable("mesonPt/bosonMass","F")
 dataloader.AddVariable("mesonEta","F")###old variable
 #dataloader.AddVariable("mesonGammaMass","F") #used just to check the correlation of Hmass and other input variables
 #dataloader.AddVariable("_HpT","F") #used just to check the correlation of Hmass and other input variables
 dataloader.AddVariable("photonEt/bosonMass","F")
 #dataloader.AddVariable("secondTrkPt","F")
-dataloader.AddVariable("mesonGammaDeltaPhi","F")
+#dataloader.AddVariable("mesonGammaDeltaPhi","F")
 if args.meson_option == "HDst": dataloader.AddVariable("lxy","F")
 
 ##-------------------------------------------------------------------------------------------------------

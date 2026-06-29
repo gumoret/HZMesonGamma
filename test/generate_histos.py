@@ -149,7 +149,7 @@ else:
     if isHAnalysis and not runningOnData:
         if isDAnalysis: histo_map[list_histos[0]] = ROOT.TH1F(list_histos[0],"M_{H}", 150, 114, 126)
         else: histo_map[list_histos[0]] = ROOT.TH1F(list_histos[0],"M_{H}", 150, 120, 130)
-    if isHAnalysis and runningOnData: histo_map[list_histos[0]] = ROOT.TH1F(list_histos[0],"M_{H}", 140, 100, 170) 
+    if isHAnalysis and runningOnData: histo_map[list_histos[0]] = ROOT.TH1F(list_histos[0],"M_{H}", 70, 100, 170) ##140 or 150 bins
     if isPhiAnalysis: histo_map[list_histos[1]] = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 1., 1.04) 
     if isRhoAnalysis: histo_map[list_histos[1]] = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 0.55, 1.)
     if isKAnalysis: histo_map[list_histos[1]]   = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 0.8, 0.99)
@@ -402,7 +402,7 @@ for jentry in range(nentries):
     #TIGHT SELECTION from BDT output -------------------------------------------------  
     if isBDT:
         if isDAnalysis: BDT_out = myWF.get_BDT_output(mesonIsoCh,mesonPt,bosonMass,mesonEta,photonEt,lxy)#mesonIsoNeu,mesonGammaDeltaPhi
-        else: BDT_out = myWF.get_BDT_output(mesonIsoCh,mesonIsoNeu,mesonPt,bosonMass,mesonEta,photonEt,mesonGammaDeltaPhi)#,
+        else: BDT_out = myWF.get_BDT_output(mesonIsoCh,mesonPt,bosonMass,mesonEta,photonEt)#,mesonIsoNeu,mesonGammaDeltaPhi
         
         #histo_map["h_BDT_out"].Fill(BDT_out)
 
