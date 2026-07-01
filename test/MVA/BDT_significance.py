@@ -223,6 +223,7 @@ hSig = BDT_file.Get("default/Method_BDT/BDT/MVA_BDT_S") #BDT score distribution
 hBkg = BDT_file.Get("default/Method_BDT/BDT/MVA_BDT_B")
 
 nBins = hSig.GetNbinsX()
+#nBins = 2*nBins
 
 # -----------------------------
 # cumulative (from high BDT to low)
