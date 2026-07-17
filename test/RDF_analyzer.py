@@ -402,9 +402,11 @@ if isPhiAnalysis:
     trk1_pt   = f"{meson_prefix}_trk1_pt"
     trk1_eta  = f"{meson_prefix}_trk1_eta"
     trk1_phi  = f"{meson_prefix}_trk1_phi"
+    trk1_mass = mass_trk1
     trk2_pt   = f"{meson_prefix}_trk2_pt"
     trk2_eta  = f"{meson_prefix}_trk2_eta"
     trk2_phi  = f"{meson_prefix}_trk2_phi"
+    trk2_mass = mass_trk2
 elif isRhoAnalysis:
     mass_low, mass_high = 0.50, 1.00
     mass_trk1, mass_trk2 = 0.13957, 0.13957  #Pion mass
@@ -414,9 +416,11 @@ elif isRhoAnalysis:
     trk1_pt   = f"{meson_prefix}_trk1_pt"
     trk1_eta  = f"{meson_prefix}_trk1_eta"
     trk1_phi  = f"{meson_prefix}_trk1_phi"
+    trk1_mass = mass_trk1
     trk2_pt   = f"{meson_prefix}_trk2_pt"
     trk2_eta  = f"{meson_prefix}_trk2_eta"
     trk2_phi  = f"{meson_prefix}_trk2_phi"
+    trk2_mass = mass_trk2
 elif isKAnalysis:
     mass_low, mass_high = 0.60, 1.00
     mass_trk1, mass_trk2 = 0.4937, 0.13957  #Kaon mass, Pion mass
@@ -426,9 +430,11 @@ elif isKAnalysis:
     trk1_pt  = f"{meson_prefix}_kaon_pt"
     trk1_eta = f"{meson_prefix}_kaon_eta"
     trk1_phi = f"{meson_prefix}_kaon_phi"
+    trk1_mass = mass_trk1
     trk2_pt  = f"{meson_prefix}_pion_pt"
     trk2_eta = f"{meson_prefix}_pion_eta"
     trk2_phi = f"{meson_prefix}_pion_phi"  
+    trk2_mass = mass_trk2
 elif isDAnalysis:
     mass_low, mass_high = 1.78, 1.94
     mass_trk1, mass_trk2 = 0.4937, 0.13957  # Kaon, Pion
@@ -438,9 +444,11 @@ elif isDAnalysis:
     trk1_pt  = f"{meson_prefix}_kaon_pt"
     trk1_eta = f"{meson_prefix}_kaon_eta"
     trk1_phi = f"{meson_prefix}_kaon_phi"
+    trk1_mass = mass_trk1
     trk2_pt  = f"{meson_prefix}_pion_pt"
     trk2_eta = f"{meson_prefix}_pion_eta"
     trk2_phi = f"{meson_prefix}_pion_phi" 
+    trk2_mass = mass_trk2
 else:
     print("Unknown meson type!")
     mass_low, mass_high = 0.0, 99.0
@@ -477,7 +485,7 @@ df = df.Define("secondTrk_pt", "trk1_pt_best > trk2_pt_best ? trk2_pt_best : trk
 df = df.Filter("firstTrk_pt >= 20 && secondTrk_pt >= 5", "Final track pT selection")
 n_meson_trks = df.Filter("firstTrk_pt").Count().GetValue()
 
-# eta, phi of the best meson tracks
+# eta, phi, mass of the best meson tracks
 df = df.Define("trk1_eta_best", f"bestMesonIdx  >= 0 ? {trk1_eta}[bestMesonIdx] : -999.f")
 df = df.Define("trk1_phi_best", f"bestMesonIdx  >= 0 ? {trk1_phi}[bestMesonIdx] : -999.f")
 df = df.Define("trk2_eta_best", f"bestMesonIdx  >= 0 ? {trk2_eta}[bestMesonIdx] : -999.f")
@@ -486,6 +494,8 @@ df = df.Define("firstTrk_eta",  "trk1_pt_best  > trk2_pt_best ? trk1_eta_best : 
 df = df.Define("firstTrk_phi",  "trk1_pt_best  > trk2_pt_best ? trk1_phi_best : trk2_phi_best")
 df = df.Define("secondTrk_eta", "trk1_pt_best  > trk2_pt_best ? trk2_eta_best : trk1_eta_best")
 df = df.Define("secondTrk_phi", "trk1_pt_best  > trk2_pt_best ? trk2_phi_best : trk1_phi_best")
+df = df.Define("firstTrk_mass",  f"trk1_pt_best > trk2_pt_best ? {trk1_mass}f : {trk2_mass}f")
+df = df.Define("secondTrk_mass", f"trk1_pt_best > trk2_pt_best ? {trk2_mass}f : {trk1_mass}f")
 
 #lifetime-related variables for D0 channel
 if isDAnalysis:
@@ -590,7 +600,8 @@ columns_to_save = ["nPU", "MC_Weight", "HLT_Photon35_TwoProngs35",
                    "nMuons10", "nMuons20", "nElectrons10", "nElectrons20", 
                    "nGoodPhotons", "bestPhoton_pt", "bestPhoton_eta", "bestPhoton_phi",
                    "bestMeson_pt", "bestMeson_eta", "bestMeson_phi", "bestMeson_mass", "isoMeson", "isoMesonNeu",
-                   "firstTrk_pt", "firstTrk_eta", "firstTrk_phi", "secondTrk_pt", "secondTrk_eta", "secondTrk_phi",
+                   "firstTrk_pt", "firstTrk_eta", "firstTrk_phi", "firstTrk_mass", 
+                   "secondTrk_pt", "secondTrk_eta", "secondTrk_phi", "secondTrk_mass",
                    "H_mass", "H_pt", "H_eta", "H_phi",
                    "isPhotonMatched", "isMesonMatched", "isBosonMatched", "delta_meson_mass",
                    "d0_lxy", "d0_slxy", "d0_sipPV", "d0_sipBS"]

@@ -110,8 +110,11 @@ if isDAnalysis: normalization_weight = (1./h_Events.GetBinContent(1)) * (54700) 
 histo_map = dict()
 list_histos = ["h_bosonMass", "h_mesonMass", "h_firstTrkPt", "h_secondTrkPt", "h_firstTrkEta", "h_secondTrkEta", 
                "h_firstTrkPhi", "h_secondTrkPhi", "h_mesonPt", "h_mesonEta", "h_trksDeltaR","h_mesonIsoCh", "h_mesonIsoNeu",
-               "h_photonEnergy", "h_photonEta","h_nMuons","h_nElectrons", "h_lxy", "h_slxy", "h_sipPV", "h_sipBS", "h_mesonGammaDeltaPhi", "h_efficiency"]#"h_deltaMesonMass", "h_efficiency"]  
+               "h_photonEnergy", "h_photonEta","h_nMuons","h_nElectrons","h_mesonGammaDeltaPhi", "h_cosTheta", 
+               "h_lxy", "h_slxy", "h_sipPV", "h_sipBS", 
+               "h_efficiency"]
 
+'''
 if isWideRange:
     if isZAnalysis: histo_map[list_histos[0]]   = ROOT.TH1F(list_histos[0],"M_{Z}", 300, 50., 150.) 
     elif isHAnalysis: histo_map[list_histos[0]] = ROOT.TH1F(list_histos[0],"M_{H}", 300, 90, 155) 
@@ -142,47 +145,50 @@ if isWideRange:
     histo_map[list_histos[20]] = ROOT.TH1F(list_histos[20],"sipPV", 100, -0.5, 8.5)
     histo_map[list_histos[21]] = ROOT.TH1F(list_histos[21],"sipBS", 100, -0.5, 61.5)
     #histo_map[list_histos[16]] = ROOT.TH1F(list_histos[16],"Meson mass reco - Meson mass gen", 100, -0.055, 0.055)
-    
-else:
-    if isZAnalysis and not runningOnData: histo_map[list_histos[0]]   = ROOT.TH1F(list_histos[0],"M_{Z}", 300, 60., 120.)
-    if isZAnalysis and runningOnData: histo_map[list_histos[0]]   = ROOT.TH1F(list_histos[0],"M_{Z}", 300, 60., 200.)
-    if isHAnalysis and not runningOnData:
-        if isDAnalysis: histo_map[list_histos[0]] = ROOT.TH1F(list_histos[0],"M_{H}", 150, 114, 126)
-        else: histo_map[list_histos[0]] = ROOT.TH1F(list_histos[0],"M_{H}", 150, 120, 130)
-    if isHAnalysis and runningOnData: histo_map[list_histos[0]] = ROOT.TH1F(list_histos[0],"M_{H}", 70, 100, 170) ##140 or 150 bins
-    if isPhiAnalysis: histo_map[list_histos[1]] = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 1., 1.04) 
-    if isRhoAnalysis: histo_map[list_histos[1]] = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 0.55, 1.)
-    if isKAnalysis: histo_map[list_histos[1]]   = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 0.8, 0.99)
-    elif isDAnalysis: histo_map[list_histos[1]]   = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 1.79, 1.93) 
-    histo_map[list_histos[2]]  = ROOT.TH1F(list_histos[2],"p_{T} of the 1st track", 100, 0.,70.)
-    histo_map[list_histos[3]]  = ROOT.TH1F(list_histos[3],"p_{T} of the 2nd track", 100, 0.,70.)
-    histo_map[list_histos[4]]  = ROOT.TH1F(list_histos[4],"#eta of the 1st track", 100, -2.5,2.5)
-    histo_map[list_histos[5]]  = ROOT.TH1F(list_histos[5],"#eta of the 2nd track", 100, -2.5,2.5)
-    histo_map[list_histos[6]]  = ROOT.TH1F(list_histos[6],"#phi of the 1st track", 100, -math.pi, math.pi)
-    histo_map[list_histos[7]]  = ROOT.TH1F(list_histos[7],"#phi of the 2nd track", 100, -math.pi, math.pi)
-    histo_map[list_histos[8]]  = ROOT.TH1F(list_histos[8],"p_{T} of the meson", 100, 0.,140.)
-    histo_map[list_histos[9]]  = ROOT.TH1F(list_histos[9],"#eta_{meson}", 100, -2.5,2.5)
-    if isDAnalysis:  histo_map[list_histos[10]] = ROOT.TH1F(list_histos[10],"#Delta R_{meson}", 100, 0.,0.15)
-    else: histo_map[list_histos[10]] = ROOT.TH1F(list_histos[10],"#Delta R_{meson}", 100, 0.,0.07)
-    histo_map[list_histos[11]] = ROOT.TH1F(list_histos[11],"Iso_ch of the meson", 100, 0.9, 1.)
-    histo_map[list_histos[12]] = ROOT.TH1F(list_histos[12],"Iso_neu of the meson", 100, 0.8, 1.)
-    histo_map[list_histos[13]] = ROOT.TH1F(list_histos[13],"E_{T} of the #gamma", 100, 0., 250.)
-    histo_map[list_histos[14]] = ROOT.TH1F(list_histos[14],"#eta_{#gamma}", 100, -2.5,2.5)
-    histo_map[list_histos[15]] = ROOT.TH1F(list_histos[15],"n. of muons", 6, -0.5, 5.5)
-    histo_map[list_histos[16]] = ROOT.TH1F(list_histos[16],"n. of electrons", 5, -0.5, 5.5)
-    histo_map[list_histos[17]] = ROOT.TH1F(list_histos[17],"#Delta#phi between meson and photon", 100, -math.pi, math.pi)
+'''
 
-    #if isDAnalysis:
-    histo_map[list_histos[18]] = ROOT.TH1F(list_histos[18],"l_{xy}", 100, 0., 1.5)
-    histo_map[list_histos[19]] = ROOT.TH1F(list_histos[19],"sl_{xy}", 100, 0., 10)
-    histo_map[list_histos[20]] = ROOT.TH1F(list_histos[20],"sipPV", 100, 0., 5.)
-    histo_map[list_histos[21]] = ROOT.TH1F(list_histos[21],"sipBS", 100, 0., 70.)
-    #histo_map[list_histos[16]] = ROOT.TH1F(list_histos[16],"Meson mass reco - Meson mass gen", 100, -0.02, 0.02)
+#else:
+if isZAnalysis and not runningOnData: histo_map[list_histos[0]]   = ROOT.TH1F(list_histos[0],"M_{Z}", 300, 60., 120.)
+if isZAnalysis and runningOnData: histo_map[list_histos[0]]   = ROOT.TH1F(list_histos[0],"M_{Z}", 300, 60., 200.)
+if isHAnalysis and not runningOnData:
+    if isDAnalysis: histo_map[list_histos[0]] = ROOT.TH1F(list_histos[0],"M_{H}", 150, 114, 126)
+    else: histo_map[list_histos[0]] = ROOT.TH1F(list_histos[0],"M_{H}", 150, 120, 130)
+if isHAnalysis and runningOnData: histo_map[list_histos[0]] = ROOT.TH1F(list_histos[0],"M_{H}", 70, 100, 170) ##140 or 150 bins
+if isPhiAnalysis: histo_map[list_histos[1]] = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 1., 1.04) 
+if isRhoAnalysis: histo_map[list_histos[1]] = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 0.55, 1.)
+if isKAnalysis: histo_map[list_histos[1]]   = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 0.8, 0.99)
+elif isDAnalysis: histo_map[list_histos[1]]   = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 1.79, 1.93) 
+histo_map[list_histos[2]]  = ROOT.TH1F(list_histos[2],"p_{T} of the 1st track", 100, 0.,70.)
+histo_map[list_histos[3]]  = ROOT.TH1F(list_histos[3],"p_{T} of the 2nd track", 100, 0.,70.)
+histo_map[list_histos[4]]  = ROOT.TH1F(list_histos[4],"#eta of the 1st track", 100, -2.5,2.5)
+histo_map[list_histos[5]]  = ROOT.TH1F(list_histos[5],"#eta of the 2nd track", 100, -2.5,2.5)
+histo_map[list_histos[6]]  = ROOT.TH1F(list_histos[6],"#phi of the 1st track", 100, -math.pi, math.pi)
+histo_map[list_histos[7]]  = ROOT.TH1F(list_histos[7],"#phi of the 2nd track", 100, -math.pi, math.pi)
+histo_map[list_histos[8]]  = ROOT.TH1F(list_histos[8],"p_{T} of the meson", 100, 0.,140.)
+histo_map[list_histos[9]]  = ROOT.TH1F(list_histos[9],"#eta_{meson}", 100, -2.5,2.5)
+if isDAnalysis:  histo_map[list_histos[10]] = ROOT.TH1F(list_histos[10],"#Delta R_{meson}", 100, 0.,0.15)
+else: histo_map[list_histos[10]] = ROOT.TH1F(list_histos[10],"#Delta R_{meson}", 100, 0.,0.07)
+histo_map[list_histos[11]] = ROOT.TH1F(list_histos[11],"Iso_ch of the meson", 100, 0.9, 1.)
+histo_map[list_histos[12]] = ROOT.TH1F(list_histos[12],"Iso_neu of the meson", 100, 0.8, 1.)
+histo_map[list_histos[13]] = ROOT.TH1F(list_histos[13],"E_{T} of the #gamma", 100, 0., 250.)
+histo_map[list_histos[14]] = ROOT.TH1F(list_histos[14],"#eta_{#gamma}", 100, -2.5,2.5)
+histo_map[list_histos[15]] = ROOT.TH1F(list_histos[15],"n. of muons", 6, -0.5, 5.5)
+histo_map[list_histos[16]] = ROOT.TH1F(list_histos[16],"n. of electrons", 5, -0.5, 5.5)
+histo_map[list_histos[17]] = ROOT.TH1F(list_histos[17],"#Delta#phi between meson and photon", 100, -math.pi, math.pi)
+histo_map[list_histos[18]] = ROOT.TH1F(list_histos[18],"#Cos angle between track and meson", 100, -1., 1.)
 
 
 #if isDAnalysis:
-if not isBDT: histo_map[list_histos[22]] = ROOT.TH1F(list_histos[22],"Efficiency steps", 5, 0., 5.)
-else: histo_map[list_histos[22]] = ROOT.TH1F(list_histos[22],"Efficiency steps", 6, 0., 6.)
+histo_map[list_histos[19]] = ROOT.TH1F(list_histos[19],"l_{xy}", 100, 0., 1.5)
+histo_map[list_histos[20]] = ROOT.TH1F(list_histos[20],"sl_{xy}", 100, 0., 10.)
+histo_map[list_histos[21]] = ROOT.TH1F(list_histos[21],"sipPV", 100, 0., 5.)
+histo_map[list_histos[22]] = ROOT.TH1F(list_histos[22],"sipBS", 100, 0., 70.)
+#histo_map[list_histos[16]] = ROOT.TH1F(list_histos[16],"Meson mass reco - Meson mass gen", 100, -0.02, 0.02)
+
+
+#if isDAnalysis:
+if not isBDT: histo_map[list_histos[23]] = ROOT.TH1F(list_histos[23],"Efficiency steps", 5, 0., 5.)
+else: histo_map[list_histos[23]] = ROOT.TH1F(list_histos[23],"Efficiency steps", 6, 0., 6.)
 #else:
     #if not isBDT: histo_map[list_histos[21]] = ROOT.TH1F(list_histos[17],"Efficiency steps", 5, 0., 5.)
     #else: histo_map[list_histos[21]] = ROOT.TH1F(list_histos[17],"Efficiency steps", 6, 0., 6.)
@@ -213,7 +219,8 @@ _slxy         = np.zeros(1, dtype=float)
 _sipPV        = np.zeros(1, dtype=float)
 _sipBS        = np.zeros(1, dtype=float)
 _mesonGammaDeltaPhi = np.zeros(1, dtype=float)
-_cosTheta = np.zeros(1, dtype=float)
+_cosTheta     = np.zeros(1, dtype=float)
+#_cosTheta_trk2 = np.zeros(1, dtype=float)
 
 #output tree
 tree_output = ROOT.TTree('tree_output','tree_output')
@@ -241,6 +248,7 @@ tree_output.Branch('sipPV',_sipPV,'_sipPV/D')
 tree_output.Branch('sipBS',_sipBS,'_sipBS/D')
 tree_output.Branch('mesonGammaDeltaPhi',_mesonGammaDeltaPhi,'_mesonGammaDeltaPhi/D')
 tree_output.Branch('cosTheta',_cosTheta,'_cosTheta/D')
+#tree_output.Branch('cosTheta_trk2',_cosTheta_trk2,'_cosTheta_trk2/D')
 
 
 #------------- counters -----------------
@@ -279,6 +287,8 @@ for jentry in range(nentries):
     secondTrkEta = mytree.secondTrk_eta
     firstTrkPhi  = mytree.firstTrk_phi
     secondTrkPhi = mytree.secondTrk_phi
+    firstTrkMass = mytree.firstTrk_mass
+    secondTrkMass = mytree.secondTrk_mass
     mesonPt      = mytree.bestMeson_pt      
     mesonEta     = mytree.bestMeson_eta
     photonEt     = mytree.bestPhoton_pt
@@ -310,8 +320,8 @@ for jentry in range(nentries):
         if CRFlag == "CR" and (b >= cut_low_bin and b <= cut_high_bin): continue
 
         ## masses for polarization angle calculation
-        massTrk1 = 0.493677
-        massTrk2 = 0.493677
+        massTrk1 = 0.493677 #K 
+        massTrk2 = 0.493677 #K
 
     if isRhoAnalysis:
         #if CRFlag == "SR" and not (mesonMass > 0.62 and mesonMass < 0.92): continue
@@ -323,8 +333,8 @@ for jentry in range(nentries):
         if CRFlag == "CR" and (b >= cut_low_bin and b <= cut_high_bin): continue
 
         ## masses for polarization angle calculation
-        massTrk1 =  0.13957
-        massTrk2 =  0.13957
+        #massTrk1 =  0.13957 #pi
+        #massTrk2 =  0.13957 #pi
 
     if isKAnalysis:
         #if CRFlag == "SR" and not (mesonMass > 0.842 and mesonMass < 0.942): continue
@@ -336,8 +346,8 @@ for jentry in range(nentries):
         if CRFlag == "CR" and (b >= cut_low_bin and b <= cut_high_bin): continue
 
         ## masses for polarization angle calculation
-        massTrk1 =  0.493677
-        massTrk2 =  0.13957
+        #massTrk1 =  0.493677 #K
+        #massTrk2 =  0.13957 #pi
 
     if isDAnalysis:
         cut_low_bin  = histo_map["h_mesonMass"].FindBin(1.82)
@@ -346,8 +356,8 @@ for jentry in range(nentries):
         if CRFlag == "SR" and not ( b >= cut_low_bin and b <= cut_high_bin): continue
         if CRFlag == "CR" and (b >= cut_low_bin and b <= cut_high_bin): continue
 
-        massTrk1 =  0.493677
-        massTrk2 =  0.13957
+        massTrk1 =  0.493677 #K-
+        massTrk2 =  0.13957 #pi+
 
     nEventsAfterRegionDefiner+=1
 
@@ -372,31 +382,68 @@ for jentry in range(nentries):
     if (bosonMass < 50. or bosonMass > 200.): continue
     nEventsInBosonMassRange+=1
 
+
     #--------------polarization angle calculation--------------------------
     trk1 = ROOT.TLorentzVector()
     trk2 = ROOT.TLorentzVector()
 
-    trk1.SetPtEtaPhiM(firstTrkPt, firstTrkEta, firstTrkPhi, massTrk1)
-    trk2.SetPtEtaPhiM(secondTrkPt, secondTrkEta, secondTrkPhi, massTrk2)
+    trk1.SetPtEtaPhiM(firstTrkPt, firstTrkEta, firstTrkPhi, firstTrkMass)
+    trk2.SetPtEtaPhiM(secondTrkPt, secondTrkEta, secondTrkPhi, secondTrkMass)
 
     meson = trk1 + trk2
 
-    if isPhiAnalysis or isRhoAnalysis: 
-        positiveTrack = trk1 #symmetric decay, trk1 or trk2 is the same
-    elif isDAnalysis:
-        positiveTrk = trk2 #trk2 is the pion, which is always positive in the D decay
-    #elif isKAnalysis:
-        #...define trk+ from the RDF analyzer
+    if abs(firstTrkPhi) < abs(secondTrkPhi): chosenTrack = trk1
+    else: chosenTrack = trk2
 
-    positiveTrack_boosted = ROOT.TLorentzVector(positiveTrack)
+    ''' 
+    if isDAnalysis:
+        positiveTrack = trk2 #trk2 is the pion, which is always positive in the D decay
+        negativeTrack = trk1
+
+    else: 
+        positiveTrack = trk1 #trk1 or trk2 is the same
+        negativeTrack = trk2
+    '''
+    chosenTrack_boosted = ROOT.TLorentzVector(chosenTrack)
+    #negativeTrack_boosted = ROOT.TLorentzVector(negativeTrack)
+
 
     #boost in the meson frame
     boost = meson.BoostVector()
-    positiveTrack_boosted.Boost(-boost)
+    chosenTrack_boosted.Boost(-boost)
+    #negativeTrack_boosted.Boost(-boost)
 
-    if isPhiAnalysis or isRhoAnalysis:
-        cosTheta = abs(math.cos(meson.Vect().Angle(positiveTrack_boosted.Vect())))
-    else: cosTheta = math.cos(meson.Vect().Angle(positiveTrack_boosted.Vect()))
+    cosTheta = math.cos(meson.Vect().Angle(chosenTrack_boosted.Vect()))
+    #cosTheta_trk2 = math.cos(meson.Vect().Angle(negativeTrack_boosted.Vect()))
+
+    '''
+    print(positiveTrack_boosted.P())
+    print(negativeTrack_boosted.P())
+    print(meson.P())
+    print(boost.Mag())
+    print("meson =", meson.Vect())
+
+    print("trk1 =", positiveTrack_boosted.Vect())
+
+    print("trk2 =", negativeTrack_boosted.Vect())
+
+    print("dot(trk1,trk2) =",
+        positiveTrack_boosted.Vect().Dot(
+        negativeTrack_boosted.Vect()))
+
+    print("angle1 =",
+        meson.Vect().Angle(positiveTrack_boosted.Vect()))
+
+    print("angle2 =",
+        meson.Vect().Angle(negativeTrack_boosted.Vect()))
+
+    print("cos1 =", cosTheta_trk1)
+    print("cos2 =", cosTheta_trk2)  
+
+    print(firstTrkPt, secondTrkPt)
+    print(firstTrkEta, secondTrkEta)  
+    print("---------")
+    '''
 
     
     #TIGHT SELECTION from BDT output -------------------------------------------------  
@@ -470,6 +517,8 @@ for jentry in range(nentries):
     histo_map["h_sipPV"].Fill(sipPV, eventWeight)
     histo_map["h_sipBS"].Fill(sipBS, eventWeight)
     histo_map["h_mesonGammaDeltaPhi"].Fill(mesonGammaDeltaPhi, eventWeight)
+    histo_map["h_cosTheta"].Fill(cosTheta, eventWeight)
+
     
 
 
@@ -497,6 +546,8 @@ for jentry in range(nentries):
     _sipBS[0]        = sipBS
     _mesonGammaDeltaPhi[0] = mesonGammaDeltaPhi
     _cosTheta[0]     = cosTheta
+    #_cosTheta_trk2[0]     = cosTheta_trk2
+
 
     tree_output.Fill()
 
@@ -574,6 +625,9 @@ histo_map["h_nElectrons"].SetTitle("Impact parameter significance (BS)")
 
 histo_map["h_mesonGammaDeltaPhi"].GetXaxis().SetTitle("")
 histo_map["h_mesonGammaDeltaPhi"].SetTitle("#Delta_#phi between meson and photon")
+
+histo_map["h_cosTheta"].GetXaxis().SetTitle("")
+histo_map["h_cosTheta"].SetTitle("Cosine of the angle between meson and a trk")
 
 histo_map["h_efficiency"].GetXaxis().SetTitle("")
 histo_map["h_efficiency"].GetYaxis().SetTitle("#epsilon (%)")

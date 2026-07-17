@@ -434,7 +434,7 @@ for histo_name in list_histos:
         hstack[histo_name].GetXaxis().SetTitle("n.muons")
         hstack[histo_name].GetXaxis().SetRangeUser(-0.5,3.5)
     
-    if histo_name == "h_MesonGammaDeltaPhi" :
+    if histo_name == "h_mesonGammaDeltaPhi" :
         hstack[histo_name].GetXaxis().SetTitle("#Delta#phi_{meson, #gamma} [rad] ")
 
     if histo_name == "h_lxy" :
@@ -448,6 +448,10 @@ for histo_name in list_histos:
 
     if histo_name == "h_sipBS" :
         hstack[histo_name].GetXaxis().SetTitle("Impact parameter significance (BS)")
+
+    if histo_name == "h_cosTheta" :
+        hstack[histo_name].GetXaxis().SetTitle("Cosine of the angle between meson and a trk")
+    
         
     
 
