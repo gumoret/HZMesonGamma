@@ -41,8 +41,9 @@ import glob
 #base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/GJ-4Jets_Bin-HT-1000-PTG-100to200_Par-dRGJ-0p25_TuneCP5_13p6TeV_madgraphMLM-pythia8+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2+MINIAODSIM/"
 #files = sorted(glob.glob(f"{base_dir}/*.root")) 
 
-'''
+
 #Tau2022
+'''
 base_dir = "/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D05" 
 
 files = []
@@ -56,18 +57,18 @@ base_dir = "/scratch/submit/cms/mariadlf/Hrare/newSKIMS/D07/2024"
 files = []
 
 files.extend(glob.glob(f"{base_dir}/EGamma*/*.root"))
-'''
 
 #files = sorted(files)
+'''
 
 #HRhogamma signal
 #base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/GluGluHtoRhoG_Par-M-125_TuneCP5_13p6TeV_powheg-pythia8-evtgen+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2+MINIAODSIM"
 
 #HPhiGamma signal
-base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/GluGluHtoPhiG_Par-M-125_TuneCP5_13p6TeV_powheg-pythia8-evtgen+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2+MINIAODSIM"
+#base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/GluGluHtoPhiG_Par-M-125_TuneCP5_13p6TeV_powheg-pythia8-evtgen+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2+MINIAODSIM"
 
 #HKstGamma signal
-#base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/GluGluHtoKStar0G_Par-M-125_TuneCP5_13p6TeV_powheg-pythia8-evtgen+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2+MINIAODSIM"
+base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/GluGluHtoKStar0G_Par-M-125_TuneCP5_13p6TeV_powheg-pythia8-evtgen+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2+MINIAODSIM"
 
 #HDstGamma signal
 #base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/GluGluHtoDStar0G_Par-M-125_TuneCP5_13p6TeV_powheg-pythia8-evtgen+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2+MINIAODSIM"
@@ -342,8 +343,10 @@ h_pu = df.Histo1D(("pileup", "Pileup distribution", 130, 0, 130), "nPU")
 # ------------------------------------------------------------
 # MC weight
 # ------------------------------------------------------------
-if not runningOnData: df = df.Define("MC_Weight", "Generator_weight")
-else: df = df.Define("MC_Weight", "1.0")
+if not runningOnData: 
+    df = df.Define("MC_Weight", "Generator_weight")
+else: 
+    df = df.Define("MC_Weight", "1.0")
 
 
 # ------------------------------------------------------------
@@ -455,7 +458,8 @@ else:
     meson_prefix = "phi"
 
 #if not ismesonFromTracks:
-if verbose: print("### Mode: meson from NanoAOD ###")
+if verbose: 
+    print("### Mode: meson from NanoAOD ###")
 
 df = df.Define("meson_sel", 
             f"select_mesons_kin({meson_prefix}_kin_pt, {meson_prefix}_kin_eta, {meson_prefix}_kin_phi, "

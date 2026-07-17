@@ -464,8 +464,6 @@ if not ismesonFromTracks:
                 f"{trk2_pt}, {trk2_eta}, {trk2_phi})")
     df = df.Define("nGoodMesons", "meson_sel.nGood")
     df = df.Define("bestMesonIdx", "meson_sel.bestIdx")
-
-
     df = df.Filter("nGoodMesons > 0", "At least one good meson")
     n_meson = df.Filter("nGoodMesons").Count().GetValue()
 
