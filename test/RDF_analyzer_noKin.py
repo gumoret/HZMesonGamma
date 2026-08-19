@@ -476,7 +476,6 @@ if not ismesonFromTracks:
     df = df.Define("isoMeson",       f"bestMesonIdx  >= 0 ? {meson_prefix}_iso[bestMesonIdx] : -1.f")
     df = df.Define("isoMesonNeu",    f"bestMesonIdx  >= 0 ? {meson_prefix}_isoNeuHad[bestMesonIdx] : -1.f")
 
-
     # final tracks pT selection
     df = df.Define("trk1_pt_best", f"bestMesonIdx  >= 0 ? {trk1_pt}[bestMesonIdx] : -1.f")
     df = df.Define("trk2_pt_best", f"bestMesonIdx  >= 0 ? {trk2_pt}[bestMesonIdx] : -1.f")

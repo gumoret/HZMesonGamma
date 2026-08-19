@@ -15,12 +15,12 @@ args = p.parse_args()
 
 #INPUT FILES
 if args.meson_option == "HRho" :
-    fInputSignal = ROOT.TFile("../histos/H/SR_HRho_OldTriggerNoIsoNeu_preselection_Signal.root")####modified for 2022Tau
-    fInputData  = ROOT.TFile("../histos/H/SR_HRho2022TauNoIsoNeu_preselection_Data.root")    
+    fInputSignal = ROOT.TFile("../histos/H/SR_HRho_OldTrigger_preselection_Signal.root")####modified for 2022Tau
+    fInputData  = ROOT.TFile("../histos/H/SR_HRho2022Tau_preselection_Data.root")    
 
 elif args.meson_option == "HPhi" :
-    fInputSignal = ROOT.TFile("../histos/H/SR_HPhi_OldTriggerNoIsoNeu_preselection_Signal.root") # SR_HPhi_OldTrigger_preselection_Signal.root #SR_HPhi_ORTrigger_preselection_Signal.root
-    fInputData  = ROOT.TFile("../histos/H/SR_HPhi2022TauNoIsoNeu_preselection_Data.root") # SR_HPhi2022Tau_preselection_Data.root #SR_HPhi2024_ORTrigger_preselection_Data.root
+    fInputSignal = ROOT.TFile("../histos/H/SR_HPhi_OldTrigger_preselection_Signal.root") # SR_HPhi_OldTrigger_preselection_Signal.root #SR_HPhi_ORTrigger_preselection_Signal.root
+    fInputData  = ROOT.TFile("../histos/H/SR_HPhi2022Tau_preselection_Data.root") # SR_HPhi2022Tau_preselection_Data.root #SR_HPhi2024_ORTrigger_preselection_Data.root
 
 elif args.meson_option == "HKst" :
     fInputSignal = ROOT.TFile("../histos/H/SR_HKst_OldTrigger_preselection_Signal.root")
@@ -186,21 +186,7 @@ print("Significance:   Z = ",signif_array[np.argmax(signif_array)])
 print("BDT output        = ", BDT_output)
 print("-------------------------------------------------------------")
 
-# Create a ROOT file to store the tree
-output_file = ROOT.TFile("BDToutput.root", "RECREATE")
 
-# Create the tree and add a branch for the BDT output variable
-tree = ROOT.TTree("BDTtree", "Tree with BDT output")
-
-output_file.cd()
-
-_BDT_output = np.zeros(1, dtype=float)
-tree.Branch("_BDT_output",_BDT_output, "_BDT_output/D")
-_BDT_output[0] = BDT_output
-tree.Fill()
-# Save the tree to the output file and close the file
-output_file.Write()
-output_file.Close()
 
 #raw_input()
 
@@ -367,3 +353,29 @@ print(B0+B1)#+B2)
 #print("S2 =",S2_best," B2 =",B2_best)
 
 print("====================================")
+
+# Create a ROOT file to store the tree
+output_file = ROOT.TFile("BDToutput.root", "RECREATE")
+
+# Create the tree and add a branch for the BDT output variable
+tree = ROOT.TTree("BDTtree", "Tree with BDT output")
+
+output_file.cd()
+
+_BDT_output = np.zeros(1, dtype=float)
+_BDT_cat0   = np.zeros(1, dtype=float)
+_BDT_cat1   = np.zeros(1, dtype=float)
+
+tree.Branch("_BDT_output",_BDT_output, "_BDT_output/D")
+tree.Branch("_BDT_cat0", _BDT_cat0, "_BDT_cat0/D")
+tree.Branch("_BDT_cat1", _BDT_cat1, "_BDT_cat1/D")
+
+_BDT_output[0] = BDT_output
+_BDT_cat0[0] = t0
+_BDT_cat1[0] = t1
+
+
+tree.Fill()
+# Save the tree to the output file and close the file
+output_file.Write()
+output_file.Close()

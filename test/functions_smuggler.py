@@ -15,6 +15,7 @@ import time
 
 mesonIsoCh_array            = array('f', [0.])
 mesonIsoNeu_array           = array('f', [0.])
+cosTheta_array              = array('f', [0.])
 mesonPt_array               = array('f', [0.])
 mesonEta_array              = array('f', [0.])
 photonEt_array              = array('f', [0.])
@@ -38,6 +39,7 @@ class Simplified_Workflow_Handler:
 
         reader.AddVariable("mesonIsoCh",mesonIsoCh_array)
         #reader.AddVariable("mesonIsoNeu",mesonIsoNeu_array)
+        reader.AddVariable("cosTheta",cosTheta_array)
         reader.AddVariable("mesonPt/bosonMass",mesonPt_array)
         reader.AddVariable("mesonEta",mesonEta_array)
         reader.AddVariable("photonEt/bosonMass",photonEt_array)
@@ -51,10 +53,11 @@ class Simplified_Workflow_Handler:
 
     #Get BDT output function ###########################################################################################################
 
-    def get_BDT_output(self,mesonIsoCh,mesonPt,bosonMass,mesonEta,photonEt,lxy=None):#mesonIsoNeu,mesonGammaDeltaPhi
+    def get_BDT_output(self,mesonIsoCh,cosTheta,mesonPt,bosonMass,mesonEta,photonEt,lxy=None):#mesonIsoCh, cosTheta,mesonIsoNeu,mesonGammaDeltaPhi
         
         mesonIsoCh_array[0]           = mesonIsoCh
         #mesonIsoNeu_array[0]          = mesonIsoNeu
+        cosTheta_array[0]             = cosTheta
         mesonPt_array[0]              = mesonPt/bosonMass
         mesonEta_array[0]             = mesonEta
         photonEt_array[0]             = photonEt/bosonMass 

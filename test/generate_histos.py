@@ -73,13 +73,27 @@ if CRFlag == "CR": print("Processing the control region")
 if args.blind_option == "blind": isDataBlind = True
 if args.blind_option == "unblind": isDataBlind = False
 
-if args.isBDT_option == "BDT":
+if args.isBDT_option == "BDT" or args.isBDT_option == "BDT_cat0" or args.isBDT_option == "BDT_cat1":
     isBDT = True
     fInputBDT = ROOT.TFile("MVA/BDToutput.root","READ")
     BDTtree = fInputBDT.Get("BDTtree")
     BDTtree.GetEntry(0)
+
+if args.isBDT_option == "BDT":
     BDT_OUT = BDTtree._BDT_output
     print("BDT_OUT = ",BDT_OUT)
+    fInputBDT.Close()
+    
+if args.isBDT_option == "BDT_cat0":
+    BDT_T0 = BDTtree._BDT_cat0
+    print("BDT_T0 = ",BDT_T0)
+    fInputBDT.Close()
+
+if args.isBDT_option == "BDT_cat1":
+    BDT_T1 = BDTtree._BDT_cat1
+    BDT_T0 = BDTtree._BDT_cat0
+    print("BDT_T1 = ",BDT_T1)
+    print("BDT_T0 = ",BDT_T0)
     fInputBDT.Close()
 
 print("Category = ", args.isBDT_option)
@@ -153,7 +167,7 @@ if isZAnalysis and runningOnData: histo_map[list_histos[0]]   = ROOT.TH1F(list_h
 if isHAnalysis and not runningOnData:
     if isDAnalysis: histo_map[list_histos[0]] = ROOT.TH1F(list_histos[0],"M_{H}", 150, 114, 126)
     else: histo_map[list_histos[0]] = ROOT.TH1F(list_histos[0],"M_{H}", 150, 120, 130)
-if isHAnalysis and runningOnData: histo_map[list_histos[0]] = ROOT.TH1F(list_histos[0],"M_{H}", 70, 100, 170) ##140 or 150 bins
+if isHAnalysis and runningOnData: histo_map[list_histos[0]] = ROOT.TH1F(list_histos[0],"M_{H}", 31, 110., 141.) ##100 170
 if isPhiAnalysis: histo_map[list_histos[1]] = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 1., 1.04) 
 if isRhoAnalysis: histo_map[list_histos[1]] = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 0.55, 1.)
 if isKAnalysis: histo_map[list_histos[1]]   = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 0.8, 0.99)
@@ -168,7 +182,7 @@ histo_map[list_histos[8]]  = ROOT.TH1F(list_histos[8],"p_{T} of the meson", 100,
 histo_map[list_histos[9]]  = ROOT.TH1F(list_histos[9],"#eta_{meson}", 100, -2.5,2.5)
 if isDAnalysis:  histo_map[list_histos[10]] = ROOT.TH1F(list_histos[10],"#Delta R_{meson}", 100, 0.,0.15)
 else: histo_map[list_histos[10]] = ROOT.TH1F(list_histos[10],"#Delta R_{meson}", 100, 0.,0.07)
-histo_map[list_histos[11]] = ROOT.TH1F(list_histos[11],"Iso_ch of the meson", 100, 0.9, 1.)
+histo_map[list_histos[11]] = ROOT.TH1F(list_histos[11],"Iso_ch of the meson", 100, 0.95, 1.)
 histo_map[list_histos[12]] = ROOT.TH1F(list_histos[12],"Iso_neu of the meson", 100, 0.8, 1.)
 histo_map[list_histos[13]] = ROOT.TH1F(list_histos[13],"E_{T} of the #gamma", 100, 0., 250.)
 histo_map[list_histos[14]] = ROOT.TH1F(list_histos[14],"#eta_{#gamma}", 100, -2.5,2.5)
@@ -356,8 +370,8 @@ for jentry in range(nentries):
         if CRFlag == "SR" and not ( b >= cut_low_bin and b <= cut_high_bin): continue
         if CRFlag == "CR" and (b >= cut_low_bin and b <= cut_high_bin): continue
 
-        massTrk1 =  0.493677 #K-
-        massTrk2 =  0.13957 #pi+
+        #massTrk1 =  0.493677 #K-
+        #massTrk2 =  0.13957 #pi+
 
     nEventsAfterRegionDefiner+=1
 
@@ -379,7 +393,10 @@ for jentry in range(nentries):
     nEventsOverLeptonVeto += 1
 
     #-------------- n events in the sidebands -----------------------------
-    if (bosonMass < 50. or bosonMass > 200.): continue
+    if isHAnalysis:
+        if (bosonMass < 110. or bosonMass > 141.): continue
+    if isZAnalysis:
+        if (bosonMass < 70. or bosonMass > 105.): continue
     nEventsInBosonMassRange+=1
 
 
@@ -444,18 +461,29 @@ for jentry in range(nentries):
     print(firstTrkEta, secondTrkEta)  
     print("---------")
     '''
-
+    #ISO CH CUT
+    if mesonIsoCh < 0.95: continue
     
     #TIGHT SELECTION from BDT output -------------------------------------------------  
     if isBDT:
-        if isDAnalysis: BDT_out = myWF.get_BDT_output(mesonIsoCh,mesonPt,bosonMass,mesonEta,photonEt,lxy)#mesonIsoNeu,mesonGammaDeltaPhi
-        else: BDT_out = myWF.get_BDT_output(mesonIsoCh,mesonPt,bosonMass,mesonEta,photonEt)#,mesonIsoNeu,mesonGammaDeltaPhi
+        if isDAnalysis: BDT_out = myWF.get_BDT_output(mesonIsoCh,cosTheta,mesonPt,bosonMass,mesonEta,photonEt,lxy)#mesonIsoCh, cosTheta, mesonIsoNeu,mesonGammaDeltaPhi
+        else: BDT_out = myWF.get_BDT_output(mesonIsoCh,cosTheta,mesonPt,bosonMass,mesonEta,photonEt)#mesonIsoCh,cosTheta,mesonIsoNeu,mesonGammaDeltaPhi
         
         #histo_map["h_BDT_out"].Fill(BDT_out)
 
-        if debug: print("BDT value before selection = ", BDT_out)
+        #if debug: print("BDT value before selection = ", BDT_out)
         if args.isBDT_option == "BDT":
             if BDT_out < BDT_OUT: #Cut on BDT output
+                if debug: print("BDT cut NOT passed")
+                continue
+        
+        if args.isBDT_option == "BDT_cat0":
+            if BDT_out < BDT_T0:
+                if debug: print("BDT cut NOT passed")
+                continue
+        
+        if args.isBDT_option == "BDT_cat1":
+            if BDT_out < BDT_T1 or BDT_out > BDT_T0:
                 if debug: print("BDT cut NOT passed")
                 continue
 
@@ -463,11 +491,11 @@ for jentry in range(nentries):
     
     if runningOnData == True:
         if isHAnalysis: #change limits 
-            if (CRFlag == 'SR' and bosonMass > 50. and bosonMass < 120.) : nEventsLeftSB  += 1
-            if (CRFlag == 'SR' and bosonMass > 130. and bosonMass < 200.) : nEventsRightSB += 1
+            if (CRFlag == 'SR' and bosonMass > 110. and bosonMass < 120.) : nEventsLeftSB  += 1 #50
+            if (CRFlag == 'SR' and bosonMass > 130. and bosonMass < 141.) : nEventsRightSB += 1 #200
         if isZAnalysis:
-            if (CRFlag == 'SR' and bosonMass > 50. and bosonMass < 80.) : nEventsLeftSB  += 1
-            if (CRFlag == 'SR' and bosonMass > 101. and bosonMass < 200.) : nEventsRightSB += 1
+            if (CRFlag == 'SR' and bosonMass > 70. and bosonMass < 85.) : nEventsLeftSB  += 1 # 50 80
+            if (CRFlag == 'SR' and bosonMass > 96. and bosonMass < 105.) : nEventsRightSB += 1 #101 200
 
     #FILL HISTOS #####################################################################################################
     #if DATA -> Blind Analysis on boson inv mass plot  
@@ -704,8 +732,8 @@ print("nEventsOverLeptonVeto     = ",nEventsOverLeptonVeto," (n. events without 
 print("nEventsInBosonMassRange   = ",nEventsInBosonMassRange," (n. events in 50 < bosonMass < 200 GeV)")
 print("nEventsMesonMassSR        = ",nEventsMesonMassSR," (Events in SR of MesonMass and in SBs of bosonMass)")
 print("\n----------- SUMMARY -----------------------")
-if isBDT:
-    print("BDT output used = ",BDT_OUT)
+#if isBDT:
+    #print("BDT output used = ",BDT_OUT)
 if not runningOnData:
     print("Signal MC sample")
 if isBDT:
