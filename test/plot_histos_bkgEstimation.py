@@ -238,8 +238,8 @@ for filename in list_inputfiles: # data, signal, sidebands
                     histo_container[-1].SetBinContent(b, 0.)
                     histo_container[-1].SetBinError(b, 0.)
             if isZAnalysis and histo_name == "h_bosonMass":
-                blind_low_bin  = histo_container[-1].FindBin(80.)
-                blind_high_bin = histo_container[-1].FindBin(100.)
+                blind_low_bin  = histo_container[-1].FindBin(85.)
+                blind_high_bin = histo_container[-1].FindBin(96.)
                 for b in range(blind_low_bin, blind_high_bin + 1):
                     histo_container[-1].SetBinContent(b, 0.)
                     histo_container[-1].SetBinError(b, 0.)
@@ -589,38 +589,45 @@ for histo_name in list_histos:
         if isPhiAnalysis:
             if isHAnalysis: 
                 #output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/H/Phi/Bkg_estimation_preselection/"
-                output_dir = "/eos/user/e/eferrand/www/eferrand/HZMesonGamma/HPhi/Preselection/"
-            if isZAnalysis: output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/Z/Phi/Bkg_estimation_preselection/"    
+                output_dir = "/eos/user/e/eferrand/www/eferrand/HZMesonGamma/HPhi/"
+            if isZAnalysis: 
+                output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/Z/Phi/Bkg_estimation_preselection/"   
+                output_dir = "/eos/user/e/eferrand/www/eferrand/HZMesonGamma/ZPhi/Preselection/" 
         if isRhoAnalysis:
             if isHAnalysis: 
                 #output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/H/Rho/Bkg_estimation_preselection/"
-                output_dir = "/eos/user/e/eferrand/www/eferrand/HZMesonGamma/HRho/Preselection/"
+                output_dir = "/eos/user/e/eferrand/www/eferrand/HZMesonGamma/HRho/"
             if isZAnalysis: 
-                output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/Z/Rho/Bkg_estimation_preselection/"
+                #output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/Z/Rho/Bkg_estimation_preselection/"
+                output_dir = "/eos/user/e/eferrand/www/eferrand/HZMesonGamma/ZRho/Preselection/"
         if isKAnalysis:
             #output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/H/Kst/Bkg_estimation_preselection/"
-            output_dir = "/eos/user/e/eferrand/www/eferrand/HZMesonGamma/HKst/Preselection/"
+            output_dir = "/eos/user/e/eferrand/www/eferrand/HZMesonGamma/HKst/"
         if isDAnalysis:
             #output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/H/Dst/Bkg_estimation_preselection/"
-            output_dir = "/eos/user/e/eferrand/www/eferrand/HZMesonGamma/HDst/Preselection/"
+            output_dir = "/eos/user/e/eferrand/www/eferrand/HZMesonGamma/HDst/"
 
     if isTightSelection:
         if isPhiAnalysis:
             if isHAnalysis: 
                 #output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/H/Phi/Bkg_estimation_BDT/"
-                output_dir = "/eos/user/e/eferrand/www/eferrand/HZMesonGamma/HPhi/BDT/"
-            if isZAnalysis: output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/Z/Phi/Bkg_estimation_BDT/"    
+                output_dir = "/eos/user/e/eferrand/www/eferrand/HZMesonGamma/HPhi/"
+            if isZAnalysis: 
+                #output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/Z/Phi/Bkg_estimation_BDT/"    
+                output_dir = "/eos/user/e/eferrand/www/eferrand/HZMesonGamma/ZPhi/BDT/"
         if isRhoAnalysis:
             if isHAnalysis: 
                 #output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/H/Rho/Bkg_estimation_BDT/"
-                output_dir = "/eos/user/e/eferrand/www/eferrand/HZMesonGamma/HRho/BDT/"
-            if isZAnalysis: output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/Z/Rho/Bkg_estimation_BDT/"
+                output_dir = "/eos/user/e/eferrand/www/eferrand/HZMesonGamma/HRho/"
+            if isZAnalysis: 
+                #output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/Z/Rho/Bkg_estimation_BDT/"
+                output_dir = "/eos/user/e/eferrand/www/eferrand/HZMesonGamma/ZRho/BDT/"
         if isKAnalysis:
             #output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/H/Kst/Bkg_estimation_BDT/"
-            output_dir = "/eos/user/e/eferrand/www/eferrand/HZMesonGamma/HKst/BDT/"
+            output_dir = "/eos/user/e/eferrand/www/eferrand/HZMesonGamma/HKst/"
         if isDAnalysis:
             #output_dir = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/H/Dst/Bkg_estimation_BDT/"
-            output_dir = "/eos/user/e/eferrand/www/eferrand/HZMesonGamma/HDst/BDT/"
+            output_dir = "/eos/user/e/eferrand/www/eferrand/HZMesonGamma/HDst/"
 
     canvas[histo_name].SaveAs(output_dir + histo_name + ".pdf")
     canvas[histo_name].SaveAs(output_dir + histo_name + ".png")

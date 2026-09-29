@@ -10,20 +10,29 @@ args = p.parse_args()
 
 #INPUT FILES
 if args.meson_option == "HRho" :
-    fIn_bkg  = ROOT.TFile("../histos/H/CR_HRho2022Tau_preselection_Sidebands.root")####modified for 2022Tau
-    fIn_sig  = ROOT.TFile("../histos/H/SR_HRho_OldTrigger_preselection_Signal.root")
+  fIn_bkg  = ROOT.TFile("../histos/H/CR_HRho2024_ORTrigger_preselection_Sidebands.root") #  CR_HRho2022Tau_preselection_Sidebands   CR_HRho2024_ORTrigger_preselection_Sidebands
+  fIn_sig  = ROOT.TFile("../histos/H/SR_HRho_ORTrigger_preselection_Signal.root") #         SR_HRho_OldTrigger_preselection_Signal  SR_HRho_ORTrigger_preselection_Signal
 
 elif args.meson_option == "HPhi" :
-    fIn_bkg  = ROOT.TFile("../histos/H/CR_HPhi2022Tau_preselection_Sidebands.root") #CR_HPhi2022Tau_preselection_Sidebands.root  #CR_HPhi2024_ORTrigger_preselection_Sidebands.root
-    fIn_sig  = ROOT.TFile("../histos/H/SR_HPhi_OldTrigger_preselection_Signal.root") # SR_HPhi_OldTrigger_preselection_Signal.root #SR_HPhi_ORTrigger_preselection_Signal.root
+  fIn_bkg  = ROOT.TFile("../histos/H/CR_HPhi2024_ORTrigger_preselection_Sidebands.root") #CR_HPhi2022Tau_preselection_Sidebands.root  # CR_HPhi2024_ORTrigger_preselection_Sidebands.root
+  fIn_sig  = ROOT.TFile("../histos/H/SR_HPhi_ORTrigger_preselection_Signal.root") #        SR_HPhi_OldTrigger_preselection_Signal.root #SR_HPhi_ORTrigger_preselection_Signal.root
 
 elif args.meson_option == "HKst" :
-    fIn_bkg  = ROOT.TFile("../histos/H/CR_HKst2022Tau_preselection_Sidebands.root") #CR_HKst2024_ORTrigger_preselection_Sidebands.root
-    fIn_sig  = ROOT.TFile("../histos/H/SR_HKst_OldTrigger_preselection_Signal.root") #SR_HKst_ORTrigger_preselection_Signal.root
+  fIn_bkg  = ROOT.TFile("../histos/H/CR_HKst2024_ORTrigger_preselection_Sidebands.root") # CR_HKst2024_ORTrigger_preselection_Sidebands.root   CR_HKst2022Tau_preselection_Sidebands.root
+  fIn_sig  = ROOT.TFile("../histos/H/SR_HKst_ORTrigger_preselection_Signal.root") #SR_HKst_ORTrigger_preselection_Signal.root          SR_HKst_OldTrigger_preselection_Signal
 
 elif args.meson_option == "HDst" :
-    fIn_bkg  = ROOT.TFile("../histos/H/CR_HDst2022Tau_preselection_Sidebands.root")
-    fIn_sig  = ROOT.TFile("../histos/H/SR_HDst_OldTrigger_preselection_Signal.root")
+  fIn_bkg  = ROOT.TFile("../histos/H/CR_HDst2024_ORTrigger_preselection_Sidebands.root")    #CR_HDst2022Tau_preselection_Sidebands
+  fIn_sig  = ROOT.TFile("../histos/H/SR_HDst_ORTrigger_preselection_Signal.root")  #SR_HDst_OldTrigger_preselection_Signal
+  
+
+elif args.meson_option == "ZPhi":
+  fIn_bkg  = ROOT.TFile("../histos/Z/CR_ZPhi2024_ORTrigger_preselection_Sidebands.root") #CR_ZPhi2024_ORTrigger_preselection_Sidebands.root  CR_ZPhi2024_OldTrigger_preselection_Sidebands.root
+  fIn_sig  = ROOT.TFile("../histos/Z/SR_ZPhi_ORTrigger_preselection_Signal.root")  #      SR_ZPhi_ORTrigger_preselection_Signal.root         SR_ZPhi_OldTrigger_preselection_Signal.root
+
+elif args.meson_option == "ZRho":
+  fIn_bkg  = ROOT.TFile("../histos/Z/CR_ZRho2024_ORTrigger_preselection_Sidebands.root") #CR_ZRho2024_ORTrigger_preselection_Sidebands.root  CR_ZRho2024_OldTrigger_preselection_Sidebands.root
+  fIn_sig  = ROOT.TFile("../histos/Z/SR_ZRho_ORTrigger_preselection_Signal.root")        #SR_ZRho_ORTrigger_preselection_Signal.root         SR_ZRho_OldTrigger_preselection_Signal.root
 
 tree_bkg = fIn_bkg.Get("tree_output")
 tree_sig = fIn_sig.Get("tree_output")   
@@ -48,18 +57,33 @@ dataloader = ROOT.TMVA.DataLoader()
 
 #Pay attention to the order, it must be the same in the function_smuggler.py
 
-#dataloader.AddVariable("firstTrkIsoCh","F")###old variable
-dataloader.AddVariable("mesonIsoCh","F")
-#dataloader.AddVariable("mesonIsoNeu","F")###old variable
-dataloader.AddVariable("cosTheta","F")
-dataloader.AddVariable("mesonPt/bosonMass","F")
-dataloader.AddVariable("mesonEta","F")###old variable
-#dataloader.AddVariable("mesonGammaMass","F") #used just to check the correlation of Hmass and other input variables
-#dataloader.AddVariable("_HpT","F") #used just to check the correlation of Hmass and other input variables
-dataloader.AddVariable("photonEt/bosonMass","F")
-#dataloader.AddVariable("secondTrkPt","F")
-#dataloader.AddVariable("mesonGammaDeltaPhi","F")
-if args.meson_option == "HDst": dataloader.AddVariable("lxy","F")
+if args.meson_option == "HRho" or args.meson_option == "HPhi" or args.meson_option == "HKst":
+  dataloader.AddVariable("cosTheta","F")
+  dataloader.AddVariable("mesonPt/bosonMass","F")#/bosonMass
+  dataloader.AddVariable("mesonEta","F")###old variable
+  dataloader.AddVariable("photonEt/bosonMass","F")#/bosonMass
+  #dataloader.AddVariable("bosonMass","F") #used just to check the correlation of Hmass and other input variables
+
+
+if args.meson_option == "HDst": 
+  dataloader.AddVariable("mesonPt/bosonMass","F")
+  dataloader.AddVariable("mesonEta","F")###old variable
+  dataloader.AddVariable("photonEt/bosonMass","F")
+  dataloader.AddVariable("lxy","F")
+  #dataloader.AddVariable("bosonMass","F") #used just to check the correlation of Hmass and other input variables
+
+
+if args.meson_option == "ZRho" or args.meson_option == "ZPhi":
+  dataloader.AddVariable("mesonIsoCh","F")
+  dataloader.AddVariable("mesonPt","F")
+  dataloader.AddVariable("mesonEta","F")###old variable
+  dataloader.AddVariable("mesonGammaDeltaPhi","F")
+  #dataloader.AddVariable("bosonMass","F") #used just to check the correlation of Hmass and other input variables
+
+
+
+
+
 
 ##-------------------------------------------------------------------------------------------------------
 

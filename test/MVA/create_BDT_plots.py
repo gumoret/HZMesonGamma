@@ -135,6 +135,13 @@ def BDT_output():
     elif args.meson_option == "HDst" :
         canvas1.SaveAs("/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/H/Dst/MVA/h_BDT_output.pdf")
         canvas1.SaveAs("/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/H/Dst/MVA/h_BDT_output.png")
+
+    elif args.meson_option == "ZPhi" :
+        canvas1.SaveAs("/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/Z/Phi/MVA/h_BDT_output.pdf")
+        canvas1.SaveAs("/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/Z/Phi/MVA/h_BDT_output.png")
+    elif args.meson_option == "ZRho" :
+        canvas1.SaveAs("/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/Z/Rho/MVA/h_BDT_output.pdf")
+        canvas1.SaveAs("/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/Z/Rho/MVA/h_BDT_output.png")
     
 
     #raw_input()
@@ -189,6 +196,10 @@ def rejB_vs_S():
     elif args.meson_option == "HDst" :
         canvas2.SaveAs("/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/H/Dst/MVA/h_rejBvsS.pdf")##############
         canvas2.SaveAs("/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/H/Dst/MVA/h_rejBvsS.png")##############
+
+    elif args.meson_option == "ZPhi" :
+        canvas2.SaveAs("/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/Z/Phi/MVA/h_rejBvsS.pdf")##############
+        canvas2.SaveAs("/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/Z/Phi/MVA/h_rejBvsS.png")##############
     #raw_input()
 
 if __name__ == "__main__":

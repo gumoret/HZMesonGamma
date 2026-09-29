@@ -162,8 +162,8 @@ if isWideRange:
 '''
 
 #else:
-if isZAnalysis and not runningOnData: histo_map[list_histos[0]]   = ROOT.TH1F(list_histos[0],"M_{Z}", 300, 60., 120.)
-if isZAnalysis and runningOnData: histo_map[list_histos[0]]   = ROOT.TH1F(list_histos[0],"M_{Z}", 300, 60., 200.)
+if isZAnalysis and not runningOnData: histo_map[list_histos[0]]   = ROOT.TH1F(list_histos[0],"M_{Z}", 11, 85., 96.)
+if isZAnalysis and runningOnData: histo_map[list_histos[0]]   = ROOT.TH1F(list_histos[0],"M_{Z}", 35, 70., 105.)
 if isHAnalysis and not runningOnData:
     if isDAnalysis: histo_map[list_histos[0]] = ROOT.TH1F(list_histos[0],"M_{H}", 150, 114, 126)
     else: histo_map[list_histos[0]] = ROOT.TH1F(list_histos[0],"M_{H}", 150, 120, 130)
@@ -182,7 +182,8 @@ histo_map[list_histos[8]]  = ROOT.TH1F(list_histos[8],"p_{T} of the meson", 100,
 histo_map[list_histos[9]]  = ROOT.TH1F(list_histos[9],"#eta_{meson}", 100, -2.5,2.5)
 if isDAnalysis:  histo_map[list_histos[10]] = ROOT.TH1F(list_histos[10],"#Delta R_{meson}", 100, 0.,0.15)
 else: histo_map[list_histos[10]] = ROOT.TH1F(list_histos[10],"#Delta R_{meson}", 100, 0.,0.07)
-histo_map[list_histos[11]] = ROOT.TH1F(list_histos[11],"Iso_ch of the meson", 100, 0.95, 1.)
+if isHAnalysis: histo_map[list_histos[11]] = ROOT.TH1F(list_histos[11],"Iso_ch of the meson", 100, 0.95, 1.)
+else:  histo_map[list_histos[11]] = ROOT.TH1F(list_histos[11],"Iso_ch of the meson", 100, 0.9, 1.)
 histo_map[list_histos[12]] = ROOT.TH1F(list_histos[12],"Iso_neu of the meson", 100, 0.8, 1.)
 histo_map[list_histos[13]] = ROOT.TH1F(list_histos[13],"E_{T} of the #gamma", 100, 0., 250.)
 histo_map[list_histos[14]] = ROOT.TH1F(list_histos[14],"#eta_{#gamma}", 100, -2.5,2.5)
@@ -334,8 +335,8 @@ for jentry in range(nentries):
         if CRFlag == "CR" and (b >= cut_low_bin and b <= cut_high_bin): continue
 
         ## masses for polarization angle calculation
-        massTrk1 = 0.493677 #K 
-        massTrk2 = 0.493677 #K
+        #massTrk1 = 0.493677 #K 
+        #massTrk2 = 0.493677 #K
 
     if isRhoAnalysis:
         #if CRFlag == "SR" and not (mesonMass > 0.62 and mesonMass < 0.92): continue
@@ -379,9 +380,10 @@ for jentry in range(nentries):
     #NORMALIZATION for MC-------------------------------------------------------------------
 
     if not runningOnData:
-        #PUWeight    = mytree.PU_Weight
+        PUWeight    = mytree.nPU
         weight_sign = mytree.MC_Weight/abs(mytree.MC_Weight) #just take the sign of the MC gen weight
-        eventWeight =  luminosity * normalization_weight * weight_sign # * PUWeight  
+        photonSF, photonSF_err = myWF.get_photon_scale(photonEt,photonEta)
+        eventWeight = luminosity * normalization_weight * weight_sign * PUWeight * photonSF  
     
     else: eventWeight = 1.
 
@@ -462,13 +464,17 @@ for jentry in range(nentries):
     print("---------")
     '''
     #ISO CH CUT
-    if mesonIsoCh < 0.95: continue
+    #if isHAnalysis:
+        #if mesonIsoCh < 0.981: continue
     
     #TIGHT SELECTION from BDT output -------------------------------------------------  
     if isBDT:
-        if isDAnalysis: BDT_out = myWF.get_BDT_output(mesonIsoCh,cosTheta,mesonPt,bosonMass,mesonEta,photonEt,lxy)#mesonIsoCh, cosTheta, mesonIsoNeu,mesonGammaDeltaPhi
-        else: BDT_out = myWF.get_BDT_output(mesonIsoCh,cosTheta,mesonPt,bosonMass,mesonEta,photonEt)#mesonIsoCh,cosTheta,mesonIsoNeu,mesonGammaDeltaPhi
-        
+        if isZAnalysis:
+            BDT_out = myWF.get_BDT_output(mesonIsoCh,mesonPt,mesonEta,mesonGammaDeltaPhi)#mesonIsoCh,cosTheta,mesonIsoNeu,bosonMass,photonEt,mesonGammaDeltaPhi
+        if isHAnalysis:
+            if isDAnalysis: BDT_out = myWF.get_BDT_output(mesonPt,bosonMass,mesonEta,photonEt,lxy)#mesonIsoCh,cosTheta,mesonIsoNeu,bosonMass,photonEt,mesonGammaDeltaPhi
+            else: BDT_out = myWF.get_BDT_output(cosTheta,mesonPt,bosonMass,mesonEta,photonEt)#mesonIsoCh,cosTheta,mesonIsoNeu,bosonMass,photonEt,mesonGammaDeltaPhi
+
         #histo_map["h_BDT_out"].Fill(BDT_out)
 
         #if debug: print("BDT value before selection = ", BDT_out)
@@ -504,8 +510,8 @@ for jentry in range(nentries):
         if isDataBlind:
             if isZAnalysis:
                 #if bosonMass < 80. or bosonMass > 100: histo_map["h_bosonMass"].Fill(bosonMass, eventWeight)
-                blind_low_bin  = histo_map["h_bosonMass"].FindBin(80.)
-                blind_high_bin = histo_map["h_bosonMass"].FindBin(100.)
+                blind_low_bin  = histo_map["h_bosonMass"].FindBin(85.)
+                blind_high_bin = histo_map["h_bosonMass"].FindBin(96.)
                 bin = histo_map["h_bosonMass"].FindBin(bosonMass)
                 if bin < blind_low_bin or bin > blind_high_bin: histo_map["h_bosonMass"].Fill(bosonMass, eventWeight)
             if isHAnalysis:

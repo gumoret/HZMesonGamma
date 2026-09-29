@@ -7,6 +7,7 @@ isZAnalysis   = False
 
 p = argparse.ArgumentParser(description='Select rootfile to plot')
 p.add_argument('boson_channel', help='Type H or Z')
+p.add_argument('meson_channel', help ='type phi or rho or K or D')
 p.add_argument('SR_file', help='Type SR file')
 p.add_argument('CR_file', help='Type CR file')
 
@@ -63,8 +64,10 @@ for histo_name in list_histos:
 
     if histo_name == "h_bosonMass" or histo_name == "h_InvMass_TwoTrk_Photon_NoPhiMassCut":
         #print "CRIntegral =", histoCR.Integral()
-        if isHAnalysis: CRintegral = histoCR.Integral() - histoCR.Integral(histoCR.GetXaxis().FindBin(120.), histoCR.GetXaxis().FindBin(130.)) #since in this plot there is the blind window for data in SR, this trick is to make the divide properly. Remember to bypass it for the unblinding
-        if isZAnalysis: CRintegral = histoCR.Integral() - histoCR.Integral(histoCR.GetXaxis().FindBin(80.), histoCR.GetXaxis().FindBin(100.))        
+        if isHAnalysis:
+            if not args.meson_channel == "D": CRintegral = histoCR.Integral() - histoCR.Integral(histoCR.GetXaxis().FindBin(120.), histoCR.GetXaxis().FindBin(130.)) #since in this plot there is the blind window for data in SR, this trick is to make the divide properly. Remember to bypass it for the unblinding
+            else: CRintegral = histoCR.Integral() - histoCR.Integral(histoCR.GetXaxis().FindBin(114.), histoCR.GetXaxis().FindBin(126.))
+        if isZAnalysis: CRintegral = histoCR.Integral() - histoCR.Integral(histoCR.GetXaxis().FindBin(85.), histoCR.GetXaxis().FindBin(96.))        
         #print "ZMass CR integral = ", CRintegral
     else:
         CRintegral = histoCR.Integral()

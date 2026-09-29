@@ -15,21 +15,29 @@ args = p.parse_args()
 
 #INPUT FILES
 if args.meson_option == "HRho" :
-    fInputSignal = ROOT.TFile("../histos/H/SR_HRho_OldTrigger_preselection_Signal.root")####modified for 2022Tau
-    fInputData  = ROOT.TFile("../histos/H/SR_HRho2022Tau_preselection_Data.root")    
+    fInputSignal = ROOT.TFile("../histos/H/SR_HRho_ORTrigger_preselection_Signal.root")        #SR_HRho_OldTrigger_preselection_Signal  SR_HRho_ORTrigger_preselection_Signal
+    fInputData  = ROOT.TFile("../histos/H/SR_HRho2024_ORTrigger_preselection_Data.root")       #SR_HRho2022Tau_preselection_Data        SR_HRho2024_ORTrigger_preselection_Data
 
 elif args.meson_option == "HPhi" :
-    fInputSignal = ROOT.TFile("../histos/H/SR_HPhi_OldTrigger_preselection_Signal.root") # SR_HPhi_OldTrigger_preselection_Signal.root #SR_HPhi_ORTrigger_preselection_Signal.root
-    fInputData  = ROOT.TFile("../histos/H/SR_HPhi2022Tau_preselection_Data.root") # SR_HPhi2022Tau_preselection_Data.root #SR_HPhi2024_ORTrigger_preselection_Data.root
+    fInputSignal = ROOT.TFile("../histos/H/SR_HPhi_ORTrigger_preselection_Signal.root") # SR_HPhi_OldTrigger_preselection_Signal.root #SR_HPhi_ORTrigger_preselection_Signal.root
+    fInputData  = ROOT.TFile("../histos/H/SR_HPhi2024_ORTrigger_preselection_Data.root") #SR_HPhi2022Tau_preselection_Data.root      # SR_HPhi2024_ORTrigger_preselection_Data.root
 
 elif args.meson_option == "HKst" :
-    fInputSignal = ROOT.TFile("../histos/H/SR_HKst_OldTrigger_preselection_Signal.root")
-    fInputData  = ROOT.TFile("../histos/H/SR_HKst2022Tau_preselection_Data.root")
-
+    fInputSignal = ROOT.TFile("../histos/H/SR_HKst_ORTrigger_preselection_Signal.root")  #SR_HKst_OldTrigger_preselection_Signal
+    fInputData  = ROOT.TFile("../histos/H/SR_HKst2024_ORTrigger_preselection_Data.root") #SR_HKst2022Tau_preselection_Data
 
 elif args.meson_option == "HDst" :
-    fInputSignal = ROOT.TFile("../histos/H/SR_HDst_OldTrigger_preselection_Signal.root")
-    fInputData  = ROOT.TFile("../histos/H/SR_HDst2022Tau_preselection_Data.root")
+    fInputSignal = ROOT.TFile("../histos/H/SR_HDst_ORTrigger_preselection_Signal.root")  #SR_HDst_OldTrigger_preselection_Signal
+    fInputData  = ROOT.TFile("../histos/H/SR_HDst2024_ORTrigger_preselection_Data.root")         #SR_HDst2022Tau_preselection_Data
+    
+
+elif args.meson_option == "ZPhi" :
+    fInputSignal = ROOT.TFile("../histos/Z/SR_ZPhi_ORTrigger_preselection_Signal.root") ##SR_ZPhi_ORTrigger_preselection_Signal.root      SR_ZPhi_OldTrigger_preselection_Signal.root
+    fInputData  = ROOT.TFile("../histos/Z/SR_ZPhi2024_ORTrigger_preselection_Data.root") ##SR_ZPhi2024_ORTrigger_preselection_Data.root   SR_ZPhi2024_OldTrigger_preselection_Data.root
+
+elif args.meson_option == "ZRho" :
+    fInputSignal = ROOT.TFile("../histos/Z/SR_ZRho_ORTrigger_preselection_Signal.root") ##SR_ZRho_ORTrigger_preselection_Signal.root      SR_ZRho_OldTrigger_preselection_Signal.root
+    fInputData  = ROOT.TFile("../histos/Z/SR_ZRho2024_ORTrigger_preselection_Data.root") ##SR_ZRho2024_ORTrigger_preselection_Data.root   SR_ZRho2024_OldTrigger_preselection_Data.root
 
 sig_tree    = fInputSignal.Get("tree_output")
 data_tree   = fInputData.Get("tree_output")
@@ -49,10 +57,12 @@ for dataEntry in range(nEntriesData):
 
     bosonMass = data_tree.bosonMass
     
-    if not args.meson_option == "HDst":
+    if not (args.meson_option == "HDst" or args.meson_option == "ZPhi" or args.meson_option == "ZRho") :
         if (bosonMass < 120. or bosonMass > 130.): continue
     elif args.meson_option == "HDst":
         if (bosonMass < 114. or bosonMass > 126.): continue
+    elif args.meson_option == "ZPhi" or args.meson_option == "ZRho":
+        if (bosonMass < 85. or bosonMass > 96.): continue
     Nbkg_passed += 1
 
 
@@ -68,10 +78,12 @@ for sigEntry in range(nEntriesSig):
         continue
         
     bosonMass = sig_tree.bosonMass
-    if not args.meson_option == "HDst":
+    if not (args.meson_option == "HDst" or args.meson_option == "ZPhi" or args.meson_option == "ZRho") :
         if (bosonMass < 120. or bosonMass > 130.): continue
     elif args.meson_option == "HDst":
         if (bosonMass < 114. or bosonMass > 126.): continue
+    elif args.meson_option == "ZPhi" or args.meson_option == "ZRho":
+        if (bosonMass < 85. or bosonMass > 96.): continue
     #print Zmass
     Nsig_passed += sig_tree._eventWeight * BR_inj
     #Nsig_passed += 1. * BR_inj
@@ -152,6 +164,20 @@ elif args.meson_option == "HDst" :
     canvas1.SaveAs("/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/H/Dst/MVA/signif_vs_effS.png")
     canvas2.SaveAs("/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/H/Dst/MVA/signif_vs_effB.pdf")
     canvas2.SaveAs("/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/H/Dst/MVA/signif_vs_effB.png")
+
+
+elif args.meson_option == "ZPhi" :
+    canvas1.SaveAs("/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/Z/Phi/MVA/signif_vs_effS.pdf")
+    canvas1.SaveAs("/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/Z/Phi/MVA/signif_vs_effS.png")
+    canvas2.SaveAs("/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/Z/Phi/MVA/signif_vs_effB.pdf")
+    canvas2.SaveAs("/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/Z/Phi/MVA/signif_vs_effB.png")
+elif args.meson_option == "ZRho" :
+    canvas1.SaveAs("/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/Z/Rho/MVA/signif_vs_effS.pdf")
+    canvas1.SaveAs("/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/Z/Rho/MVA/signif_vs_effS.png")
+    canvas2.SaveAs("/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/Z/Rho/MVA/signif_vs_effB.pdf")
+    canvas2.SaveAs("/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalysis/HZMesonGamma/test/plots/Z/Rho/MVA/signif_vs_effB.png")
+
+
 
 #---- Now find the BDT output corresponding to the highest significance
 
