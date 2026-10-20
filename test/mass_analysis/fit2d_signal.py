@@ -1,13 +1,13 @@
 import ROOT
 
 # Import the Double Crystal Ball PDF 
-ROOT.gROOT.ProcessLineSync(".L ./mass_analysis/dCB/RooDoubleCBFast.cc+")
+ROOT.gROOT.ProcessLineSync(".L dCB/RooDoubleCBFast.cc+")
 
 # Suppress the opening of many Canvas's 
 ROOT.gROOT.SetBatch(True) 
 
 #input
-file_path = "./histos/H/SR_HRho_OldTrigger_BDT_Signal.root"
+file_path = "../histos/H/SR_HRho_ORTrigger_BDTCat1_Signal.root"
 tree_name = "tree_output"
 infile = ROOT.TFile.Open(file_path)
 tree = infile.Get(tree_name)

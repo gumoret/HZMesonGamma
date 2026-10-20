@@ -4,7 +4,9 @@ import ROOT
 ROOT.gROOT.SetBatch(True) 
 
 #input
-file_path = "./histos/H/SR_HRho2022Tau_BDT_Data.root"
+#file_path = "../histos/H/SR_HRho2022Tau_BDT_Data.root"
+#file_path = "../histos/H/SR_HRho2024_ORTrigger_BDTCat1_Data.root"
+file_path = "../histos/H/FullDataset_HRho2024_ORTrigger_BDTCat1_Data.root"
 tree_name = "tree_output"
 infile = ROOT.TFile.Open(file_path)
 tree = infile.Get(tree_name)
@@ -12,7 +14,7 @@ tree = infile.Get(tree_name)
 
 #Parameters of the PDF ---------------------------------------------------------------
 xLowRange  = 110.
-xHighRange = 160.
+xHighRange = 140.
 
 mass = ROOT.RooRealVar("bosonMass","bosonMass",xLowRange,xHighRange,"GeV")
 mass.setRange("LowSideband",xLowRange,120.)
@@ -23,10 +25,11 @@ mass.setRange("full",xLowRange,xHighRange)
 #Initialize a Chebychev pdf
 a_bkg = ROOT.RooRealVar("a_bkg","a_bkg",-1.,-3.,0.)
 b_bkg = ROOT.RooRealVar("b_bkg","b_bkg",0.3,-3.,1.)
+'''
 c_bkg = ROOT.RooRealVar("c_bkg","c_bkg",-0.01,-1.,1.)
 d_bkg = ROOT.RooRealVar("d_bkg","d_bkg",-0.05,-0.2,0.1)
 f_bkg = ROOT.RooRealVar("e_bkg","e_bkg",-0.05,-0.1,0.)
-
+'''
 bkgPDF_chebychev  = ROOT.RooChebychev("chebychev","bkgPDF",mass,ROOT.RooArgList(a_bkg, b_bkg))
 
 

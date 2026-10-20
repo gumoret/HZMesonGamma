@@ -76,7 +76,7 @@ if args.meson_option == "HDst":
 if args.meson_option == "ZRho" or args.meson_option == "ZPhi":
   dataloader.AddVariable("mesonIsoCh","F")
   dataloader.AddVariable("mesonPt","F")
-  dataloader.AddVariable("mesonEta","F")###old variable
+  dataloader.AddVariable("mesonEta","F")
   dataloader.AddVariable("mesonGammaDeltaPhi","F")
   #dataloader.AddVariable("bosonMass","F") #used just to check the correlation of Hmass and other input variables
 

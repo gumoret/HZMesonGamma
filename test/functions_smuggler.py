@@ -38,7 +38,7 @@ ph_pixVeto_scale_histo_2018 = ph_pixVeto_scale_file_2018.Get("MVAID/SF_HasPix_MV
 '''
 class Simplified_Workflow_Handler:
 
-    def __init__(self,signalname,dataname,isBDT,isD0=True):
+    def __init__(self,signalname,dataname,isBDT,isD0=False,isH=True):
 
                 
         ###################################################################################
@@ -46,19 +46,26 @@ class Simplified_Workflow_Handler:
         #------------------------ Add BDT variables to the reader ------------------------#
         #                                                                                 #
         ###################################################################################
-        if not isD0:
-            #reader.AddVariable("mesonIsoCh",mesonIsoCh_array)
-            #reader.AddVariable("mesonIsoNeu",mesonIsoNeu_array)
-            reader.AddVariable("cosTheta",cosTheta_array)
-            reader.AddVariable("mesonPt/bosonMass",mesonPt_array)#/bosonMass
+        if isH:
+            if not isD0:
+                #reader.AddVariable("mesonIsoCh",mesonIsoCh_array)
+                #reader.AddVariable("mesonIsoNeu",mesonIsoNeu_array)
+                reader.AddVariable("cosTheta",cosTheta_array)
+                reader.AddVariable("mesonPt/bosonMass",mesonPt_array)#/bosonMass
+                reader.AddVariable("mesonEta",mesonEta_array)
+                reader.AddVariable("photonEt/bosonMass",photonEt_array)#/bosonMass
+                #reader.AddVariable("mesonGammaDeltaPhi",mesonGammaDeltaPhi_array)
+            elif isD0:
+                reader.AddVariable("mesonPt/bosonMass",mesonPt_array)#/bosonMass
+                reader.AddVariable("mesonEta",mesonEta_array)
+                reader.AddVariable("photonEt/bosonMass",photonEt_array)#/bosonMass
+                reader.AddVariable("lxy", lxy_array)
+        if not isH:
+            reader.AddVariable("mesonIsoCh",mesonIsoCh_array)
+            reader.AddVariable("mesonPt",mesonPt_array)
             reader.AddVariable("mesonEta",mesonEta_array)
-            reader.AddVariable("photonEt/bosonMass",photonEt_array)#/bosonMass
-            #reader.AddVariable("mesonGammaDeltaPhi",mesonGammaDeltaPhi_array)
-        elif isD0:
-            reader.AddVariable("mesonPt/bosonMass",mesonPt_array)#/bosonMass
-            reader.AddVariable("mesonEta",mesonEta_array)
-            reader.AddVariable("photonEt/bosonMass",photonEt_array)#/bosonMass
-            reader.AddVariable("lxy", lxy_array)
+            reader.AddVariable("mesonGammaDeltaPhi",mesonGammaDeltaPhi_array)
+            
 
 
 
@@ -66,9 +73,9 @@ class Simplified_Workflow_Handler:
 
     #Get BDT output function ###########################################################################################################
 
-    def get_BDT_output(self,mesonPt,bosonMass,mesonEta,photonEt,lxy):#mesonIsoCh,cosTheta,mesonIsoNeu,bosonMass,photonEt,mesonGammaDeltaPhi
+    def get_BDT_output(self,cosTheta,mesonPt,bosonMass,mesonEta,photonEt,lxy=None):#mesonIsoCh,cosTheta,mesonIsoNeu,bosonMass,photonEt,mesonGammaDeltaPhi
         
-        if lxy is None:
+        if lxy is None: #and cosTheta is not None:
             #mesonIsoCh_array[0]           = mesonIsoCh
             #mesonIsoNeu_array[0]          = mesonIsoNeu
             cosTheta_array[0]             = cosTheta
@@ -76,11 +83,11 @@ class Simplified_Workflow_Handler:
             mesonEta_array[0]             = mesonEta
             photonEt_array[0]             = photonEt/bosonMass 
             #mesonGammaDeltaPhi_array[0]   = mesonGammaDeltaPhi
-        if lxy is not None:
+        if lxy is not None: #and cosTheta is None:
             mesonPt_array[0]              = mesonPt/bosonMass
             mesonEta_array[0]             = mesonEta
             photonEt_array[0]             = photonEt/bosonMass
-            lxy_array[0]              = lxy
+            lxy_array[0]                  = lxy
 
         return reader.EvaluateMVA("BDT")
 
