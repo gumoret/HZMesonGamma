@@ -38,8 +38,8 @@ iPos = 11
 #Parameters of the PDF ---------------------------------------------------------------
 xLowRange  = 110.
 xHighRange = 140.
-xSidLeft = 120.
-xSidRight = 129.
+xSidLeft = 115.
+xSidRight = 124.
 
 mass = ROOT.RooRealVar("bosonMass","bosonMass",xLowRange,xHighRange,"GeV")
 mass.setRange("LowSideband",xLowRange,xSidLeft)
@@ -290,12 +290,14 @@ canvas_chebychev_Nplus1.SaveAs("/eos/user/c/covarell/www/AN-26-106/Dstar_sideban
 
 
 # Multipdf ------------------------------------------------------------------------------------------------------------------------------
+a_bkg.setConstant(True);                                                                                           b_bkg.setConstant(True);                                                                                           c_bkg.setConstant(True);                                                                                           e1_bkg.setConstant(True);                                                                                          bern_c0.setConstant(True);                                                                                         bern_c1.setConstant(True);                                                                                         bern_c2.setConstant(True);                                                                                         bern_c3.setConstant(True);                                                                                         bern_c4.setConstant(True);            
+
 cat = ROOT.RooCategory("pdf_index_GFcat_bdt1","Index of Pdf which is active")
 mypdfs = ROOT.RooArgList()
-mypdfs.add(bkgPDF_chebychev)
+#mypdfs.add(bkgPDF_chebychev)
 mypdfs.add(bkgPDF_bernstein)
 mypdfs.add(bkgPDF_exponential)
-#mypdfs.add(bkgPDF_chebychev_Nplus1)
+mypdfs.add(bkgPDF_chebychev_Nplus1)
 
 multipdf = ROOT.RooMultiPdf("multipdf_"+CHANNEL+"_GFcat_bdt1_bkg","All Pdfs",cat,mypdfs)
 
