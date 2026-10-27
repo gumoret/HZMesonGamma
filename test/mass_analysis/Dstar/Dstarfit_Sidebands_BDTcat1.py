@@ -46,35 +46,40 @@ mass.setRange("LowSideband",xLowRange,xSidLeft)
 mass.setRange("HighSideband",xSidRight,xHighRange)
 mass.setRange("full",xLowRange,xHighRange)
 
-#Initialize a Chebychev pdf
+#Initialize Chebychev pdfs
 a_bkg = ROOT.RooRealVar("a_bkg_chebychev_"+CHANNEL+"_GFcat_bdt1","a_bkg",-1.,-3.,0.)
 b_bkg = ROOT.RooRealVar("b_bkg_chebychev_"+CHANNEL+"_GFcat_bdt1","b_bkg",0.3,-3.,1.)
 c_bkg = ROOT.RooRealVar("c_bkg_chebychev_"+CHANNEL+"_GFcat_bdt1","c_bkg",-0.01,-1.,1.)
-d_bkg = ROOT.RooRealVar("d_bkg_chebychev_"+CHANNEL+"_GFcat_bdt1","d_bkg",-0.05,-0.2,0.1)
-f_bkg = ROOT.RooRealVar("e_bkg_chebychev_"+CHANNEL+"_GFcat_bdt1","e_bkg",-0.05,-0.1,0.)
 
-bkgPDF_chebychev  = ROOT.RooChebychev("chebychev_GFcat_bdt1_bkg","bkgPDF",mass,ROOT.RooArgList(a_bkg, b_bkg))
-bkgPDF_chebychev_Nplus1 = ROOT.RooChebychev("chebychev_Nplus1_GFcat_bdt1_bkg","bkgPDF",mass,ROOT.RooArgList(a_bkg,b_bkg,c_bkg))
+a1_bkg = ROOT.RooRealVar("a1_bkg_chebychev_"+CHANNEL+"_GFcat_bdt1","a1_bkg",-1.,-3.,0.)
+b1_bkg = ROOT.RooRealVar("b1_bkg_chebychev_"+CHANNEL+"_GFcat_bdt1","b1_bkg",0.3,-3.,1.)
+c1_bkg = ROOT.RooRealVar("c1_bkg_chebychev_"+CHANNEL+"_GFcat_bdt1","c1_bkg",-0.01,-1.,1.)
+d1_bkg = ROOT.RooRealVar("d1_bkg_chebychev_"+CHANNEL+"_GFcat_bdt1","d1_bkg",-0.05,-0.2,0.1)
+
+a2_bkg = ROOT.RooRealVar("a2_bkg_chebychev_"+CHANNEL+"_GFcat_bdt1","a2_bkg",-1.,-15.,15.)
+b2_bkg = ROOT.RooRealVar("b2_bkg_chebychev_"+CHANNEL+"_GFcat_bdt1","b2_bkg",-0.03,-1.,0.)
+c2_bkg = ROOT.RooRealVar("c2_bkg_chebychev_"+CHANNEL+"_GFcat_bdt1","c2_bkg",-0.01,-1.,1.)
+
+bkgPDF_chebychev  = ROOT.RooChebychev("chebychev_GFcat_bdt1_bkg","bkgPDF",mass,ROOT.RooArgList(a_bkg, b_bkg,c_bkg))
+bkgPDF_chebychev_Nplus1 = ROOT.RooChebychev("chebychev_Nplus1_GFcat_bdt1_bkg","bkgPDF",mass,ROOT.RooArgList(a1_bkg,b1_bkg,c1_bkg,d1_bkg))
+bkgPDF_chebychev_Nminus1 = ROOT.RooChebychev("chebychev_Nminus1_GFcat_bdt1_bkg","bkgPDF",mass,ROOT.RooArgList(a2_bkg, b2_bkg))
 
 #Initialize an exponential pdf
 e1_bkg = ROOT.RooRealVar("e1_bkg_exponential_"+CHANNEL+"_GFcat_bdt1","e1_bkg",-0.031,-1.,0.)
-exp1   = ROOT.RooExponential("exponential1_GFcat_bdt1_bkg","bkgPDF",mass,e1_bkg)
-e2_bkg = ROOT.RooRealVar("e2_bkg_exponential_"+CHANNEL+"_GFcat_bdt1","e2_bkg",-0.931,-1.,0.)
-exp2   = ROOT.RooExponential("exponential2_GFcat_bdt1_bkg","bkgPDF",mass,e2_bkg)
-frac_exp = ROOT.RooRealVar("f0_bkg_exponential_"+CHANNEL+"_GFcat_bdt1","frac_exp",0.,1.)
-
-#bkgPDF_exponential = ROOT.RooAddPdf("exponential_GFcat_bdt1_bkg","bkgPDF",ROOT.RooArgList(exp1,exp2),ROOT.RooArgList(frac_exp))
+f_bkg = ROOT.RooRealVar("f_bkg_exponential_"+CHANNEL+"_GFcat_bdt1","f_bkg",0.05,0.,0.4)
 bkgPDF_exponential = ROOT.RooExponential("exponential_GFcat_bdt1_bkg","bkgPDF",mass,e1_bkg)
+
+bkgPDF_chebyplusexp = ROOT.RooAddPdf("chebyplusexp_GFcat_bdt1_bkg","bkgPDF",ROOT.RooArgSet(bkgPDF_exponential,bkgPDF_chebychev_Nminus1),ROOT.RooArgList(f_bkg))
 #if CHANNEL == "Phi": bkgPDF_exponential = ROOT.RooExponential("exponential_GFcat_bdt1_bkg","bkgPDF",mass,e1_bkg)
 
 #Initialize a Bernstein pdf
-bern_c0 = ROOT.RooRealVar("c0_bkg_bernstein_"+CHANNEL+"_GFcat_bdt1", 'bern_c0', 0.05)#0.05, 0.,0.1)
-bern_c1 = ROOT.RooRealVar("c1_bkg_bernstein_"+CHANNEL+"_GFcat_bdt1", 'bern_c1', 0.01, 0.,1.)
-bern_c2 = ROOT.RooRealVar("c2_bkg_bernstein_"+CHANNEL+"_GFcat_bdt1", 'bern_c2', 0.01, 0.,1.)
-bern_c3 = ROOT.RooRealVar("c3_bkg_bernstein_"+CHANNEL+"_GFcat_bdt1", 'bern_c3', 0.05, 0.,1.)
-bern_c4 = ROOT.RooRealVar("c4_bkg_bernstein_"+CHANNEL+"_GFcat_bdt1", 'bern_c4', 0.05, 0., 5.)
-bern_c5 = ROOT.RooRealVar("c5_bkg_bernstein_"+CHANNEL+"_GFcat_bdt1", 'bern_c5', 1e-2, 0., 0.1)
-bkgPDF_bernstein = ROOT.RooBernstein("bernstein_GFcat_bdt1_bkg", "bkgPDF", mass, ROOT.RooArgList(bern_c0,bern_c1,bern_c2,bern_c3))
+#bern_c0 = ROOT.RooRealVar("c0_bkg_bernstein_"+CHANNEL+"_GFcat_bdt1", 'bern_c0', 0.05)#0.05, 0.,0.1)
+#bern_c1 = ROOT.RooRealVar("c1_bkg_bernstein_"+CHANNEL+"_GFcat_bdt1", 'bern_c1', 0.01, 0.,1.)
+#bern_c2 = ROOT.RooRealVar("c2_bkg_bernstein_"+CHANNEL+"_GFcat_bdt1", 'bern_c2', 0.01, 0.,1.)
+#bern_c3 = ROOT.RooRealVar("c3_bkg_bernstein_"+CHANNEL+"_GFcat_bdt1", 'bern_c3', 0.05, 0.,1.)
+#bern_c4 = ROOT.RooRealVar("c4_bkg_bernstein_"+CHANNEL+"_GFcat_bdt1", 'bern_c4', 0.05, 0., 5.)
+#bern_c5 = ROOT.RooRealVar("c5_bkg_bernstein_"+CHANNEL+"_GFcat_bdt1", 'bern_c5', 1e-2, 0., 0.1)
+#bkgPDF_bernstein = ROOT.RooBernstein("bernstein_GFcat_bdt1_bkg", "bkgPDF", mass, ROOT.RooArgList(bern_c0,bern_c1,bern_c2,bern_c3))
 
 
 #Input file and tree ---------------------------------------------------------------
@@ -109,8 +114,8 @@ data_blinded = observed_data.reduce(f'bosonMass < {xSidLeft} || bosonMass > {xSi
 
 #Do the fit ------------------------------------------------------------------------------------------------------------------------------
 fitResult_chebychev   = bkgPDF_chebychev.fitTo(observed_data,ROOT.RooFit.Save())
-fitResult_bernstein   = bkgPDF_bernstein.fitTo(observed_data,ROOT.RooFit.Save())
-fitResult_exponential = bkgPDF_exponential.fitTo(observed_data,ROOT.RooFit.Save())
+#fitResult_bernstein   = bkgPDF_bernstein.fitTo(observed_data,ROOT.RooFit.Save())
+fitResult_exponential = bkgPDF_chebyplusexp.fitTo(observed_data,ROOT.RooFit.Save())
 fitResult_chebychev_Nplus1  = bkgPDF_chebychev_Nplus1.fitTo(observed_data,ROOT.RooFit.Save())
 
 #ROOT.RooFit.Range("LowSideband,HighSideband")
@@ -145,7 +150,7 @@ print('Chi square cheby = ',chi2_cheby)
 print('n param cheby = ',nParam_cheby)
 print('')
 
-leg1 = ROOT.TLegend(0.5,0.62,0.72,0.90) #right positioning
+leg1 = ROOT.TLegend(0.5,0.22,0.72,0.90) #right positioning
 leg1.SetHeader(" ")
 leg1.SetNColumns(1)
 leg1.SetFillColorAlpha(0,0.)
@@ -165,44 +170,44 @@ canvas_chebychev.SaveAs("/eos/user/c/covarell/www/AN-26-106/Dstar_sidebands_GFca
 
 
 #Bernstein frame
-canvas_bernstein = ROOT.TCanvas()
-canvas_bernstein.cd()
+#canvas_bernstein = ROOT.TCanvas()
+#canvas_bernstein.cd()
 
-xframe_bernstein = mass.frame(30)
+#xframe_bernstein = mass.frame(30)
 
-data_blinded.plotOn(xframe_bernstein)
-bkgPDF_bernstein.plotOn(xframe_bernstein,ROOT.RooFit.NormRange("LowSideband,HighSideband"),ROOT.RooFit.Range("LowSideband,HighSideband"),ROOT.RooFit.Name("bkgPDF_bernstein"), ROOT.RooFit.LineColor(ROOT.kGreen))
-xframe_bernstein.SetTitle("#sqrt{s} = 13 TeV       lumi = 108.95/fb")
-xframe_bernstein.GetXaxis().SetTitle("m_{ditrk,#gamma} [GeV]")
-xframe_bernstein.SetMaximum(1.3*xframe_bernstein.GetMaximum())
-bkgPDF_bernstein.paramOn(xframe_bernstein,ROOT.RooFit.Layout(0.45,0.94,0.91),ROOT.RooFit.Format("NEU",ROOT.RooFit.AutoPrecision(1))) #,ROOT.RooFit.Layout(0.65,0.90,0.90)
-xframe_bernstein.getAttText().SetTextSize(0.02)
-xframe_bernstein.Draw() #remember to draw the frame before the legend initialization to fill the latter correctly
+#data_blinded.plotOn(xframe_bernstein)
+#bkgPDF_bernstein.plotOn(xframe_bernstein,ROOT.RooFit.NormRange("LowSideband,HighSideband"),ROOT.RooFit.Range("LowSideband,HighSideband"),ROOT.RooFit.Name("bkgPDF_bernstein"), ROOT.RooFit.LineColor(ROOT.kGreen))
+#xframe_bernstein.SetTitle("#sqrt{s} = 13 TeV       lumi = 108.95/fb")
+#xframe_bernstein.GetXaxis().SetTitle("m_{ditrk,#gamma} [GeV]")
+#xframe_bernstein.SetMaximum(1.3*xframe_bernstein.GetMaximum())
+#bkgPDF_bernstein.paramOn(xframe_bernstein,ROOT.RooFit.Layout(0.45,0.94,0.91),ROOT.RooFit.Format("NEU",ROOT.RooFit.AutoPrecision(1))) #,ROOT.RooFit.Layout(0.65,0.90,0.90)
+#xframe_bernstein.getAttText().SetTextSize(0.02)
+#xframe_bernstein.Draw() #remember to draw the frame before the legend initialization to fill the latter correctly
 
-nParam_bern = fitResult_bernstein.floatParsFinal().getSize()
-chi2_bern = xframe_bernstein.chiSquare()#Returns chi2. Remember to remove the option XErrorSize(0) from data.PlotOn
-my_ndof = int(xSidLeft-xLowRange+xHighRange-xSidRight) - nParam_bern
-cut_chi2_bern = "{:.2f}".format(chi2_bern*my_ndof) #Crop the chi2 to 2 decimal digits
-print('Chi square bern = ',chi2_bern)
-print('n param bern = ',nParam_bern)
+#nParam_bern = fitResult_bernstein.floatParsFinal().getSize()
+#chi2_bern = xframe_bernstein.chiSquare()#Returns chi2. Remember to remove the option XErrorSize(0) from data.PlotOn
+#my_ndof = int(xSidLeft-xLowRange+xHighRange-xSidRight) - nParam_bern
+#cut_chi2_bern = "{:.2f}".format(chi2_bern*my_ndof) #Crop the chi2 to 2 decimal digits
+#print('Chi square bern = ',chi2_bern)
+#print('n param bern = ',nParam_bern)
 
-leg2 = ROOT.TLegend(0.5,0.52,0.72,0.80) #right positioning
-leg2.SetHeader(" ")
-leg2.SetNColumns(1)
-leg2.SetFillColorAlpha(0,0.)
-leg2.SetBorderSize(0)
-leg2.SetLineColor(1)
-leg2.SetLineStyle(1)
-leg2.SetLineWidth(1)
-leg2.SetFillStyle(1001)
-leg2.AddEntry(cut_chi2_bern,"#chi^{2}/ndof = " + cut_chi2_bern + " / " + str(my_ndof),"brNDC")
+#leg2 = ROOT.TLegend(0.5,0.22,0.72,0.80) #right positioning
+#leg2.SetHeader(" ")
+#leg2.SetNColumns(1)
+#leg2.SetFillColorAlpha(0,0.)
+#leg2.SetBorderSize(0)
+#leg2.SetLineColor(1)
+#leg2.SetLineStyle(1)
+#leg2.SetLineWidth(1)
+#leg2.SetFillStyle(1001)
+#leg2.AddEntry(cut_chi2_bern,"#chi^{2}/ndof = " + cut_chi2_bern + " / " + str(my_ndof),"brNDC")
 
-leg2.Draw()
+#leg2.Draw()
 
 #CMS_lumi.CMS_lumi(canvas_bernstein, iPeriod, iPos) #Print integrated lumi and energy information
 
-canvas_bernstein.SaveAs("/eos/user/c/covarell/www/AN-26-106/Dstar_sidebands_GFcat_bdt1_bernstein.pdf")
-canvas_bernstein.SaveAs("/eos/user/c/covarell/www/AN-26-106/Dstar_sidebands_GFcat_bdt1_bernstein.png")
+#canvas_bernstein.SaveAs("/eos/user/c/covarell/www/AN-26-106/Dstar_sidebands_GFcat_bdt1_bernstein.pdf")
+#canvas_bernstein.SaveAs("/eos/user/c/covarell/www/AN-26-106/Dstar_sidebands_GFcat_bdt1_bernstein.png")
 
 #Exponential frame
 canvas_exponential = ROOT.TCanvas()
@@ -211,11 +216,11 @@ canvas_exponential.cd()
 xframe_exponential = mass.frame(30)
 
 data_blinded.plotOn(xframe_exponential)
-bkgPDF_exponential.plotOn(xframe_exponential,ROOT.RooFit.Range("LowSideband,HighSideband"),ROOT.RooFit.Name("bkgPDF_exponential"), ROOT.RooFit.LineColor(ROOT.kRed))
+bkgPDF_chebyplusexp.plotOn(xframe_exponential,ROOT.RooFit.Range("LowSideband,HighSideband"),ROOT.RooFit.Name("bkgPDF_chebyplusexp"), ROOT.RooFit.LineColor(ROOT.kRed))
 xframe_exponential.SetTitle("#sqrt{s} = 13 TeV       lumi = 108.95/fb")
 xframe_exponential.GetXaxis().SetTitle("m_{ditrk,#gamma} [GeV]")
 xframe_exponential.SetMaximum(1.3*xframe_exponential.GetMaximum())
-bkgPDF_exponential.paramOn(xframe_exponential,ROOT.RooFit.Layout(0.45,0.94,0.91),ROOT.RooFit.Format("NEU",ROOT.RooFit.AutoPrecision(1))) #,ROOT.RooFit.Layout(0.65,0.90,0.90)
+bkgPDF_chebyplusexp.paramOn(xframe_exponential,ROOT.RooFit.Layout(0.45,0.94,0.91),ROOT.RooFit.Format("NEU",ROOT.RooFit.AutoPrecision(1))) #,ROOT.RooFit.Layout(0.65,0.90,0.90)
 xframe_exponential.getAttText().SetTextSize(0.02)
 xframe_exponential.Draw() #remember to draw the frame before the legend initialization to fill the latter correctly
 
@@ -226,7 +231,7 @@ cut_chi2_exp = "{:.2f}".format(chi2_exp*my_ndof) #Crop the chi2 to 2 decimal dig
 print('Chi square exp = ',chi2_exp)
 print('n param exp = ',nParam_exp)
 
-leg2 = ROOT.TLegend(0.5,0.62,0.72,0.90) #right positioning
+leg2 = ROOT.TLegend(0.5,0.22,0.72,0.90) #right positioning
 leg2.SetHeader(" ")
 leg2.SetNColumns(1)
 leg2.SetFillColorAlpha(0,0.)
@@ -241,8 +246,8 @@ leg2.Draw()
 
 #CMS_lumi.CMS_lumi(canvas_exponential, iPeriod, iPos) #Print integrated lumi and energy information
 
-canvas_exponential.SaveAs("/eos/user/c/covarell/www/AN-26-106/Dstar_sidebands_GFcat_bdt1_exponential.pdf")
-canvas_exponential.SaveAs("/eos/user/c/covarell/www/AN-26-106/Dstar_sidebands_GFcat_bdt1_exponential.png")
+canvas_exponential.SaveAs("/eos/user/c/covarell/www/AN-26-106/Dstar_sidebands_GFcat_bdt1_chebyplusexp.pdf")
+canvas_exponential.SaveAs("/eos/user/c/covarell/www/AN-26-106/Dstar_sidebands_GFcat_bdt1_chebyplusexp.png")
 
 
 #Plot ------------------------------------------------------------------------------------------------------------------------
@@ -270,7 +275,7 @@ print('Chi square cheby = ',chi2_cheby)
 print('n param cheby = ',nParam_cheby)
 print('')
 
-leg1 = ROOT.TLegend(0.5,0.52,0.72,0.80) #right positioning
+leg1 = ROOT.TLegend(0.5,0.22,0.72,0.80) #right positioning
 leg1.SetHeader(" ")
 leg1.SetNColumns(1)
 leg1.SetFillColorAlpha(0,0.)
@@ -290,13 +295,30 @@ canvas_chebychev_Nplus1.SaveAs("/eos/user/c/covarell/www/AN-26-106/Dstar_sideban
 
 
 # Multipdf ------------------------------------------------------------------------------------------------------------------------------
-a_bkg.setConstant(True);                                                                                           b_bkg.setConstant(True);                                                                                           c_bkg.setConstant(True);                                                                                           e1_bkg.setConstant(True);                                                                                          bern_c0.setConstant(True);                                                                                         bern_c1.setConstant(True);                                                                                         bern_c2.setConstant(True);                                                                                         bern_c3.setConstant(True);                                                                                         bern_c4.setConstant(True);            
+a_bkg.setConstant(True);
+b_bkg.setConstant(True);
+c_bkg.setConstant(True);
+e1_bkg.setConstant(True);
+a1_bkg.setConstant(True);
+b1_bkg.setConstant(True);
+c1_bkg.setConstant(True);
+d1_bkg.setConstant(True);
+a2_bkg.setConstant(True);
+b2_bkg.setConstant(True);
+c2_bkg.setConstant(True);
+f_bkg.setConstant(True);
+
+#bern_c0.setConstant(True);
+#bern_c1.setConstant(True);
+#bern_c2.setConstant(True);
+#bern_c3.setConstant(True);
+#bern_c4.setConstant(True);
 
 cat = ROOT.RooCategory("pdf_index_GFcat_bdt1","Index of Pdf which is active")
 mypdfs = ROOT.RooArgList()
-#mypdfs.add(bkgPDF_chebychev)
-mypdfs.add(bkgPDF_bernstein)
-mypdfs.add(bkgPDF_exponential)
+mypdfs.add(bkgPDF_chebychev)
+#mypdfs.add(bkgPDF_bernstein)
+mypdfs.add(bkgPDF_chebyplusexp)
 mypdfs.add(bkgPDF_chebychev_Nplus1)
 
 multipdf = ROOT.RooMultiPdf("multipdf_"+CHANNEL+"_GFcat_bdt1_bkg","All Pdfs",cat,mypdfs)
@@ -313,7 +335,7 @@ workspace = ROOT.RooWorkspace("workspace_STAT_"+CHANNEL+"_GFcat_bdt1_2024")
 #workspace = inputWS.Get("workspace_STAT_"+CHANNEL+"_GFcat_bdt1_2024")
 #getattr(workspace,'import')(bkgPDF_chebychev)
 #getattr(workspace,'import')(bkgPDF_bernstein)
-#getattr(workspace,'import')(bkgPDF_exponential)
+#getattr(workspace,'import')(bkgPDF_chebyplusexp)
 getattr(workspace,'import')(cat)
 getattr(workspace,'import')(multipdf)
 getattr(workspace,'import')(observed_data)
