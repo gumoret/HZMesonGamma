@@ -16,19 +16,19 @@ process	ggH			bkg
 process	0	 	     1
 rate	0.01    	 1
 -------------------------------------
-lumi_13TeV_2024     lnN     1.025	      1.025	    -
-CMS_trackingEff     lnN     1.044         1.044     - 
-QCDscale_ggH 	    lnN	  0.961/1.039	    -	    -
-pdf_Higgs_ggH 	    lnN	  0.968/1.032	    -    	-
-QCDscale_VBFH 	    lnN	       -	   0.997/1.004	-
-pdf_Higgs_VBFH 	    lnN	       -	   0.979/1.021	-
-CMS_pileup          lnN      1.011        1.011     -
-CMS_trig_TwoProngs  lnN      1.050        1.051     - 
-CMS_trig_PhotonLeg  lnN      1.026        1.029     - 
-CMS_photonID        lnN      1.015        1.014     - 
-CMS_IsoEff          lnN      1.012        1.012     - 
-CMS_jes  	        lnN 	0.99/1.01	0.985/1.015	-
-CMS_isr 	        lnN 	0.97/1.03	0.995/1.005	-
-CMS_fsr 	        lnN 	0.99/1.01	0.985/1.015	-
+lumi_13TeV_2024     lnN     1.025	 	    -
+CMS_trackingEff     lnN     1.044             - 
+QCDscale_ggH 	    lnN	  0.961/1.039	     -
+pdf_Higgs_ggH 	    lnN	  0.968/1.032	 	-
+QCDscale_VBFH 	    lnN	       -	 	-
+pdf_Higgs_VBFH 	    lnN	       -	 	-
+CMS_pileup          lnN      1.011            -
+CMS_trig_TwoProngs  lnN      1.050          - 
+CMS_trig_PhotonLeg  lnN      1.026                  - 
+CMS_photonID        lnN      1.015            - 
+CMS_IsoEff          lnN      1.012             - 
+CMS_jes  	    lnN    0.99/1.01	 	-
+CMS_isr 	    lnN    0.97/1.03	 	-
+CMS_fsr 	    lnN    0.99/1.01	 	-
 -------------------------------------
 pdf_index_GFcat_bdt0 discrete
