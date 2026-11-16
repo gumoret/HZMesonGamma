@@ -253,7 +253,7 @@ else:
 #create Workspace
 if CHANNEL == "Dstar": #norm factor x2 to include the Dbar channel
     norm_ggH     = fileInput_ggH.Get("h_bosonMass").Integral() #get the normalization of ggH signal (area under ggH signal)
-    sig_norm_ggH = ROOT.RooRealVar(signalPDF_ggH.GetName()+ "_norm", signalPDF_ggH.GetName()+ "_norm", 0.0394*2*norm_ggH) 
+    sig_norm_ggH = ROOT.RooRealVar(signalPDF_ggH.GetName()+ "_norm", signalPDF_ggH.GetName()+ "_norm", 0.0394*2/0.04*norm_ggH) 
     #norm_VBF     = fileInput_VBF.Get("h_bosonMass").Integral() #get the normalization of VBF signal (area under VBF signal)
     #sig_norm_VBF = ROOT.RooRealVar(signalPDF_VBF.GetName()+ "_norm", signalPDF_VBF.GetName()+ "_norm", 0.0394*2*norm_VBF)
 else:
