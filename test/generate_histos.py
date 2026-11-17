@@ -348,7 +348,7 @@ for jentry in range(nentries):
     #NORMALIZATION for MC-------------------------------------------------------------------
 
     if not runningOnData:
-        PUWeight    = mytree.nPU
+        PUWeight    = mytree.PUWeight
         weight_sign = mytree.MC_Weight/abs(mytree.MC_Weight) #just take the sign of the MC gen weight
         photonSF, photonSF_err = myWF.get_photon_scale(photonEt,photonEta)
         eventWeight = luminosity * normalization_weight * weight_sign * PUWeight * photonSF  

@@ -15,7 +15,7 @@ if args.meson_option == "HRho" :
 
 elif args.meson_option == "HPhi" :
   fIn_bkg  = ROOT.TFile("../histos/H/CR_HPhi2024_ORTrigger_preselection_Sidebands.root") #CR_HPhi2022Tau_preselection_Sidebands.root  # CR_HPhi2024_ORTrigger_preselection_Sidebands.root
-  fIn_sig  = ROOT.TFile("../histos/H/SR_HPhi_ORTrigger_preselection_Signal.root") #        SR_HPhi_OldTrigger_preselection_Signal.root #SR_HPhi_ORTrigger_preselection_Signal.root
+  fIn_sig  = ROOT.TFile("../histos/H/SR_HPhiPU_ORTrigger_preselection_Signal.root") #        SR_HPhi_OldTrigger_preselection_Signal.root #SR_HPhi_ORTrigger_preselection_Signal.root
 
 elif args.meson_option == "HKst" :
   fIn_bkg  = ROOT.TFile("../histos/H/CR_HKst2024_ORTrigger_preselection_Sidebands.root") # CR_HKst2024_ORTrigger_preselection_Sidebands.root   CR_HKst2022Tau_preselection_Sidebands.root
@@ -23,7 +23,7 @@ elif args.meson_option == "HKst" :
 
 elif args.meson_option == "HDst" :
   fIn_bkg  = ROOT.TFile("../histos/H/CR_HDst2024_ORTrigger_preselection_Sidebands.root")    #CR_HDst2022Tau_preselection_Sidebands
-  fIn_sig  = ROOT.TFile("../histos/H/SR_HDst_ORTrigger_preselection_Signal.root")  #SR_HDst_OldTrigger_preselection_Signal
+  fIn_sig  = ROOT.TFile("../histos/H/SR_HDstPU_ORTrigger_preselection_Signal.root")  #SR_HDst_OldTrigger_preselection_Signal
   
 
 elif args.meson_option == "ZPhi":
