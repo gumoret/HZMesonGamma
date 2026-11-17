@@ -1,4 +1,6 @@
 import ROOT
+import array
+import os
 import argparse
 
 # multithreading
@@ -13,7 +15,7 @@ isKAnalysis   = False # for H -> K*0 Gamma
 isDAnalysis   = False # for H -> D*0 Gamma
 ismesonFromTracks = False # debug for reconstructing meson from tracks
 
-# PARSER and INPUT 
+# PARSER and INPUT   
 p = argparse.ArgumentParser(description="RDataFrame analyzer for H→meson+γ")
 p.add_argument("meson_option", help="Type <<rho>> for rho, <<phi>> for phi, <<K>> for K*, <<D>> for D*")
 p.add_argument("runningOnData_option", help="Type <<signal>> for signal, <<data>> for data")
@@ -58,26 +60,49 @@ files = []
 
 files.extend(glob.glob(f"{base_dir}/EGamma*/*.root"))
 
-#files = sorted(files)
-'''
+valid_files = []
+invalid_files = []
 
+for f in files:
+    try:
+        rf = ROOT.TFile.Open(f)
+
+        if rf and not rf.IsZombie() and rf.Get("Events"):
+            valid_files.append(f)
+        else:
+            invalid_files.append(f)
+
+        if rf:
+            rf.Close()
+
+    except OSError:
+        invalid_files.append(f)
+
+files = valid_files
+
+print(f"Found {len(files)} valid ROOT files")
+print(f"Skipped {len(invalid_files)} invalid ROOT files")
+
+for f in invalid_files:
+    print(f"  - {f}")
+'''
 #HRhogamma signal
-#base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/GluGluHtoRhoG_Par-M-125_TuneCP5_13p6TeV_powheg-pythia8-evtgen+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2+MINIAODSIM"
+#base_dir = /ceph/submit/data/group/cms/store/user/mariadlf/D08/2024/GluGluHtoRhoG_Par-M-125_TuneCP5_13p6TeV_powheg-pythia8-evtgen+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2+MINIAODSIM"
 
 #HPhiGamma signal
-#base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/GluGluHtoPhiG_Par-M-125_TuneCP5_13p6TeV_powheg-pythia8-evtgen+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2+MINIAODSIM"
+#base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D08/2024/GluGluHtoPhiG_Par-M-125_TuneCP5_13p6TeV_powheg-pythia8-evtgen+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2+MINIAODSIM"
 
 #HKstGamma signal
-base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/GluGluHtoKStar0G_Par-M-125_TuneCP5_13p6TeV_powheg-pythia8-evtgen+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2+MINIAODSIM"
+#base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D08/2024/GluGluHtoKStar0G_Par-M-125_TuneCP5_13p6TeV_powheg-pythia8-evtgen+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2+MINIAODSIM"
 
 #HDstGamma signal
-#base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/GluGluHtoDStar0G_Par-M-125_TuneCP5_13p6TeV_powheg-pythia8-evtgen+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2+MINIAODSIM"
+base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D08/2024/GluGluHtoDStar0G_Par-M-125_TuneCP5_13p6TeV_powheg-pythia8-evtgen+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v2+MINIAODSIM"
 
 #ZPhiGamma signal
-#base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/ZtoPhiG_TuneCP5_13p6TeV_madgraphMLM-pythia8+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v3+MINIAODSIM"
+#base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D08/2024/ZtoPhiG_TuneCP5_13p6TeV_madgraphMLM-pythia8+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v3+MINIAODSIM"
 
 #ZRhoGamma signal
-#base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D07/ZtoRhoG_TuneCP5_13p6TeV_madgraphMLM-pythia8+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v3+MINIAODSIM"
+#base_dir = "/ceph/submit/data/group/cms/store/user/mariadlf/D08/2024/ZtoRhoG_TuneCP5_13p6TeV_madgraphMLM-pythia8+RunIII2024Summer24MiniAODv6-150X_mcRun3_2024_realistic_v2-v3+MINIAODSIM"
 
 
 files = sorted(glob.glob(f"{base_dir}/*.root"))
@@ -336,9 +361,89 @@ n_total = df.Count().GetValue()
 # ------------------------------------------------------------
 # Pileup
 # ------------------------------------------------------------
-if not runningOnData: df = df.Define("nPU", "Pileup_nPU")
-else: df = df.Define("nPU", "0")
-h_pu = df.Histo1D(("pileup", "Pileup distribution", 130, 0, 130), "nPU")
+def setup_pu_weights(data_file, mc_file):
+
+    fData = ROOT.TFile.Open(data_file)
+    fMC = ROOT.TFile.Open(mc_file)
+
+    if not fData or fData.IsZombie():
+        raise RuntimeError(f"Cannot open Data pileup file: {data_file}")
+    if not fMC or fMC.IsZombie():
+        raise RuntimeError(f"Cannot open MC pileup file: {mc_file}")
+
+    hData = fData.Get("pileup")
+    hMC = fMC.Get("pileup")
+
+    if not hData or not hMC:
+        raise RuntimeError("Cannot find histogram 'pileup' in input files")
+    if hData.GetNbinsX() != hMC.GetNbinsX():
+        raise RuntimeError("Data and MC pileup histograms have different binning")
+    if (hData.GetXaxis().GetXmin() != hMC.GetXaxis().GetXmin()
+            or hData.GetXaxis().GetXmax() != hMC.GetXaxis().GetXmax()):
+        raise RuntimeError("Data and MC pileup histograms have different ranges")
+
+    n_bins = hData.GetNbinsX()
+
+    data_integral = hData.Integral()
+    mc_integral = hMC.Integral()
+
+    if data_integral <= 0 or mc_integral <= 0:
+        raise RuntimeError("Invalid pileup histogram integral")
+
+    weights = []
+
+    for i in range(1, n_bins + 1):
+        p_data = hData.GetBinContent(i) / data_integral
+        p_mc = hMC.GetBinContent(i) / mc_integral
+
+        if p_mc > 0: weights.append(p_data / p_mc)
+        else: weights.append(0.0)
+
+    # Create a C++ function accessible from RDataFrame
+    weights_string = ", ".join(f"{w:.16g}" for w in weights)
+
+    cpp_code = f"""
+    double getPUWeight(float nTrueInt) {{
+        static const double weights[{n_bins}] = {{{weights_string}}};
+
+        if (nTrueInt < 0 || nTrueInt >= {n_bins})
+            return 0.0;
+
+        int bin = static_cast<int>(nTrueInt);
+
+        return weights[bin];
+    }}
+    """
+
+    if not ROOT.gInterpreter.Declare(cpp_code):
+        raise RuntimeError("Could not declare the PU weight C++ function")
+
+    fData.Close()
+    fMC.Close()
+
+    #print("Pileup reweighting initialized")
+    #print(f"Data profile: {data_file}")
+    #print(f"MC profile:   {mc_file}")
+    #print(f"Number of bins: {n_bins}")
+
+
+#if not runningOnData: df = df.Define("nPU", "Pileup_nPU")
+#else: df = df.Define("nPU", "0")
+#h_pu = df.Histo1D(("pileup", "Pileup distribution", 130, 0, 130), "nPU")
+if not runningOnData:
+    data_pu_file = ("root://eosuser.cern.ch//eos/user/c/cmsdqm/www/CAF/certification/Collisions24/PileUp/dataPileupHistogram-2024CDEFGHI_Golden-69200ub.root")
+    mc_pu_file = os.path.join(os.path.dirname(os.path.abspath(__file__)),"MCPileupHistogram.root")
+
+    setup_pu_weights(data_pu_file, mc_pu_file)
+
+    df = df.Define("nPU", "Pileup_nPU")
+    df = df.Define("PUWeight", "getPUWeight(Pileup_nTrueInt)")
+
+else:
+    df = df.Define("nPU", "0")
+    df = df.Define("PUWeight", "1.0")
+
+h_pu = df.Histo1D(("pileup", "Pileup distribution", 130, 0, 130),"nPU")
 
 # ------------------------------------------------------------
 # MC weight
@@ -352,17 +457,17 @@ else:
 # ------------------------------------------------------------
 # Trigger
 # ------------------------------------------------------------
-df = df.Filter("HLT_Photon35_TwoProngs35", "Two-prong photon trigger")
-n_trigger = df.Filter("HLT_Photon35_TwoProngs35").Count().GetValue()
+#df = df.Filter("HLT_Photon35_TwoProngs35", "Two-prong photon trigger")
+#n_trigger = df.Filter("HLT_Photon35_TwoProngs35").Count().GetValue()
 
 #df = df.Filter("HLT_Photon50EB_TightID_TightIso", "Single photon trigger")
 #n_trigger = df.Filter("HLT_Photon50EB_TightID_TightIso").Count().GetValue() ##modify colums_to_save also
 
-#trigger_expr = "HLT_Photon35_TwoProngs35 || HLT_Photon50EB_TightID_TightIso"
+trigger_expr = "HLT_Photon35_TwoProngs35 || HLT_Photon50EB_TightID_TightIso"
 
-#df = df.Define("passTrigger", trigger_expr)
-#df = df.Filter("passTrigger", "OR trigger") ##modify colums_to_save also
-#n_trigger = df.Filter("passTrigger").Count().GetValue()
+df = df.Define("passTrigger", trigger_expr)
+df = df.Filter("passTrigger", "OR trigger") ##modify colums_to_save also (passTrigger)!!
+n_trigger = df.Filter("passTrigger").Count().GetValue()
 
 # ------------------------------------------------------------
 # Muons
@@ -600,11 +705,11 @@ else:
 # ---------------------------------------------------------------------
 # TTree writing
 # ---------------------------------------------------------------------
-columns_to_save = ["nPU", "MC_Weight", "HLT_Photon35_TwoProngs35", 
-                   "nMuons10", "nMuons20", "nElectrons10", "nElectrons20", 
+columns_to_save = ["nPU", "PUWeight", "MC_Weight", "passTrigger",
+                   "nMuons10", "nMuons20", "nElectrons10", "nElectrons20",
                    "nGoodPhotons", "bestPhoton_pt", "bestPhoton_eta", "bestPhoton_phi",
                    "bestMeson_pt", "bestMeson_eta", "bestMeson_phi", "bestMeson_mass", "isoMeson", "isoMesonNeu",
-                   "firstTrk_pt", "firstTrk_eta", "firstTrk_phi", "firstTrk_mass", 
+                   "firstTrk_pt", "firstTrk_eta", "firstTrk_phi", "firstTrk_mass",
                    "secondTrk_pt", "secondTrk_eta", "secondTrk_phi", "secondTrk_mass",
                    "H_mass", "H_pt", "H_eta", "H_phi",
                    "isPhotonMatched", "isMesonMatched", "isBosonMatched", "delta_meson_mass",
