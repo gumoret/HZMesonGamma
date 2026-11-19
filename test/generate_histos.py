@@ -118,8 +118,8 @@ if isPhiAnalysis:
 if isRhoAnalysis:
     if isZAnalysis: normalization_weight = (1./h_Events.GetBinContent(1)) * (1928000./0.0336)
     if isHAnalysis: normalization_weight = (1./h_Events.GetBinContent(1)) * (54700)
-if isKAnalysis: normalization_weight = (1./h_Events.GetBinContent(1)) * (54700) * 0.667
-if isDAnalysis: normalization_weight = (1./h_Events.GetBinContent(1)) * (54700) * 0.04
+if isKAnalysis: normalization_weight = (1./h_Events.GetBinContent(1)) * (54700) * 0.667 #*2
+if isDAnalysis: normalization_weight = (1./h_Events.GetBinContent(1)) * (54700) * 0.04  #*2
  
 
 #HISTOS ###########################################################################################################

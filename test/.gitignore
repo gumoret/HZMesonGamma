@@ -5,5 +5,4 @@ plots/
 __pycache__/
 plots/
 HMesonGamma_preselection.sh/
-mass_analysis/
 Reco.sh

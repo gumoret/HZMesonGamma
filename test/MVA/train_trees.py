@@ -11,7 +11,7 @@ args = p.parse_args()
 #INPUT FILES
 if args.meson_option == "HRho" :
   fIn_bkg  = ROOT.TFile("../histos/H/CR_HRho2024_ORTrigger_preselection_Sidebands.root") #  CR_HRho2022Tau_preselection_Sidebands   CR_HRho2024_ORTrigger_preselection_Sidebands
-  fIn_sig  = ROOT.TFile("../histos/H/SR_HRho_ORTrigger_preselection_Signal.root") #         SR_HRho_OldTrigger_preselection_Signal  SR_HRho_ORTrigger_preselection_Signal
+  fIn_sig  = ROOT.TFile("../histos/H/SR_HRhoPU_ORTrigger_preselection_Signal.root") #         SR_HRho_OldTrigger_preselection_Signal  SR_HRho_ORTrigger_preselection_Signal
 
 elif args.meson_option == "HPhi" :
   fIn_bkg  = ROOT.TFile("../histos/H/CR_HPhi2024_ORTrigger_preselection_Sidebands.root") #CR_HPhi2022Tau_preselection_Sidebands.root  # CR_HPhi2024_ORTrigger_preselection_Sidebands.root

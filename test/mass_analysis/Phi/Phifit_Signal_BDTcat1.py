@@ -63,23 +63,9 @@ dCB_aL_ggH    = ROOT.RooRealVar("dCB_aL_"+CHANNEL+"_GFcat_bdt1_ggH", "Double CB 
 dCB_aR_ggH    = ROOT.RooRealVar("dCB_aR_"+CHANNEL+"_GFcat_bdt1_ggH", "Double CB alpha right", 1.5, 1., 2.)
 dCB_nL_ggH    = ROOT.RooRealVar("dCB_nL_"+CHANNEL+"_GFcat_bdt1_ggH", "Double CB n left", 3.1, 0.1, 10.)
 dCB_nR_ggH    = ROOT.RooRealVar("dCB_nR_"+CHANNEL+"_GFcat_bdt1_ggH", "Double CB n right", 3.1, 0.1, 10.)
-#gauss_mean_ggH     = ROOT.RooRealVar("gauss_mean_"+CHANNEL+"_GFcat_bdt1_ggH", "Gaussian width", 121., 118., 122.)
-#gauss_width_ggH    = ROOT.RooRealVar("gauss_width_"+CHANNEL+"_GFcat_bdt1_ggH", "Gaussian width", 2., 1.5, 5.)
-#f_gauss_ggH        = ROOT.RooRealVar("f_gauss_"+CHANNEL+"_GFcat_bdt1_ggH", "Gaussian fraction", 0.3, 0.2, 0.4)
-#ellpis_axis_ggH     = ROOT.RooRealVar("ellpis_axis_"+CHANNEL+"_GFcat_bdt1_ggH", "Axis ellipse", 5.5, 3., 8.)
-#ellpis_cent_ggH     = ROOT.RooRealVar("ellpis_cent_"+CHANNEL+"_GFcat_bdt1_ggH", "Center ellipse", 120.5, 118., 123.)
-#f_ellpis_ggH        = ROOT.RooRealVar("f_ellpis_"+CHANNEL+"_GFcat_bdt1_ggH", "Ellipse fraction", 0.3, 0.1, 0.6)
-#r_ellpis            = ROOT.RooRealVar("r_ellpis_"+CHANNEL+"_GFcat_bdt1_ggH", "Ellipse normalization", 0.83, 0.0, 1.0)
-#r_ellpis.setConstant(True)
+
 
 signalPDF_ggH = ROOT.RooDoubleCBFast("signalPDF_"+CHANNEL+"_GFcat_bdt1_ggH", "Double Crystal Ball", bosonMass, dCB_pole_ggH, dCB_width_ggH, dCB_aL_ggH, dCB_nL_ggH, dCB_aR_ggH, dCB_nR_ggH)
-#gauss_ggH = ROOT.RooGaussian("gauss_"+CHANNEL+"_GFcat_bdt1_ggH", "Gaussian", bosonMass, gauss_mean_ggH, gauss_width_ggH)
-#halfEllipse_ggH = ROOT.RooGenericPdf(
-#    "halfEllipse_ggH",
-#    "((abs(bosonMass-ellpis_cent_Phi_GFcat_bdt1_ggH) < r_ellpis_Phi_GFcat_bdt1_ggH*ellpis_axis_Phi_GFcat_bdt1_ggH) ? sqrt(1 - ((bosonMass-ellpis_cent_Phi_GFcat_bdt1_ggH)/ellpis_axis_Phi_GFcat_bdt1_ggH)^2) : sqrt(1-r_ellpis_Phi_GFcat_bdt1_ggH^2)*exp(-2*(bosonMass-ellpis_cent_Phi_GFcat_bdt1_ggH)^2/ellpis_axis_Phi_GFcat_bdt1_ggH^2)* exp(2*r_ellpis_Phi_GFcat_bdt1_ggH^2))",
-#    ROOT.RooArgList(bosonMass, ellpis_cent_ggH, ellpis_axis_ggH, r_ellpis)
-#)
-#signalPDF_ggH = ROOT.RooAddPdf("signalPDF_"+CHANNEL+"_GFcat_bdt1_ggH", "total",ROOT.RooArgList(halfEllipse_ggH,dcb_ggH),ROOT.RooArgList(f_ellpis_ggH))
 
 
 #Input tree ------------------------------------------------------------------------------------------------------------------------------
@@ -178,78 +164,7 @@ else:
 	c1.SaveAs("/eos/user/c/covarell/www/AN-26-106/fitsignal_" + CHANNEL + "_BDTcat1_ggH.png")  
 #######################################################################################################
 
-#the same for VBF
-#fileInput_VBF.cd()
-#tree_VBF = fileInput_VBF.Get("tree_output")
-
-#Retrieve dataset from the tree, insert the variable also
-#dataset_VBF = ROOT.RooDataSet("dataset_VBF","dataset_VBF",ROOT.RooArgSet(mass),ROOT.RooFit.Import(tree_VBF))
-#dataset_VBF = ROOT.RooDataHist("dataset_VBF", "dataset_VBF", ROOT.RooArgList(mass), h_mH_VBF)
-
-#Do the fit
-#fitResult_VBF = signalPDF_VBF.fitTo(dataset_VBF,ROOT.RooFit.Save())
-
-#Plot
-#xframe_VBF = mass.frame(int(xHighRange - xLowRange)*10)
-#dataset_VBF.plotOn(xframe_VBF)
-#signalPDF_VBF.plotOn(xframe_VBF)
-#xframe_VBF.SetTitle("")
-#ROOT.gStyle.SetOptFit(1111)
-#xframe_VBF.SetMaximum(1.2*xframe_VBF.GetMaximum())
-#signalPDF_VBF.paramOn(xframe_VBF,ROOT.RooFit.Layout(0.53,0.94,0.91),ROOT.RooFit.Format("NEU",ROOT.RooFit.AutoPrecision(1))) #,ROOT.RooFit.Layout(0.65,0.90,0.90)
-#xframe_VBF.getAttText().SetLineWidth(0)
-#xframe_VBF.getAttText().SetTextSize(0.019)
-#xframe_VBF.GetXaxis().SetTitle("m_{ditrk,#gamma} [GeV]")
-#xframe_VBF.GetXaxis().SetRangeUser(xLowRange,xHighRange)
-#xframe_VBF.GetYaxis().SetMaxDigits(2)
-
-# ChiSquare test ---------------------------------------------------------------------------------------------------------------------------
-#nParam_VBF = fitResult_VBF.floatParsFinal().getSize()
-#chi2_VBF = xframe_VBF.chiSquare()  # Returns chi2/ndof. Remember to remove the option XErrorSize(0) from data.PlotOn
-#cut_chi2_VBF = "{:.2f}".format(chi2_VBF)  # Crop the chi2 to 2 decimal digits
-#
-#print('nParam_VBF =", nParam_VBF
-#print('cut_chi2_VBF =", cut_chi2_VBF
-#
-#c2 = ROOT.TCanvas("c2", "c2", canvas_width, canvas_height + canvas_margin_top)
-#c2.cd()
-#c2.SetTitle("")
-#c2.SetBottomMargin(0.15)  # Increase the empty space at the bottom of the main canvas
-#
-#if includeResiduals:
-#    c2.Divide(1, 2, 0, 0.25)  # Divide canvas into two pads: 1x2 grid, with the first pad being 4 times larger
-#    c2.cd(1)  # Activate the first pad for the main plot
-#else:
-#    c2.Divide(1, 1)
-#
-#xframe_VBF.Draw()
-
-#if includeResiduals:
-#    c2.cd(2)  # Activate the second pad for the residuals plot
-#    c2.GetPad(2).SetBottomMargin(0.35)  # Increase the empty space at the bottom of the residuals plot
-#    residuals = xframe_VBF.residHist()
-#    residuals.SetFillColor(ROOT.kBlue)
-#    residuals.SetMarkerColor(ROOT.kBlack)
-#    residuals.GetYaxis().SetTitle("Resid")
-#    residuals.GetYaxis().SetTitleOffset(1.)
-#    residuals.GetYaxis().SetTitleSize(0.06)
-#    residuals.GetYaxis().SetLabelSize(0.05)
-#    residuals.GetXaxis().SetTitleSize(0.06)
-#    residuals.GetXaxis().SetLabelSize(0.05)
-#    residuals.GetYaxis().SetTitleOffset(1.)
-#    residuals.GetXaxis().SetTitle("m_{ditrk,#gamma} [GeV]")
-#    residuals.GetXaxis().SetRangeUser(xLowRange, xHighRange)
-#    residuals.Draw("AP")
-#
-#c2.Update()
-
-#if includeResiduals:
-#	c2.SaveAs("/eos/user/c/covarell/www/AN-26-106/fitsignal_" + CHANNEL + "_BDTcat1_VBF_resid.pdf")
-#	c2.SaveAs("/eos/user/c/covarell/www/AN-26-106/fitsignal_" + CHANNEL + "_BDTcat1_VBF_resid.png")
-#else:
-#	c2.SaveAs("/eos/user/c/covarell/www/AN-26-106/fitsignal_" + CHANNEL + "_BDTcat1_VBF.pdf")
-#	c2.SaveAs("/eos/user/c/covarell/www/AN-26-106/fitsignal_" + CHANNEL + "_BDTcat1_VBF.png")
-                                      
+                            
 #create Workspace
 if CHANNEL == "Phi": #norm factor x2 to include the Dbar channel
     norm_ggH     = fileInput_ggH.Get("h_bosonMass").Integral() #get the normalization of ggH signal (area under ggH signal)
@@ -269,17 +184,7 @@ dCB_aR_ggH.setConstant(1)
 dCB_nL_ggH.setConstant(1)    
 dCB_nR_ggH.setConstant(1)     
 sig_norm_ggH.setConstant(1)
-#ellpis_axis_ggH.setConstant(1)
-#ellpis_cent_ggH.setConstant(1)
-#f_ellpis_ggH.setConstant(1)
 
-#dCB_pole_VBF.setConstant(1)  
-#dCB_width_VBF.setConstant(1)  
-#dCB_aL_VBF.setConstant(1)     
-#dCB_aR_VBF.setConstant(1)    
-#dCB_nL_VBF.setConstant(1)    
-#dCB_nR_VBF.setConstant(1)     
-#sig_norm_VBF.setConstant(1)
 
 '''
 #Systematics --------------------------------------------------------------------
