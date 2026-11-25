@@ -82,7 +82,7 @@ if args.isBDT_option == "BDT" or args.isBDT_option == "BDT_cat0" or args.isBDT_o
     BDTtree.GetEntry(0)
 
 if args.isBDT_option == "BDT":
-    BDT_OUT = 0.6#BDTtree._BDT_output
+    BDT_OUT = BDTtree._BDT_output #0.6
     print("BDT_OUT = ",BDT_OUT)
     fInputBDT.Close()
     
@@ -134,9 +134,9 @@ list_histos = ["h_bosonMass", "h_mesonMass", "h_firstTrkPt", "h_secondTrkPt", "h
 if isZAnalysis and not runningOnData: histo_map[list_histos[0]]   = ROOT.TH1F(list_histos[0],"M_{Z}", 11, 85., 96.)
 if isZAnalysis and runningOnData: histo_map[list_histos[0]]   = ROOT.TH1F(list_histos[0],"M_{Z}", 35, 70., 105.)
 if isHAnalysis and not runningOnData:
-    if isDAnalysis: histo_map[list_histos[0]] = ROOT.TH1F(list_histos[0],"M_{H}", 150, 114, 126)
-    else: histo_map[list_histos[0]] = ROOT.TH1F(list_histos[0],"M_{H}", 150, 120, 130)
-if isHAnalysis and runningOnData: histo_map[list_histos[0]] = ROOT.TH1F(list_histos[0],"M_{H}", 31, 110., 141.) ##100 170
+    histo_map[list_histos[0]] = ROOT.TH1F(list_histos[0],"M_{H}", 120, 110, 140)
+    #else: histo_map[list_histos[0]] = ROOT.TH1F(list_histos[0],"M_{H}", 150, 120, 130)
+if isHAnalysis and runningOnData: histo_map[list_histos[0]] = ROOT.TH1F(list_histos[0],"M_{H}", 30, 110., 140.)
 if isPhiAnalysis: histo_map[list_histos[1]] = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 1., 1.04) 
 if isRhoAnalysis: histo_map[list_histos[1]] = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 0.55, 1.)
 if isKAnalysis: histo_map[list_histos[1]]   = ROOT.TH1F(list_histos[1],"M_{meson}", 100, 0.8, 0.99)
@@ -153,7 +153,7 @@ if isDAnalysis:  histo_map[list_histos[10]] = ROOT.TH1F(list_histos[10],"#Delta 
 else: histo_map[list_histos[10]] = ROOT.TH1F(list_histos[10],"#Delta R_{meson}", 100, 0.,0.07)
 if isHAnalysis: histo_map[list_histos[11]] = ROOT.TH1F(list_histos[11],"Iso_ch of the meson", 100, 0.95, 1.)
 else:  histo_map[list_histos[11]] = ROOT.TH1F(list_histos[11],"Iso_ch of the meson", 100, 0.9, 1.)
-histo_map[list_histos[12]] = ROOT.TH1F(list_histos[12],"Iso_neu of the meson", 100, 0.8, 1.)
+histo_map[list_histos[12]] = ROOT.TH1F(list_histos[12],"Iso_neu of the meson", 100, 0.75, 1.)
 histo_map[list_histos[13]] = ROOT.TH1F(list_histos[13],"E_{T} of the #gamma", 100, 0., 250.)
 histo_map[list_histos[14]] = ROOT.TH1F(list_histos[14],"#eta_{#gamma}", 100, -2.5,2.5)
 histo_map[list_histos[15]] = ROOT.TH1F(list_histos[15],"n. of muons", 6, -0.5, 5.5)
@@ -302,10 +302,6 @@ for jentry in range(nentries):
             if CRFlag == "SR" and not ( b >= cut_low_bin and b <= cut_high_bin): continue
             if CRFlag == "CR" and (b >= cut_low_bin and b <= cut_high_bin): continue
 
-            ## masses for polarization angle calculation
-            #massTrk1 = 0.493677 #K 
-            #massTrk2 = 0.493677 #K
-
         if isRhoAnalysis:
             #if CRFlag == "SR" and not (mesonMass > 0.62 and mesonMass < 0.92): continue
             #if CRFlag == "CR" and (mesonMass > 0.62 and mesonMass < 0.92): continue
@@ -314,10 +310,6 @@ for jentry in range(nentries):
             b = histo_map["h_mesonMass"].FindBin(mesonMass)
             if CRFlag == "SR" and not ( b >= cut_low_bin and b <= cut_high_bin): continue
             if CRFlag == "CR" and (b >= cut_low_bin and b <= cut_high_bin): continue
-
-            ## masses for polarization angle calculation
-            #massTrk1 =  0.13957 #pi
-            #massTrk2 =  0.13957 #pi
 
         if isKAnalysis:
             #if CRFlag == "SR" and not (mesonMass > 0.842 and mesonMass < 0.942): continue
@@ -328,19 +320,12 @@ for jentry in range(nentries):
             if CRFlag == "SR" and not ( b >= cut_low_bin and b <= cut_high_bin): continue
             if CRFlag == "CR" and (b >= cut_low_bin and b <= cut_high_bin): continue
 
-            ## masses for polarization angle calculation
-            #massTrk1 =  0.493677 #K
-            #massTrk2 =  0.13957 #pi
-
         if isDAnalysis:
             cut_low_bin  = histo_map["h_mesonMass"].FindBin(1.82)
             cut_high_bin = histo_map["h_mesonMass"].FindBin(1.90)
             b = histo_map["h_mesonMass"].FindBin(mesonMass)
             if CRFlag == "SR" and not ( b >= cut_low_bin and b <= cut_high_bin): continue
             if CRFlag == "CR" and (b >= cut_low_bin and b <= cut_high_bin): continue
-
-            #massTrk1 =  0.493677 #K-
-            #massTrk2 =  0.13957 #pi+
 
         nEventsAfterRegionDefiner+=1
 
@@ -364,7 +349,7 @@ for jentry in range(nentries):
 
     #-------------- n events in the sidebands -----------------------------
     if isHAnalysis:
-        if (bosonMass < 110. or bosonMass > 141.): continue
+        if (bosonMass < 110. or bosonMass > 140.): continue
     if isZAnalysis:
         if (bosonMass < 70. or bosonMass > 105.): continue
     nEventsInBosonMassRange+=1
@@ -416,7 +401,7 @@ for jentry in range(nentries):
                 continue
         
         if args.isBDT_option == "BDT_cat1":
-            if BDT_out < BDT_T1 or BDT_out > BDT_T0:
+            if BDT_out < BDT_T1 or BDT_out >= BDT_T0:
                 if debug: print("BDT cut NOT passed")
                 continue
 
@@ -425,7 +410,7 @@ for jentry in range(nentries):
     if runningOnData == True:
         if isHAnalysis: #change limits 
             if (CRFlag == 'SR' and bosonMass > 110. and bosonMass < 120.) : nEventsLeftSB  += 1 #50
-            if (CRFlag == 'SR' and bosonMass > 130. and bosonMass < 141.) : nEventsRightSB += 1 #200
+            if (CRFlag == 'SR' and bosonMass > 130. and bosonMass < 140.) : nEventsRightSB += 1 #200
         if isZAnalysis:
             if (CRFlag == 'SR' and bosonMass > 70. and bosonMass < 85.) : nEventsLeftSB  += 1 # 50 80
             if (CRFlag == 'SR' and bosonMass > 96. and bosonMass < 105.) : nEventsRightSB += 1 #101 200
@@ -481,11 +466,6 @@ for jentry in range(nentries):
     histo_map["h_cosTheta"].Fill(cosTheta, eventWeight)
 
     
-
-
-    #histo_map["h_deltaMesonMass"].Fill(deltaMesonMass, eventWeight)
-
-
     #FILL TREE ########################################################################################################
     _bosonMass[0]    = bosonMass
     _mesonMass[0]    = mesonMass
@@ -507,7 +487,6 @@ for jentry in range(nentries):
     _sipBS[0]        = sipBS
     _mesonGammaDeltaPhi[0] = mesonGammaDeltaPhi
     _cosTheta[0]     = cosTheta
-    #_cosTheta_trk2[0]     = cosTheta_trk2
 
 
     tree_output.Fill()
@@ -593,8 +572,6 @@ histo_map["h_cosTheta"].SetTitle("Cosine of the angle between meson and a trk")
 histo_map["h_efficiency"].GetXaxis().SetTitle("")
 histo_map["h_efficiency"].GetYaxis().SetTitle("#epsilon (%)")
 
-#histo_map["h_deltaMesonMass"].GetXaxis().SetTitle("#DeltaM_{meson} [GeV/c^2]")
-#histo_map["h_deltaMesonMass"].SetTitle("Meson mass reco - meson mass gen")
 #Tree writing ##########################################################################################################
 #tree_output.Write()
 

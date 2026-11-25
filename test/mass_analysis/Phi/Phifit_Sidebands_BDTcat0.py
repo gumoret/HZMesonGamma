@@ -323,11 +323,26 @@ mypdfs.add(bkgPDF_chebychev_Nplus1)
 
 multipdf = ROOT.RooMultiPdf("multipdf_"+CHANNEL+"_GFcat_bdt0_bkg","All Pdfs",cat,mypdfs)
 
-#create Workspace ------------------------------------------------------------------------------------------------------------------------------
-norm     = nEntries #fileInput.Get("h_InvMass_TwoTrk_Photon").Integral() #get the normalization of ggH signal (area under ggH signal)
+#norm     = nEntries #fileInput.Get("h_InvMass_TwoTrk_Photon").Integral() #get the normalization of ggH signal (area under ggH signal)
+obs = ROOT.RooArgSet(mass)
+
+integral_left = bkgPDF_chebychev.createIntegral(obs,ROOT.RooFit.NormSet(obs),ROOT.RooFit.Range("LowSideband")).getVal()
+integral_right = bkgPDF_chebychev.createIntegral(obs,ROOT.RooFit.NormSet(obs),ROOT.RooFit.Range("HighSideband")).getVal()
+
+fraction_SB = integral_left + integral_right
+nEvents_SB = data_blinded.numEntries()
+
+norm = nEvents_SB / fraction_SB
+
+print("Events in sidebands =", nEvents_SB)
+print("Sideband fraction   =", fraction_SB)
+print("Expected full yield =", norm)
+
 bkg_norm = ROOT.RooRealVar(multipdf.GetName()+ "_norm", multipdf.GetName()+ "_norm", norm,0.5*norm, 2*norm)
 
 print('************************************** n. events = ',nEntries)
+#create Workspace ------------------------------------------------------------------------------------------------------------------------------
+
 workspace = ROOT.RooWorkspace("workspace_STAT_"+CHANNEL+"_GFcat_bdt0_2024")
 #getattr(workspace,'import')(bkgPDF_chebychev)
 #getattr(workspace,'import')(bkgPDF_bernstein)

@@ -35,7 +35,7 @@ bosonMass.setRange("LowSideband",110.,120.)
 bosonMass.setRange("HighSideband",130.,140.)
 bosonMass.setRange("full",110.,140.)
 
-
+'''
 # Create RooDataSet (Unbinned)
 data = ROOT.RooDataSet("data", "Data", ROOT.RooArgSet(bosonMass, mesonMass), ROOT.RooFit.Import(tree), ROOT.RooFit.Cut("(bosonMass < 120 || bosonMass > 130)"))
 print(f"Number of entries loaded in dataset: {data.numEntries()}")
@@ -49,6 +49,18 @@ nEntries = observed_data.numEntries()
 data_blinded = data.reduce("bosonMass < 120. || bosonMass > 130.")
 #print(f"Number of entries loaded in dataset: {data.numEntries()}")
 print(f"Entries in Higgs sidebands: {data_blinded.numEntries()}")
+'''
+h2_data = ROOT.TH2D("h2_data", "2D Data",30, 110., 140.,50, 0.55, 0.95)
+
+tree.Draw("mesonMass:bosonMass >> h2_data", "", "goff")
+
+observed_data = ROOT.RooDataHist("observed_data", "observed_data", ROOT.RooArgList(bosonMass, mesonMass),h2_data)
+
+nEntries = observed_data.sumEntries()
+
+data = observed_data
+data_blinded = data.reduce("bosonMass < 120. || bosonMass > 130.")
+
 
 # Higgs pdfs - chebychev
 
@@ -92,7 +104,7 @@ bkgPDF_chebyplusexp = ROOT.RooAddPdf("chebyplusexp_GFcat_bdt0_bkg","bkgPDF",ROOT
 # Meson pdf - voigtian
 mean = ROOT.RooRealVar("mean", "The mean of the gaussian pdf", 0.751)
 mean.setConstant(True)
-sigma = ROOT.RooRealVar("sigma","The sigma of the gaussian pdf", 0.053)
+sigma = ROOT.RooRealVar("sigma","The sigma of the gaussian pdf", 0.053, 0.001, 0.2)
 sigma.setConstant(True)
 
 signalPDF = ROOT.RooGaussian("signalPDF","Gauss pdf",mesonMass,mean,sigma)
@@ -114,12 +126,16 @@ backgroundPDF = ROOT.RooChebychev("backgroundPDF","The background PDF",mesonMass
 nData = data.numEntries()
 #print(f"Number of entries loaded in dataset: {nData}")
 
-nsig = ROOT.RooRealVar("nsig", "signal yield",0.2*nData,0.,nData)
-nbkg = ROOT.RooRealVar("nbkg", "background yield",0.8*nData,0.,nData)
+#nsig = ROOT.RooRealVar("nsig", "signal yield",0.2*nData,0.,nData)
+#nbkg = ROOT.RooRealVar("nbkg", "background yield",0.8*nData,0.,nData)
+f_rho = ROOT.RooRealVar("f_rho", "Resonant rho fraction", 0.2, 0., 1.)
+
+
 
 # Create the model for the meson distribution: voigtian signal over polinomial background
 # ---------------------------------------------------------------
-pdf_rho = ROOT.RooAddPdf("model", "Signal and Background PDF", ROOT.RooArgList(signalPDF, backgroundPDF), ROOT.RooArgList(nsig, nbkg))
+#pdf_rho = ROOT.RooAddPdf("model", "Signal and Background PDF", ROOT.RooArgList(signalPDF, backgroundPDF), ROOT.RooArgList(nsig, nbkg))
+pdf_rho = ROOT.RooAddPdf("model", "Signal and Background PDF",ROOT.RooArgList(signalPDF, backgroundPDF),ROOT.RooArgList(f_rho))
 
 # 2D PDF
 pdf_2D_cheby = ROOT.RooProdPdf("pdf_2D_cheby", "2D Signal PDF (Higgs x Meson)", ROOT.RooArgList(bkgPDF_chebychev, pdf_rho))
@@ -128,9 +144,9 @@ pdf_2D_chebyplusexp = ROOT.RooProdPdf("pdf_2D_chebyplusexp", "2D Signal PDF (Hig
 
 
 #Do the fit ------------------------------------------------------------------------------------------------------------------------------
-fitResult_chebychev = pdf_2D_cheby.fitTo(data_blinded,ROOT.RooFit.Save(),ROOT.RooFit.PrintLevel(1))
-fitResult_chebychev_Nplus1 = pdf_2D_cheby_Nplus1.fitTo(data_blinded,ROOT.RooFit.Save(),ROOT.RooFit.PrintLevel(1))
-fitResult_exponential = pdf_2D_chebyplusexp.fitTo(data_blinded,ROOT.RooFit.Save(),ROOT.RooFit.PrintLevel(1))
+fitResult_chebychev = pdf_2D_cheby.fitTo(data_blinded,ROOT.RooFit.Minimizer("Minuit2"),ROOT.RooFit.Strategy(2),ROOT.RooFit.Save())
+fitResult_chebychev_Nplus1 = pdf_2D_cheby_Nplus1.fitTo(data_blinded,ROOT.RooFit.Minimizer("Minuit2"),ROOT.RooFit.Strategy(2),ROOT.RooFit.Save())
+fitResult_exponential = pdf_2D_chebyplusexp.fitTo(data_blinded,ROOT.RooFit.Minimizer("Minuit2"),ROOT.RooFit.Strategy(2),ROOT.RooFit.Save())
 
 #print("\n" + "="*60)
 #print("FIT RESULTS:")
@@ -555,6 +571,9 @@ mypdfs.add(pdf_2D_chebyplusexp)
 
 multipdf = ROOT.RooMultiPdf("multipdf_"+CHANNEL+"_GFcat_bdt0_bkg","All Pdfs",cat,mypdfs)
 
+#####
+#observed_data_unbinned = ROOT.RooDataSet("observed_data", "observed_data",ROOT.RooArgSet(bosonMass, mesonMass), ROOT.RooFit.Import(tree))
+
 #create Workspace ------------------------------------------------------------------------------------------------------------------------------
 norm     = nEntries #fileInput.Get("h_InvMass_TwoTrk_Photon").Integral() #get the normalization of ggH signal (area under ggH signal)
 bkg_norm = ROOT.RooRealVar(multipdf.GetName()+ "_norm", multipdf.GetName()+ "_norm", norm,0.5*norm, 2*norm)
@@ -564,6 +583,7 @@ workspace = ROOT.RooWorkspace("workspace_STAT_"+CHANNEL+"_GFcat_bdt0_2024")
 getattr(workspace,'import')(cat)
 getattr(workspace,'import')(multipdf)
 getattr(workspace,'import')(observed_data)
+#getattr(workspace,'import')(observed_data_unbinned)
 getattr(workspace,'import')(bkg_norm)
 print('integral BKG',bkg_norm.getVal())
 #workspace.Print()

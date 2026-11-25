@@ -49,11 +49,11 @@ class Simplified_Workflow_Handler:
         if isH:
             if not isD0:
                 #reader.AddVariable("mesonIsoCh",mesonIsoCh_array)
-                #reader.AddVariable("mesonIsoNeu",mesonIsoNeu_array)
                 reader.AddVariable("cosTheta",cosTheta_array)
                 reader.AddVariable("mesonPt/bosonMass",mesonPt_array)#/bosonMass
                 reader.AddVariable("mesonEta",mesonEta_array)
                 reader.AddVariable("photonEt/bosonMass",photonEt_array)#/bosonMass
+                #reader.AddVariable("mesonIsoNeu",mesonIsoNeu_array)
                 #reader.AddVariable("mesonGammaDeltaPhi",mesonGammaDeltaPhi_array)
             elif isD0:
                 reader.AddVariable("mesonPt/bosonMass",mesonPt_array)#/bosonMass
@@ -77,11 +77,11 @@ class Simplified_Workflow_Handler:
         
         if lxy is None: #and cosTheta is not None:
             #mesonIsoCh_array[0]           = mesonIsoCh
-            #mesonIsoNeu_array[0]          = mesonIsoNeu
             cosTheta_array[0]             = cosTheta
             mesonPt_array[0]              = mesonPt/bosonMass
             mesonEta_array[0]             = mesonEta
             photonEt_array[0]             = photonEt/bosonMass 
+            #mesonIsoNeu_array[0]          = mesonIsoNeu
             #mesonGammaDeltaPhi_array[0]   = mesonGammaDeltaPhi
         if lxy is not None: #and cosTheta is None:
             mesonPt_array[0]              = mesonPt/bosonMass

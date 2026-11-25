@@ -133,3 +133,12 @@ output_path_png = "/eos/user/e/eferrand/Work/CMSSW_15_0_6/src/HZMesonGammaAnalys
 canvas.SaveAs(output_path_pdf)
 canvas.SaveAs(output_path_png)
 print("Plots saved successfully with 2D Heatmap.")
+
+hH = fileInput.Get("h_bosonMass")
+hRho = fileInput.Get("h_mesonMass")
+
+print("H integral:", hH.Integral())
+print("Rho integral:", hRho.Integral())
+
+print("H entries:", hH.GetEntries())
+print("Rho entries:", hRho.GetEntries())

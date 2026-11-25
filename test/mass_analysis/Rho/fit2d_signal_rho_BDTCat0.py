@@ -14,20 +14,51 @@ iPos = 11
 
 
 #Signal input rootfiles ---------------------------------------------------------------
-fileInput = ROOT.TFile("../../histos/H/SR_HRhoPU_ORTrigger_BDTCat0_Signal.root")
+fileInput = ROOT.TFile("../../histos/H/FullDataset_HRho_ORTrigger_BDTCat0_Signal.root")
 tree = fileInput.Get("tree_output")
 
 #Define the observable ---------------------------------------------------------------
 xLowRange  = 110.
 xHighRange = 140.
 bosonMass = ROOT.RooRealVar("bosonMass", "m(H) [GeV]", 110, 140)
-mesonMass = ROOT.RooRealVar("mesonMass", "m(#rho) [GeV]", 0.62, 0.92)
+mesonMass = ROOT.RooRealVar("mesonMass", "m(#rho) [GeV]", 0.55, 0.95)
 
+'''
 # Create RooDataSet (Unbinned)
 data = ROOT.RooDataSet("data", "Signal", ROOT.RooArgSet(bosonMass, mesonMass), ROOT.RooFit.Import(tree))
 print(f"Number of entries loaded in dataset: {data.numEntries()}")
 #nEntries = data.numEntries() 
+'''
 
+# Create weighted 2D histogram
+'''
+h2_signal = ROOT.TH2F("h2_signal","Signal; m_{H} [GeV]; m_{#rho} [GeV]",120, 110., 140.,120, 0.55, 0.95)
+
+nentries = tree.GetEntriesFast()
+
+for jentry in range(nentries):
+    ientry = tree.LoadTree( jentry )
+    if ientry < 0:
+        break
+    nb = tree.GetEntry(jentry)
+    if nb <= 0:
+        print ('nb < 0')
+        continue
+
+    h2_signal.Fill(tree.bosonMass,tree.mesonMass,tree._eventWeight)
+'''
+h2_signal = ROOT.TH2D("h2_signal", "2D Signal", 60, 110., 140., 50, 0.55, 0.95)
+
+h2_signal.Sumw2()
+
+tree.Draw("mesonMass:bosonMass >> h2_signal", "eventWeight", "goff")
+
+
+# Create RooDataHist from TH2
+#data = ROOT.RooDataHist("data","Weighted 2D signal",ROOT.RooArgList(bosonMass, mesonMass),h2_signal)
+data = ROOT.RooDataHist("data", "Signal", ROOT.RooArgList(bosonMass, mesonMass), h2_signal)
+
+print("Weighted dataset sum:", data.sumEntries())
 
 #Double Crystal Ball definition for Higgs ---------------------------------------------------------------
 dCB_pole_H  = ROOT.RooRealVar("dCB_pole_H_"+CHANNEL+"_GFcat_bdt0_ggH", "Higgs Mean", 125.0, 120.0, 130.0)
@@ -52,7 +83,7 @@ signalPDF_M = ROOT.RooDoubleCBFast("signalPDF_M_"+CHANNEL+"_GFcat_bdt0_ggH", "DS
 # 2D PDF
 signalPDF_2D = ROOT.RooProdPdf("signalPDF_2D_"+CHANNEL+"_GFcat_bdt0_ggH", "2D Signal PDF (Higgs x Meson)", ROOT.RooArgList(signalPDF_H, signalPDF_M))
 
-# 2D Unbinned Maximum Likelihood Fit
+# Do the fit
 fitResult = signalPDF_2D.fitTo(data, ROOT.RooFit.Save(), ROOT.RooFit.PrintLevel(1))
 
 print("\n" + "="*50)
@@ -62,10 +93,13 @@ print("="*50 + "\n")
 
 # Correlation
 print("Evaluating correlation between observables...")
-h2_data = ROOT.TH2F("h2_data", "Data Correlation", 70, 110, 140, 50, 0.62, 0.92)
+h2_data = ROOT.TH2F("h2_data", "Data Correlation", 70, 110, 140, 50, 0.55, 0.95)
 data.fillHistogram(h2_data, ROOT.RooArgList(bosonMass, mesonMass))
 correlation_data = h2_data.GetCorrelationFactor()
 print(f"--> Linear correlation (Pearson) in DATA: {correlation_data:.4f}")
+
+
+# Plot ----------------------------------------------------------------------------------------
 
 def draw_parameters(parameters, x1=0.55, y1=0.55, x2=0.93, y2=0.90):
 
@@ -196,16 +230,27 @@ canvas.SaveAs(output_path_png)
 print("Plots saved successfully with 2D Heatmap.")
 
 
-#create Workspace
+# normalization
 #norm_H     = fileInput.Get("h_bosonMass").Integral() #get the normalization of ggH signal (area under ggH signal)
 #sig_norm_H = ROOT.RooRealVar(signalPDF_H.GetName()+ "_norm", signalPDF_H.GetName()+ "_norm", norm_H) 
 #norm_M     = fileInput.Get("h_mesonMass").Integral() #get the normalization of ggH signal (area under ggH signal)
 #sig_norm_M = ROOT.RooRealVar(signalPDF_M.GetName()+ "_norm", signalPDF_M.GetName()+ "_norm", norm_M)
 
-norm = fileInput.Get("h_bosonMass").Integral()
+norm = h2_signal.Integral()
 sig_norm = ROOT.RooRealVar(signalPDF_2D.GetName() + "_norm", signalPDF_2D.GetName() + "_norm",norm)
 
-   
+print("INPUT FILE:", fileInput.GetName())
+
+hH = fileInput.Get("h_bosonMass")
+
+print("Histogram:", hH.GetName())
+print("Histogram integral:", hH.Integral())
+print("Histogram integral with flows:",
+      hH.Integral(0, hH.GetNbinsX()+1))
+
+print("Normalization assigned to workspace:", norm)
+
+# fix parameters
 dCB_pole_H.setConstant(1)  
 dCB_width_H.setConstant(1)  
 dCB_aL_H.setConstant(1)     
@@ -223,20 +268,17 @@ dCB_nR_rho.setConstant(1)
 
 sig_norm.setConstant(1)
 
-
+#open Workspace
 fOut = ROOT.TFile("workspaces/workspace_STAT_"+CHANNEL+"_GFcat_bdt0_2024.root","UPDATE")
 fOut.cd()
 
 workspace = fOut.Get("workspace_STAT_"+CHANNEL+"_GFcat_bdt0_2024")
 getattr(workspace,'import')(signalPDF_2D)
-#getattr(workspace,'import')(sig_norm_H)
-#getattr(workspace,'import')(sig_norm_M)
 getattr(workspace,'import')(sig_norm)
 
-
-print('ggH Signal integral = ',sig_norm.getVal())
-
 workspace.Print()
+
+print("Imported signal norm:", workspace.var(signalPDF_2D.GetName() + "_norm").getVal())
 
 print('----------------------')
 print('nParam_H   = ', nParam_H)
@@ -245,26 +287,6 @@ print('----------------------')
 print('')
 
 workspace.Write()
-#xframe_ggH.Write("xframe_H")
-#h_mH_ggH.Write("h_mH_H")
-
 
 fOut.Close()	
 
-f = ROOT.TFile.Open("workspaces/workspace_STAT_"+CHANNEL+"_GFcat_bdt0_2024.root")
-w = f.Get("workspace_STAT_"+CHANNEL+"_GFcat_bdt0_2024")
-
-# Numero di eventi nel dataset
-observed_data = w.data("observed_data")
-print("observed_data.numEntries():", observed_data.numEntries())
-
-# Normalizzazione del background
-bkg_norm = w.var("multipdf_Rho_GFcat_bdt0_bkg_norm")
-print("Background norm:", bkg_norm.getVal())
-
-# Normalizzazione del segnale
-sig_norm = w.var("signalPDF_2D_Rho_GFcat_bdt0_ggH_norm")
-print("Signal norm:", sig_norm.getVal())
-
-print("h_bosonMass integral:", fileInput.Get("h_bosonMass").Integral())
-print("Workspace signal norm:", sig_norm.getVal())
