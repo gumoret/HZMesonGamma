@@ -256,12 +256,12 @@ else:
                                       
 #create Workspace
 if CHANNEL == "Phi": #norm factor x2 to include the Dbar channel
-    norm_Z     = fileInput_Z.Get("h_bosonMass").Integral() #get the normalization of Z signal (area under Z signal)
+    norm_Z     = h_mH_Z.Integral() #get the normalization of Z signal (area under Z signal)
     sig_norm_Z = ROOT.RooRealVar(signalPDF_Z.GetName()+ "_norm", signalPDF_Z.GetName()+ "_norm", norm_Z) 
     #norm_VBF     = fileInput_VBF.Get("h_bosonMass").Integral() #get the normalization of VBF signal (area under VBF signal)
     #sig_norm_VBF = ROOT.RooRealVar(signalPDF_VBF.GetName()+ "_norm", signalPDF_VBF.GetName()+ "_norm", 0.0394*2*norm_VBF)
 else:
-    norm_Z     = fileInput_Z.Get("h_bosonMass").Integral() #get the normalization of Z signal (area under Z signal)
+    norm_Z     = h_mH_Z.Integral() #get the normalization of Z signal (area under Z signal)
     sig_norm_Z = ROOT.RooRealVar(signalPDF_Z.GetName()+ "_norm", signalPDF_Z.GetName()+ "_norm", norm_Z)
     #norm_VBF     = fileInput_VBF.Get("h_bosonMass").Integral() #get the normalization of VBF signal (area under VBF signal)
     #sig_norm_VBF = ROOT.RooRealVar(signalPDF_VBF.GetName()+ "_norm", signalPDF_VBF.GetName()+ "_norm", norm_VBF)    
@@ -290,7 +290,7 @@ sig_norm_Z.setConstant(1)
 fileInput_Z_TwoProngsSFUP  = ROOT.TFile("histos/latest_production/histos_SR_SignalZTwoProngsSFUp.root")
 fileInput_Z_TwoProngsSFDW  = ROOT.TFile("histos/latest_production/histos_SR_SignalZTwoProngsSFDown.root")
 
-signalZ_nominal = fileInput_Z.Get("h_bosonMass")
+signalZ_nominal = h_mH_Z
 signalZ_nominal.SetName("signal")
 signalZ_trigUP  = fileInput_Z_TwoProngsSFUP.Get("h_bosonMass")
 signalZ_trigUP.SetName("signal_trigEffTwoProngsUp")
