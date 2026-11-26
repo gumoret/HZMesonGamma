@@ -7,16 +7,19 @@ ROOT.gROOT.SetBatch(True)
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--cat", type=int, choices=[0, 1], required=True)
+parser.add_argument("--channel", choices=["Rho", "Phi", "Kst"], required=True)
 args = parser.parse_args()
 
 CAT = args.cat
 CATEGORY = f"GFcat_bdt{CAT}"
-CHANNEL = "Rho"
+CHANNEL = args.channel
+
+print (f'H -> {CHANNEL}Gamma analysis')
 
 #input
 #file_path = "../histos/H/SR_HRho2022Tau_BDT_Data.root"
 #file_path = "../histos/H/SR_HRho2024_ORTrigger_BDTCat1_Data.root"
-file_path = f"../../../histos/H/SR_HRho2024_ORTrigger_BDTCat{CAT}_Data.root"
+file_path = f"../../../histos/H/SR_H{CHANNEL}2024_ORTrigger_BDTCat{CAT}_Data.root"
 tree_name = "tree_output"
 infile = ROOT.TFile.Open(file_path)
 tree = infile.Get(tree_name)
@@ -140,8 +143,8 @@ leg1.Draw()
 
 #CMS_lumi.CMS_lumi(canvas_chebychev, iPeriod, iPos) #Print integrated lumi and energy information
 
-canvas_chebychev.SaveAs(f"/eos/user/e/eferrand/www/eferrand/HZMesonGamma/HRho/2024/mass_analysis/cat{CAT}/Sidebands_{CHANNEL}_{CATEGORY}_chebychev.pdf")
-canvas_chebychev.SaveAs(f"/eos/user/e/eferrand/www/eferrand/HZMesonGamma/HRho/2024/mass_analysis/cat{CAT}/Sidebands_{CHANNEL}_{CATEGORY}_chebychev.png")
+canvas_chebychev.SaveAs(f"/eos/user/e/eferrand/www/eferrand/HZMesonGamma/H{CHANNEL}/2024/mass_analysis/cat{CAT}/Sidebands_{CHANNEL}_{CATEGORY}_chebychev.pdf")
+canvas_chebychev.SaveAs(f"/eos/user/e/eferrand/www/eferrand/HZMesonGamma/H{CHANNEL}/2024/mass_analysis/cat{CAT}/Sidebands_{CHANNEL}_{CATEGORY}_chebychev.png")
 
 
 #Exponential frame
@@ -181,8 +184,8 @@ leg2.Draw()
 
 #CMS_lumi.CMS_lumi(canvas_exponential, iPeriod, iPos) #Print integrated lumi and energy information
 
-canvas_exponential.SaveAs(f"/eos/user/e/eferrand/www/eferrand/HZMesonGamma/HRho/2024/mass_analysis/cat{CAT}/Sidebands_{CHANNEL}_{CATEGORY}_chebyplusexp.pdf")
-canvas_exponential.SaveAs(f"/eos/user/e/eferrand/www/eferrand/HZMesonGamma/HRho/2024/mass_analysis/cat{CAT}/Sidebands_{CHANNEL}_{CATEGORY}_chebyplusexp.png")
+canvas_exponential.SaveAs(f"/eos/user/e/eferrand/www/eferrand/HZMesonGamma/H{CHANNEL}/2024/mass_analysis/cat{CAT}/Sidebands_{CHANNEL}_{CATEGORY}_chebyplusexp.pdf")
+canvas_exponential.SaveAs(f"/eos/user/e/eferrand/www/eferrand/HZMesonGamma/H{CHANNEL}/2024/mass_analysis/cat{CAT}/Sidebands_{CHANNEL}_{CATEGORY}_chebyplusexp.png")
 
 
 #Plot ------------------------------------------------------------------------------------------------------------------------
@@ -225,8 +228,8 @@ leg1.Draw()
 
 #CMS_lumi.CMS_lumi(canvas_chebychev_Nplus1, iPeriod, iPos) #Print integrated lumi and energy information
 
-canvas_chebychev_Nplus1.SaveAs(f"/eos/user/e/eferrand/www/eferrand/HZMesonGamma/HRho/2024/mass_analysis/cat{CAT}/Sidebands_{CHANNEL}_{CATEGORY}_chebychev_Nplus1.pdf")
-canvas_chebychev_Nplus1.SaveAs(f"/eos/user/e/eferrand/www/eferrand/HZMesonGamma/HRho/2024/mass_analysis/cat{CAT}/Sidebands_{CHANNEL}_{CATEGORY}_chebychev_Nplus1.png")
+canvas_chebychev_Nplus1.SaveAs(f"/eos/user/e/eferrand/www/eferrand/HZMesonGamma/H{CHANNEL}/2024/mass_analysis/cat{CAT}/Sidebands_{CHANNEL}_{CATEGORY}_chebychev_Nplus1.pdf")
+canvas_chebychev_Nplus1.SaveAs(f"/eos/user/e/eferrand/www/eferrand/HZMesonGamma/H{CHANNEL}/2024/mass_analysis/cat{CAT}/Sidebands_{CHANNEL}_{CATEGORY}_chebychev_Nplus1.png")
 
 
 # Multipdf ------------------------------------------------------------------------------------------------------------------------------

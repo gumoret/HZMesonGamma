@@ -7,12 +7,14 @@ includeResiduals   = False  # Flag to include the residuals subplot
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--cat", type=int, choices=[0, 1], required=True)
+parser.add_argument("--channel", choices=["Rho", "Phi", "Kst"], required=True)
 args = parser.parse_args()
 
 CAT = args.cat
 CATEGORY = f"GFcat_bdt{CAT}"
-CHANNEL = "Rho"
-print ('H -> RhoGamma analysis')
+CHANNEL = args.channel
+
+print (f'H -> {CHANNEL}Gamma analysis')
 
 #Signal input rootfiles ---------------------------------------------------------------
 fileInput_ggH = ROOT.TFile(f"../../../histos/H/SR_H{CHANNEL}_ORTrigger_BDTCat{CAT}_Signal.root")
@@ -198,8 +200,8 @@ leg1.Draw()
 #	c1.SaveAs(f"/eos/user/c/covarell/www/AN-26-106/fitsignal_{CHANNEL}_{CATEGORY}_ggH_resid.pdf")
 #	c1.SaveAs(f"/eos/user/c/covarell/www/AN-26-106/fitsignal_{CHANNEL}_{CATEGORY}_ggH_resid.png")
 #else:
-c1.SaveAs(f"/eos/user/e/eferrand/www/eferrand/HZMesonGamma/HRho/2024/mass_analysis/cat{CAT}/Signal_{CHANNEL}_{CATEGORY}_DSCB.pdf")
-c1.SaveAs(f"/eos/user/e/eferrand/www/eferrand/HZMesonGamma/HRho/2024/mass_analysis/cat{CAT}/Signal_{CHANNEL}_{CATEGORY}_DSCB.png")  
+c1.SaveAs(f"/eos/user/e/eferrand/www/eferrand/HZMesonGamma/H{CHANNEL}/2024/mass_analysis/cat{CAT}/Signal_{CHANNEL}_{CATEGORY}_DSCB.pdf")
+c1.SaveAs(f"/eos/user/e/eferrand/www/eferrand/HZMesonGamma/H{CHANNEL}/2024/mass_analysis/cat{CAT}/Signal_{CHANNEL}_{CATEGORY}_DSCB.png")  
 #######################################################################################################
 
                                       
