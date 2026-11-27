@@ -113,10 +113,10 @@ print('nEntries = ',nEntries)
 data_blinded = observed_data.reduce(f'bosonMass < {xSidLeft} || bosonMass > {xSidRight}')
 
 #Do the fit ------------------------------------------------------------------------------------------------------------------------------
-fitResult_chebychev   = bkgPDF_chebychev.fitTo(observed_data,ROOT.RooFit.Save())
-#fitResult_bernstein   = bkgPDF_bernstein.fitTo(observed_data,ROOT.RooFit.Save())
-fitResult_exponential = bkgPDF_chebyplusexp.fitTo(observed_data,ROOT.RooFit.Save())
-fitResult_chebychev_Nplus1  = bkgPDF_chebychev_Nplus1.fitTo(observed_data,ROOT.RooFit.Save())
+fitResult_chebychev   = bkgPDF_chebychev.fitTo(data_blinded,ROOT.RooFit.Save(),ROOT.RooFit.Range("LowSideband,HighSideband"))
+#fitResult_bernstein   = bkgPDF_bernstein.fitTo(data_blinded,ROOT.RooFit.Save(),ROOT.RooFit.Range("LowSideband,HighSideband"))
+fitResult_exponential = bkgPDF_chebyplusexp.fitTo(data_blinded,ROOT.RooFit.Save(),ROOT.RooFit.Range("LowSideband,HighSideband"))
+fitResult_chebychev_Nplus1  = bkgPDF_chebychev_Nplus1.fitTo(data_blinded,ROOT.RooFit.Save(),ROOT.RooFit.Range("LowSideband,HighSideband"))
 
 #ROOT.RooFit.Range("LowSideband,HighSideband")
 #Do the F-test ------------------------------------------------------------------------------------------------------------------------------
@@ -258,7 +258,7 @@ canvas_chebychev_Nplus1.cd()
 xframe_chebychev_Nplus1 = mass.frame(30)
 
 data_blinded.plotOn(xframe_chebychev_Nplus1)
-bkgPDF_chebychev_Nplus1.plotOn(xframe_chebychev_Nplus1,ROOT.RooFit.NormRange("LowSideband,HighSideband"),ROOT.RooFit.Range("LowSideband,HighSideband"),ROOT.RooFit.Name("bkgPDF_chebychev_Nplus1"),ROOT.RooFit.LineColor(ROOT.kBlue))
+bkgPDF_chebychev_Nplus1.plotOn(xframe_chebychev_Nplus1,ROOT.RooFit.NormRange("LowSideband,HighSideband"),ROOT.RooFit.Range("LowSideband,HighSideband"),ROOT.RooFit.Name("bkgPDF_chebychev_Nplus1"),ROOT.RooFit.LineColor(ROOT.kGreen))
 xframe_chebychev_Nplus1.SetTitle("#sqrt{s} = 13 TeV       lumi = 108.95/fb")
 xframe_chebychev_Nplus1.GetXaxis().SetTitle("m_{ditrk,#gamma} [GeV]")
 xframe_chebychev_Nplus1.SetMaximum(1.3*xframe_chebychev_Nplus1.GetMaximum())

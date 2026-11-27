@@ -14,7 +14,7 @@ observation	-1
 bin		GFcat_bdt0	GFcat_bdt0
 process	ggH			bkg
 process	0	 	     1
-rate	0.01    	 1
+rate	0.001    	 1
 -------------------------------------
 lumi_13TeV_2024     lnN     1.025	 	    -
 CMS_trackingEff     lnN     1.044             - 
